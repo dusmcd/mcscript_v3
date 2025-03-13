@@ -12,6 +12,6 @@ typedef struct {
 
 void read_char(lexer_t* l); // consume the current char
 lexer_t* new_lexer(const char* input);
-token_t* next_char(lexer_t* l);
+token_t* next_token(lexer_t* l);
 
 #endif //MCSCRIPT_V3_LEXER_H 

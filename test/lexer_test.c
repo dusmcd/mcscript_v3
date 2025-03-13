@@ -84,7 +84,7 @@ void test_next_char() {
 
   lexer_t* lex = new_lexer(input);
   for (int i = 0; i < 9; i++) {
-    token_t* tok = next_char(lex);
+    token_t* tok = next_token(lex);
     token_type_t expected_type = tests[i].expected_type;
     const char* expected_literal = tests[i].expected_literal;
 

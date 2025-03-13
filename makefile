@@ -17,6 +17,12 @@ lexer_test.o: $(test_dir)/lexer_test.c
 token_test.o: $(test_dir)/token_test.c
 	gcc $(flags) -c $< -o $(build_dir)/token_test.o
 
+main.o: $(src_dir)/main.c
+	gcc $(flags) -c $< -o $(build_dir)/main.o
+
+main: main.o lexer.o token.o
+	gcc $(flags) $(build_dir)/main.o $(build_dir)/lexer.o $(build_dir)/token.o -o $(exec_dir)/main
+
 lexer_test: lexer_test.o lexer.o token.o
 	gcc $(flags) $(build_dir)/lexer_test.o $(build_dir)/token.o $(build_dir)/lexer.o -o $(exec_dir)/lexer_test
 

@@ -77,7 +77,7 @@ void skip_whitespace(lexer_t* l) {
 }
 
 
-token_t* next_char(lexer_t* l) {
+token_t* next_token(lexer_t* l) {
   token_t* tok;
     
   skip_whitespace(l);
