@@ -10,6 +10,7 @@ typedef enum {
   NOT_EQ,
   GT, // >
   LT, // <
+  BANG, // !
 
   // objects
   INT,

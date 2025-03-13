@@ -84,7 +84,40 @@ token_t* next_char(lexer_t* l) {
 
   switch(l->ch) {
     case '=':
-      tok = new_token(ASSIGN, l->ch);
+      if (l->input[l->reader_position] == '=') {
+        char temp = l->ch;
+        read_char(l);
+        tok = malloc(sizeof(token_t));
+        if (tok == NULL)
+          return NULL;
+        
+        tok->type = EQ;
+        const char buff[] = {temp, l->ch, '\0'};
+        tok->literal = buff;
+      } else {
+        tok = new_token(ASSIGN, l->ch);
+      }
+      break;
+    case '!':
+      if (l->input[l->reader_position] == '=') {
+        char temp = l->ch;
+        read_char(l);
+        tok = malloc(sizeof(token_t));
+        if (tok == NULL)
+          return NULL;
+        
+        tok->type = NOT_EQ;
+        const char buff[] = {temp, l->ch, '\0'};
+        tok->literal = buff;
+      } else {
+        tok = new_token(BANG, l->ch);
+      }
+      break;
+    case '<':
+      tok = new_token(LT, l->ch);
+      break;
+    case '>':
+      tok = new_token(GT, l->ch);
       break;
     case '+':
       tok = new_token(PLUS, l->ch);

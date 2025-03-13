@@ -6,7 +6,13 @@
 void test_next_char() {
   const char* input = "var a = 5;"
                       "var b = 10;"
-                      "var add = function(a, b) {return a + b;}";
+                      "var add = function(a, b) {return a + b;}"
+                      "5 < 10 > 11;"
+                      "2 == 2;"
+                      "!;"
+                      "2 != 3;"
+                      "if (a == b) {return true;}"
+                      "else {return false;}";
 
   typedef struct {
     token_type_t expected_type;
@@ -14,33 +20,66 @@ void test_next_char() {
   } test_t;
 
   test_t tests[] = {
-    {.expected_type = VAR, .expected_literal = "var"},
-    {.expected_type = IDENT, .expected_literal = "a"},
-    {.expected_type = ASSIGN, .expected_literal = "="},
-    {.expected_type = INT, .expected_literal = "5"},
-    {.expected_type = SEMICOLON, .expected_literal = ";"},
-    {.expected_type = VAR, .expected_literal = "var"},
-    {.expected_type = IDENT, .expected_literal = "b"},
-    {.expected_type = ASSIGN, .expected_literal = "="},
-    {.expected_type = INT, .expected_literal = "10"},
-    {.expected_type = SEMICOLON, .expected_literal = ";"},
-    {.expected_type = VAR, .expected_literal = "var"},
-    {.expected_type = IDENT, .expected_literal = "add"},
-    {.expected_type = ASSIGN, .expected_literal = "="},
-    {.expected_type = FUNCTION, .expected_literal = "function"},
-    {.expected_type = LPAREN, .expected_literal = "("},
-    {.expected_type = IDENT, .expected_literal = "a"},
-    {.expected_type = COMMA, .expected_literal = ","},
-    {.expected_type = IDENT, .expected_literal = "b"},
-    {.expected_type = RPAREN, .expected_literal = ")"},
-    {.expected_type = LBRACE, .expected_literal = "{"},
-    {.expected_type = RETURN, .expected_literal = "return"},
-    {.expected_type = IDENT, .expected_literal = "a"},
-    {.expected_type = PLUS, .expected_literal = "+"},
-    {.expected_type = IDENT, .expected_literal = "b"},
-    {.expected_type = SEMICOLON, .expected_literal = ";"},
-    {.expected_type = RBRACE, .expected_literal = "}"},
-    {.expected_type = EOI, .expected_literal = ""},
+      {.expected_type = VAR, .expected_literal = "var"},
+      {.expected_type = IDENT, .expected_literal = "a"},
+      {.expected_type = ASSIGN, .expected_literal = "="},
+      {.expected_type = INT, .expected_literal = "5"},
+      {.expected_type = SEMICOLON, .expected_literal = ";"},
+      {.expected_type = VAR, .expected_literal = "var"},
+      {.expected_type = IDENT, .expected_literal = "b"},
+      {.expected_type = ASSIGN, .expected_literal = "="},
+      {.expected_type = INT, .expected_literal = "10"},
+      {.expected_type = SEMICOLON, .expected_literal = ";"},
+      {.expected_type = VAR, .expected_literal = "var"},
+      {.expected_type = IDENT, .expected_literal = "add"},
+      {.expected_type = ASSIGN, .expected_literal = "="},
+      {.expected_type = FUNCTION, .expected_literal = "function"},
+      {.expected_type = LPAREN, .expected_literal = "("},
+      {.expected_type = IDENT, .expected_literal = "a"},
+      {.expected_type = COMMA, .expected_literal = ","},
+      {.expected_type = IDENT, .expected_literal = "b"},
+      {.expected_type = RPAREN, .expected_literal = ")"},
+      {.expected_type = LBRACE, .expected_literal = "{"},
+      {.expected_type = RETURN, .expected_literal = "return"},
+      {.expected_type = IDENT, .expected_literal = "a"},
+      {.expected_type = PLUS, .expected_literal = "+"},
+      {.expected_type = IDENT, .expected_literal = "b"},
+      {.expected_type = SEMICOLON, .expected_literal = ";"},
+      {.expected_type = RBRACE, .expected_literal = "}"},
+      {.expected_type = INT, .expected_literal = "5"},
+      {.expected_type = LT, .expected_literal = "<"},
+      {.expected_type = INT, .expected_literal = "10"},
+      {.expected_type = GT, .expected_literal = ">"},
+      {.expected_type = INT, .expected_literal = "11"},
+      {.expected_type = SEMICOLON, .expected_literal = ";"},
+      {.expected_type = INT, .expected_literal = "2"},
+      {.expected_type = EQ, .expected_literal = "=="},
+      {.expected_type = INT, .expected_literal = "2"},
+      {.expected_type = SEMICOLON, .expected_literal = ";"},
+      {.expected_type = BANG, .expected_literal = "!"},
+      {.expected_type = SEMICOLON, .expected_literal = ";"},
+      {.expected_type = INT, .expected_literal = "2"},
+      {.expected_type = NOT_EQ, .expected_literal = "!="},
+      {.expected_type = INT, .expected_literal = "3"},
+      {.expected_type = SEMICOLON, .expected_literal = ";"},
+      {.expected_type = IF, .expected_literal = "if"},
+      {.expected_type = LPAREN, .expected_literal = "("},
+      {.expected_type = IDENT, .expected_literal = "a"},
+      {.expected_type = EQ, .expected_literal = "=="},
+      {.expected_type = IDENT, .expected_literal = "b"},
+      {.expected_type = RPAREN, .expected_literal = ")"},
+      {.expected_type = LBRACE, .expected_literal = "{"},
+      {.expected_type = RETURN, .expected_literal = "return"},
+      {.expected_type = TRUE, .expected_literal = "true"},
+      {.expected_type = SEMICOLON, .expected_literal = ";"},
+      {.expected_type = RBRACE, .expected_literal = "}"},
+      {.expected_type = ELSE, .expected_literal = "else"},
+      {.expected_type = LBRACE, .expected_literal = "{"},
+      {.expected_type = RETURN, .expected_literal = "return"},
+      {.expected_type = FALSE, .expected_literal = "false"},
+      {.expected_type = SEMICOLON, .expected_literal = ";"},
+      {.expected_type = RBRACE, .expected_literal = "}"},
+      {.expected_type = EOI, .expected_literal = ""},
   };
 
   lexer_t* lex = new_lexer(input);
