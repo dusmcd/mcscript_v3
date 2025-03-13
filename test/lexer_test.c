@@ -4,7 +4,9 @@
 #include <string.h>
 
 void test_next_char() {
-  const char* input = "(){},;=+";
+  const char* input = "var a = 5;"
+                      "var b = 10;"
+                      "var add = function(a, b) {return a + b;}";
 
   typedef struct {
     token_type_t expected_type;
@@ -12,14 +14,32 @@ void test_next_char() {
   } test_t;
 
   test_t tests[] = {
+    {.expected_type = VAR, .expected_literal = "var"},
+    {.expected_type = IDENT, .expected_literal = "a"},
+    {.expected_type = ASSIGN, .expected_literal = "="},
+    {.expected_type = INT, .expected_literal = "5"},
+    {.expected_type = SEMICOLON, .expected_literal = ";"},
+    {.expected_type = VAR, .expected_literal = "var"},
+    {.expected_type = IDENT, .expected_literal = "b"},
+    {.expected_type = ASSIGN, .expected_literal = "="},
+    {.expected_type = INT, .expected_literal = "10"},
+    {.expected_type = SEMICOLON, .expected_literal = ";"},
+    {.expected_type = VAR, .expected_literal = "var"},
+    {.expected_type = IDENT, .expected_literal = "add"},
+    {.expected_type = ASSIGN, .expected_literal = "="},
+    {.expected_type = FUNCTION, .expected_literal = "function"},
     {.expected_type = LPAREN, .expected_literal = "("},
+    {.expected_type = IDENT, .expected_literal = "a"},
+    {.expected_type = COMMA, .expected_literal = ","},
+    {.expected_type = IDENT, .expected_literal = "b"},
     {.expected_type = RPAREN, .expected_literal = ")"},
     {.expected_type = LBRACE, .expected_literal = "{"},
-    {.expected_type = RBRACE, .expected_literal = "}"},
-    {.expected_type = COMMA, .expected_literal = ","},
-    {.expected_type = SEMICOLON, .expected_literal = ";"},
-    {.expected_type = ASSIGN, .expected_literal = "="},
+    {.expected_type = RETURN, .expected_literal = "return"},
+    {.expected_type = IDENT, .expected_literal = "a"},
     {.expected_type = PLUS, .expected_literal = "+"},
+    {.expected_type = IDENT, .expected_literal = "b"},
+    {.expected_type = SEMICOLON, .expected_literal = ";"},
+    {.expected_type = RBRACE, .expected_literal = "}"},
     {.expected_type = EOI, .expected_literal = ""},
   };
 

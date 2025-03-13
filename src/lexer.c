@@ -1,6 +1,7 @@
 #include <lexer.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 
 lexer_t* new_lexer(const char* input) {
   lexer_t* l = malloc(sizeof(lexer_t));
@@ -39,10 +40,48 @@ token_t* new_token(token_type_t type, char ch) {
   return tok;
 }
 
+bool is_letter(char ch) {
+  return (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || ch == '_'; 
+}
+
+bool is_digit(char ch) {
+  return ch >= '0' && ch <= '9';
+}
+
+void read_ident(lexer_t* l, char* buff) {
+  int i = 0;
+  while (is_letter(l->ch)) {
+    buff[i] = l->ch;
+    read_char(l);
+    i++;
+  }
+  buff[i] = '\0';
+}
+
+void read_number(lexer_t* l, char* buff) {
+  int i = 0;
+  while (is_digit(l->ch)) {
+    buff[i] = l->ch;
+    read_char(l);
+    i++;
+  }
+  buff[i] = '\0';
+}
+
+void skip_whitespace(lexer_t* l) {
+  char ch = l->ch;
+  while (ch == ' ' || ch == '\n' || ch == '\t' || ch == '\r') {
+    read_char(l);
+    ch = l->ch;
+  }
+}
+
 
 token_t* next_char(lexer_t* l) {
   token_t* tok;
     
+  skip_whitespace(l);
+
   switch(l->ch) {
     case '=':
       tok = new_token(ASSIGN, l->ch);
@@ -76,6 +115,30 @@ token_t* next_char(lexer_t* l) {
       tok->literal = "";
       tok->type = EOI;
       break;
+    default:
+      if (is_letter(l->ch)) {
+        tok = malloc(sizeof(token_t));
+        if (tok == NULL)
+          return NULL;
+
+        char buff[100];
+        read_ident(l, buff);
+        tok->literal = buff;
+        tok->type = look_up_ident(tok->literal);
+        return tok;
+      } else if (is_digit(l->ch)) {
+        tok = malloc(sizeof(token_t));
+        if (tok == NULL)
+          return NULL;
+        
+        tok->type = INT;
+        char buff[100];
+        read_number(l, buff);
+        tok->literal = buff;
+        return tok;
+      } else {
+        tok = new_token(ILLEGAL, l->ch);
+      }
   }
   read_char(l);
 

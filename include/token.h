@@ -11,6 +11,9 @@ typedef enum {
   GT, // >
   LT, // <
 
+  // objects
+  INT,
+
   // delimiters
   LPAREN,
   RPAREN,
@@ -21,6 +24,7 @@ typedef enum {
 
   // special
   EOI,
+  ILLEGAL,
 
   // keywords
   VAR,
@@ -29,12 +33,27 @@ typedef enum {
   ELSE,
   RETURN,
   TRUE,
-  FALSE
+  FALSE,
+  IDENT
 } token_type_t;
 
 typedef struct {
   token_type_t type;
   const char* literal;
 } token_t;
+
+
+
+token_type_t look_up_ident(const char* literal);
+static const token_t keywords[] = {
+  {.literal = "var", .type = VAR},
+  {.literal = "function", .type = FUNCTION},
+  {.literal = "if", .type = IF},
+  {.literal = "else", .type = ELSE},
+  {.literal = "return", .type = RETURN},
+  {.literal = "true", .type = TRUE},
+  {.literal = "false", .type = FALSE},
+};
+
 
 #endif //MCSCRIPT_V3_TOKEN_K
