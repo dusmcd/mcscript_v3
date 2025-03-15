@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-void test_next_char() {
+void test_next_token() {
   const char* input = "var a = 5;"
                       "var b = 10;"
                       "var add = function(a, b) {return a + b;}"
@@ -83,7 +83,7 @@ void test_next_char() {
   };
 
   lexer_t* lex = new_lexer(input);
-  for (int i = 0; i < 9; i++) {
+  for (int i = 0; i < 60; i++) {
     token_t* tok = next_token(lex);
     token_type_t expected_type = tests[i].expected_type;
     const char* expected_literal = tests[i].expected_literal;
@@ -104,11 +104,11 @@ void test_next_char() {
     free(tok);
   }
   free(lex);
-  printf("test_next_char passed\n");
+  printf("test_next_token passed\n");
 }
 
 int main() {
-  test_next_char();
+  test_next_token();
 
   return 0;
 }
