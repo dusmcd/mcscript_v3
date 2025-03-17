@@ -107,9 +107,64 @@ void test_var_statements() {
   dispose(garbage);
 }
 
+void test_return_statements() {
+  const char* input = "return 5;"
+                      "return 8904832;";
+  lexer_t* l = new_lexer(input);
+
+  if (l == NULL) {
+    printf("bad memory allocation lexer\n");
+    return;
+  }
+
+  parser_t* p = new_parser(l);
+  if (p == NULL) {
+    free(l);
+    printf("bad memory allocation parser\n");
+    return;
+  }
+
+  program_t* program = parse_program(p);
+  if (program == NULL) {
+    free(l);
+    free(p);
+    printf("bad memory allocation program\n");
+    return;
+  }
+
+  if (check_parser_errors(p)) {
+    return;
+  }
+
+  if (program->statements->size != 2) {
+    printf("program.statements does not contain 2 statements. got %d\n", 
+            program->statements->size);
+    return;
+  }
+
+  node_t* current = program->statements->head;
+  for (int i = 0; i < program->statements->size; i++) {
+    statement_t* stmt = (statement_t*)current->val;
+    return_stmt_t* rs = stmt->stmt.return_stmt;
+    if (strcmp(rs->token->literal, "return") != 0) {
+      printf("wrong literal. expected 'return', got %s\n", rs->token->literal);
+      return;
+    }
+
+    current = current->next;
+  }
+
+  printf("test_return_statements passed\n");
+
+  heap_t garbage = {.l = l, .p = p, .program = program};
+  dispose(garbage);
+
+}
+
 
 int main() {
   test_var_statements();
+  test_return_statements();
 
   return 0;
 }

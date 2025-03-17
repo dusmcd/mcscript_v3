@@ -91,6 +91,22 @@ var_stmt_t* parse_var_stmt(parser_t* p) {
   return var_stmt;
 }
 
+return_stmt_t* parse_return_stmt(parser_t* p) {
+  return_stmt_t* rs = malloc(sizeof(return_stmt_t));
+  if (rs == NULL) {
+    return NULL;
+  }
+
+  rs->token = p->curr_token;
+
+  // skipping expressions for now
+  while (!curr_token_is(p, SEMICOLON)) {
+    next_token_p(p);
+  }
+
+  return rs;
+}
+
 program_t* parse_program(parser_t* p) {
   program_t* program = malloc(sizeof(program_t));
   if (program == NULL)
@@ -106,6 +122,13 @@ program_t* parse_program(parser_t* p) {
       case VAR:
         stmt->type = VAR_S;
         stmt->stmt.var_stmt = parse_var_stmt(p);
+        if (stmt != NULL) {
+          push_back(program->statements, stmt);
+        }
+        break;
+      case RETURN:
+        stmt->type = RETURN_S;
+        stmt->stmt.return_stmt = parse_return_stmt(p);
         if (stmt != NULL) {
           push_back(program->statements, stmt);
         }

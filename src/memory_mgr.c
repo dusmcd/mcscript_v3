@@ -58,6 +58,12 @@ void dispose(heap_t garbage) {
         case VAR_S:
           free(stmt->stmt.var_stmt->name); // free *identifier_t
           free(stmt->stmt.var_stmt); // free var_stmt_t*
+          free(stmt);
+          break;
+        case RETURN_S:
+          free(stmt->stmt.return_stmt);
+          free(stmt);
+          break;
       }
       free(current); // free the node
       current = next;

@@ -19,12 +19,19 @@ typedef struct {
   identifier_t* name;
 } var_stmt_t;
 
+typedef struct {
+  token_t* token;
+  expression_t return_value;
+} return_stmt_t;
+
 typedef enum {
-  VAR_S
+  VAR_S,
+  RETURN_S
 } stmt_type_t;
 
 typedef union {
   var_stmt_t* var_stmt;
+  return_stmt_t* return_stmt;
 } stmt_data_t;
 
 typedef struct {
