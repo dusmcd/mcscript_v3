@@ -32,6 +32,22 @@ bool test_var_statement(var_stmt_t* vs, test_t test) {
   return true;
 }
 
+bool check_parser_errors(parser_t* p) {
+  int num_errors = p->errors->size;
+  if (num_errors == 0)
+    return false;
+  
+  printf("parser has %d errors\n", num_errors);
+  node_t* current = p->errors->head;
+  while (current != NULL) {
+    printf("parser error: %s\n", (char*)current->val);
+    current = current->next;
+  }
+
+  return true;
+
+}
+
 void test_var_statements() {
   const char* input = "var x = 10;"
                       "var num = 5;";
@@ -44,12 +60,16 @@ void test_var_statements() {
       
   parser_t* p = new_parser(l);
   if (p == NULL) {
-    printf("bad memory allocaiton parser\n");
+    printf("bad memory allocation parser\n");
     free(l);
     return;
   }
 
   program_t* program = parse_program(p);
+  if (check_parser_errors(p)) {
+    return;
+  }
+
   if (program == NULL) {
     printf("bad memory allocation program\n");
     free(l);

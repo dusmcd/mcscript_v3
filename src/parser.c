@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <list.h>
 #include <stdio.h>
+#include <string.h>
 
 void next_token_p(parser_t* p) {
   if (p->curr_token != NULL) {
@@ -21,6 +22,7 @@ parser_t* new_parser(lexer_t* l) {
   p->curr_token = NULL;
   p->peek_token = NULL;
   p->used_tokens = initialize_list();
+  p->errors = initialize_list();
 
   next_token_p(p);
   next_token_p(p);
@@ -32,11 +34,24 @@ bool peek_token_is(parser_t* p, token_type_t t) {
   return p->peek_token->type == t;
 }
 
+void peek_error(parser_t* p, token_type_t t) {
+  char msg[256];
+  snprintf(msg, sizeof(msg), "expected next token to be %d, got %d instead"
+          ,t, p->peek_token->type);
+
+  char* str = malloc(257 * sizeof(char));
+  strcpy(str, msg);
+
+  push_back(p->errors, str);
+
+}
+
 bool expect_peek(parser_t* p, token_type_t t) {
   if (peek_token_is(p, t)) {
     next_token_p(p); // advance to next token
     return true;
   }
+  peek_error(p, t);
   return false;
 }
 

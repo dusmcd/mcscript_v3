@@ -28,6 +28,20 @@ void dispose(heap_t garbage) {
     garbage.p->used_tokens = NULL;
   }
 
+  // free the list of errors
+  if (garbage.p != NULL && garbage.p->errors != NULL) {
+    node_t* current = garbage.p->errors->head;
+    while (current != NULL) {
+      char* msg = (char*)current->val;
+      free(msg);
+      node_t* next = current->next;
+      free(current);
+      current = next;
+    }
+
+    free(garbage.p->errors);
+  }
+
   // free the parser
   if (garbage.p != NULL) {
     free(garbage.p);

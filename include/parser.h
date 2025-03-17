@@ -9,6 +9,7 @@ typedef struct {
   token_t* curr_token;
   token_t* peek_token;
   list_t* used_tokens;
+  list_t* errors;
 } parser_t;
 
 parser_t* new_parser(lexer_t* l);
