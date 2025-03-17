@@ -107,9 +107,8 @@ token_t* next_token(lexer_t* l) {
         
         tok->type = EQ;
         char* str = malloc(3 * sizeof(char));
-        str[0] = temp;
-        str[1] = l->ch;
-        str[2] = '\0';
+        char buff[] = {temp, l->ch, '\0'};
+        strcpy(str, buff);
         tok->literal = str;
       } else {
         tok = new_token(ASSIGN, l->ch);
@@ -125,9 +124,8 @@ token_t* next_token(lexer_t* l) {
         
         tok->type = NOT_EQ;
         char* str = malloc(3 * sizeof(char));
-        str[0] = temp;
-        str[1] = l->ch;
-        str[2] = '\0';
+        char buff[] = {temp, l->ch, '\0'};
+        strcpy(str, buff);
         tok->literal = str;
       } else {
         tok = new_token(BANG, l->ch);
