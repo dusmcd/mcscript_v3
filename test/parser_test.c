@@ -3,8 +3,32 @@
 #include <stdbool.h>
 #include <memory_mgr.h>
 #include <stdlib.h>
+#include <string.h>
 
-bool test_var_statement(var_stmt_t* vs) {
+typedef struct {
+    const char* literal;
+  } test_t;
+
+
+bool test_var_statement(var_stmt_t* vs, test_t test) {
+  if (strcmp(vs->token->literal, "var") != 0) {
+    printf("not a var statement. expected %s, got %s\n", 
+            "var", vs->token->literal);
+    return false;
+  }
+
+  if (strcmp(vs->name->value, test.literal) != 0) {
+    printf("wrong identifier. expected %s, got %s\n", 
+            test.literal, vs->name->value);
+    return false;
+  }
+
+  if (strcmp(vs->name->token->literal, test.literal) != 0) {
+    printf("wrong identifier. expected %s, got %s\n", 
+            test.literal, vs->name->token->literal);
+    return false;
+  }
+
   return true;
 }
 
@@ -41,10 +65,7 @@ void test_var_statements() {
     return;
   }
 
-  typedef struct {
-    const char* literal;
-  } test_t;
-
+  
   test_t tests[] = {
     {.literal = "x"},
     {.literal = "num"},
@@ -54,12 +75,13 @@ void test_var_statements() {
   for (int i = 0; i < 2; i++) {
     statement_t* stmt = (statement_t*)current->val;
     var_stmt_t* vs = stmt->stmt.var_stmt;
-    if (!test_var_statement(vs)) {
+    if (!test_var_statement(vs, tests[i])) {
       return;
     }
-    printf("testing var statement %d\n", i + 1);
     current = current->next;
   }
+
+  printf("test_var_statements passed\n");
 
   heap_t garbage = {.l = l, .p = p, .program = program};
   dispose(garbage);

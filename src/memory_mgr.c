@@ -14,10 +14,17 @@ void dispose(heap_t garbage) {
     node_t* current = garbage.p->used_tokens->head;
     while (current != NULL) {
       node_t* next = current->next;
-      free(current);
+      token_t* tok = (token_t*)current->val;
+      
+      // free the actual token
+      free(tok->literal);
+      free(tok);
+
+      current->val = NULL;
+      free(current); // free the node
       current = next;
     }
-    free(garbage.p->used_tokens);
+    free(garbage.p->used_tokens); // free the list
     garbage.p->used_tokens = NULL;
   }
 
@@ -38,9 +45,10 @@ void dispose(heap_t garbage) {
           free(stmt->stmt.var_stmt->name); // free *identifier_t
           free(stmt->stmt.var_stmt); // free var_stmt_t*
       }
+      free(current); // free the node
       current = next;
     }
-    free(garbage.program->statements);
+    free(garbage.program->statements); // free the list
     garbage.program->statements = NULL;
   }
 

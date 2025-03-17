@@ -34,8 +34,10 @@ token_t* new_token(token_type_t type, char ch) {
     return NULL;
   
   tok->type = type;
-  const char buff[2] = {ch, '\0'};
-  tok->literal = buff;
+  char* str = malloc(2 * sizeof(char));
+  str[0] = ch;
+  str[1] = '\0';
+  tok->literal = str;
 
   return tok;
 }
@@ -48,24 +50,36 @@ bool is_digit(char ch) {
   return ch >= '0' && ch <= '9';
 }
 
-void read_ident(lexer_t* l, char* buff) {
+char* read_ident(lexer_t* l) {
   int i = 0;
+  char* str = malloc(100 * sizeof(char));
+  if (str == NULL)
+    return NULL;
+  
   while (is_letter(l->ch)) {
-    buff[i] = l->ch;
+    str[i] = l->ch;
     read_char(l);
     i++;
   }
-  buff[i] = '\0';
+  str[i] = '\0';
+
+  return str;
 }
 
-void read_number(lexer_t* l, char* buff) {
+char* read_number(lexer_t* l) {
   int i = 0;
+  char* str = malloc(sizeof(char) * 100);
+  if (str == NULL)
+    return NULL;
+
   while (is_digit(l->ch)) {
-    buff[i] = l->ch;
+    str[i] = l->ch;
     read_char(l);
     i++;
   }
-  buff[i] = '\0';
+  str[i] = '\0';
+
+  return str;
 }
 
 void skip_whitespace(lexer_t* l) {
@@ -92,8 +106,11 @@ token_t* next_token(lexer_t* l) {
           return NULL;
         
         tok->type = EQ;
-        const char buff[] = {temp, l->ch, '\0'};
-        tok->literal = buff;
+        char* str = malloc(3 * sizeof(char));
+        str[0] = temp;
+        str[1] = l->ch;
+        str[2] = '\0';
+        tok->literal = str;
       } else {
         tok = new_token(ASSIGN, l->ch);
       }
@@ -107,8 +124,11 @@ token_t* next_token(lexer_t* l) {
           return NULL;
         
         tok->type = NOT_EQ;
-        const char buff[] = {temp, l->ch, '\0'};
-        tok->literal = buff;
+        char* str = malloc(3 * sizeof(char));
+        str[0] = temp;
+        str[1] = l->ch;
+        str[2] = '\0';
+        tok->literal = str;
       } else {
         tok = new_token(BANG, l->ch);
       }
@@ -145,7 +165,10 @@ token_t* next_token(lexer_t* l) {
       if (tok == NULL)
         return NULL;
       
-      tok->literal = "";
+      const char* end = "";
+      char* str = malloc(2 * sizeof(char));
+      strcpy(str, end);
+      tok->literal = str;
       tok->type = EOI;
       break;
     default:
@@ -154,9 +177,7 @@ token_t* next_token(lexer_t* l) {
         if (tok == NULL)
           return NULL;
 
-        char buff[100];
-        read_ident(l, buff);
-        tok->literal = buff;
+        tok->literal = read_ident(l);
         tok->type = look_up_ident(tok->literal);
         return tok;
       } else if (is_digit(l->ch)) {
@@ -165,9 +186,7 @@ token_t* next_token(lexer_t* l) {
           return NULL;
         
         tok->type = INT;
-        char buff[100];
-        read_number(l, buff);
-        tok->literal = buff;
+        tok->literal = read_number(l);
         return tok;
       } else {
         tok = new_token(ILLEGAL, l->ch);

@@ -13,7 +13,6 @@ void test_next_token() {
                       "2 != 3;"
                       "if (a == b) {return true;}"
                       "else {return false;}";
-
   typedef struct {
     token_type_t expected_type;
     const char* expected_literal;
@@ -100,7 +99,7 @@ void test_next_token() {
       return;
     }
 
-
+    free(tok->literal);
     free(tok);
   }
   free(lex);

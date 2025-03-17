@@ -40,7 +40,7 @@ typedef enum {
 
 typedef struct {
   token_type_t type;
-  const char* literal;
+  char* literal;
 } token_t;
 
 
