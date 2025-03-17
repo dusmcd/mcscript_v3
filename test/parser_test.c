@@ -105,6 +105,10 @@ void test_var_statements() {
 
   heap_t garbage = {.l = l, .p = p, .program = program};
   dispose(garbage);
+  l = NULL;
+  p = NULL;
+  program = NULL;
+
 }
 
 void test_return_statements() {
@@ -158,6 +162,9 @@ void test_return_statements() {
 
   heap_t garbage = {.l = l, .p = p, .program = program};
   dispose(garbage);
+  l = NULL;
+  p = NULL;
+  program = NULL;
 
 }
 
