@@ -1,4 +1,4 @@
-flags = -Wall -g
+flags = -Wall -g -std=c++17
 flags += -I include
 exec_dir = bin
 build_dir = build
