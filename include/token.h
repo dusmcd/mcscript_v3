@@ -1,7 +1,10 @@
 #ifndef MCSCRIPT_V3_TOKEN_K
 #define MCSCRIPT_V3_TOKEN_K
 
-typedef enum {
+#include <string>
+#include <unordered_map>
+
+enum class TokenType : int {
   // operators
   ASSIGN,
   PLUS,
@@ -36,25 +39,39 @@ typedef enum {
   TRUE,
   FALSE,
   IDENT
-} token_type_t;
-
-typedef struct {
-  token_type_t type;
-  char* literal;
-} token_t;
-
-
-
-token_type_t look_up_ident(const char* literal);
-static const token_t keywords[] = {
-  {.literal = "var", .type = VAR},
-  {.literal = "function", .type = FUNCTION},
-  {.literal = "if", .type = IF},
-  {.literal = "else", .type = ELSE},
-  {.literal = "return", .type = RETURN},
-  {.literal = "true", .type = TRUE},
-  {.literal = "false", .type = FALSE},
 };
+
+
+class Token {
+  public:
+    Token(TokenType type, char ch);
+    Token(TokenType type, std::string literal);
+    inline TokenType GetType() const {
+      return type_;
+    }
+
+    inline std::string GetLiteral() const {
+      return literal_;
+    }
+    static TokenType LookUpIdent(std::string literal);
+
+  private:
+    TokenType type_;
+    std::string literal_;
+};
+
+
+
+static const std::unordered_map<std::string, TokenType> keywords = {
+  {"var", TokenType::VAR},
+  {"function", TokenType::FUNCTION},
+  {"if", TokenType::IF},
+  {"else", TokenType::ELSE},
+  {"return", TokenType::RETURN},
+  {"true", TokenType::TRUE},
+  {"false", TokenType::FALSE},
+};
+
 
 
 #endif //MCSCRIPT_V3_TOKEN_K

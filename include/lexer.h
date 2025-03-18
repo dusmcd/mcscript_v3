@@ -2,16 +2,29 @@
 #define MCSCRIPT_V3_LEXER_H
 
 #include <token.h>
+#include <string>
+#include <memory>
 
-typedef struct {
-  char ch; // the current character being examined
-  const char* input; // source code
-  int position; // points to the current char in input
-  int reader_position; // points to the next char in input
-} lexer_t;
+class Lexer {
+  public:
+    Lexer(std::string input);
+    std::shared_ptr<Token> NextToken();
 
-void read_char(lexer_t* l); // consume the current char
-lexer_t* new_lexer(const char* input);
-token_t* next_token(lexer_t* l);
+  private:
+    void ReadChar_(); // consume the current char
+    bool IsLetter_(char ch);
+    bool IsDigit_(char ch);
+    std::shared_ptr<Token> NewToken_(TokenType type, char ch);
+    std::string ReadIdent_();
+    std::string ReadNumber_();
+    void SkipWhiteSpace_();
+    char ch_; // the current character being examined
+    std::string input_; // source code
+    int position_; // points to the current char in input
+    int reader_position_; // points to the next char in input
+    
+};
+
+
 
 #endif //MCSCRIPT_V3_LEXER_H 
