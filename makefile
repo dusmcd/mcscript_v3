@@ -13,8 +13,6 @@ lexer.o: $(src_dir)/lexer.cc
 token.o: $(src_dir)/token.cc
 	g++ $(flags) -c $< -o $(build_dir)/token.o
 
-lexer_test.o: $(test_dir)/lexer_test.cc
-	g++ $(flags) -c $< -o $(build_dir)/lexer_test.o 
 
 main.o: $(src_dir)/main.cc
 	g++ $(flags) -c $< -o $(build_dir)/main.o
@@ -22,12 +20,19 @@ main.o: $(src_dir)/main.cc
 parser.o: $(src_dir)/parser.cc
 	g++ $(flags) -c $< -o $(build_dir)/parser.o
 
+# Test files
+
+parser_test.o: $(test_dir)/parser_test.cc
+	g++ $(flags) -c $< -o $(build_dir)/parser_test.o
+
+lexer_test.o: $(test_dir)/lexer_test.cc
+	g++ $(flags) -c $< -o $(build_dir)/lexer_test.o 
+
 main: main.o lexer.o token.o
 	g++ $(flags) $(build_dir)/main.o $(build_dir)/lexer.o $(build_dir)/token.o \
 	-o $(exec_dir)/main
 
-parser_test.o: $(test_dir)/parser_test.cc
-	g++ $(flags) -c $< -o $(build_dir)/parser_test.o
+# Executables
 
 lexer_test: lexer_test.o lexer.o token.o
 	g++ $(flags) $(build_dir)/lexer_test.o $(build_dir)/token.o $(build_dir)/lexer.o \
@@ -40,6 +45,8 @@ parser_test: parser_test.o lexer.o parser.o token.o
 test: lexer_test parser_test
 	$(exec_dir)/lexer_test
 	$(exec_dir)/parser_test
+
+# Utility
 
 clean:
 	rm build/*.o bin/*
