@@ -6,6 +6,46 @@ struct Test {
     std::string literal;
   };
 
+void TestIdentityExpressions() {
+  std::string input = "foobar;";
+  std::string expLiteral = "foobar";
+  auto l = std::make_shared<Lexer>(input);
+  auto p = std::make_shared<Parser>(l);
+  std::unique_ptr<Program> program = p->ParseProgram();
+  if (program == nullptr) {
+    std::cout << "program = nullptr\n";
+    return;
+  }
+
+  std::vector<std::shared_ptr<Statement>> stmts = program->GetStatements();
+  if (stmts.size() != 1) {
+    std::cout << "program->GetStatements().size() does not equal 1\n";
+    return;
+  }
+
+  for (auto stmt : stmts) {
+    auto es = std::dynamic_pointer_cast<ExpressionStatement>(stmt);
+    if (es == nullptr) {
+      std::cout << "statement is not an expression statement\n";
+      return;
+    }
+
+    auto i = std::dynamic_pointer_cast<Identifier>(es->GetExpression());
+    if (i == nullptr) {
+      std::cout << "expression is not an identity expression\n";
+      return;
+    }
+
+    if (i->GetValue().compare(expLiteral) != 0) {
+      std::cout << "identifier value wrong. expected: " << expLiteral
+            << ", got: " << i->GetValue() << "\n";
+      return;
+    }
+  }
+
+  std::cout << "TestIdentityExpressions() passed\n";
+}
+
 void TestString() {
   auto vs = std::make_shared<VarStatement>(std::make_shared<Token>(TokenType::VAR, "var"));
   
@@ -73,7 +113,7 @@ void TestVarStatements() {
   std::shared_ptr<Lexer> l = std::make_shared<Lexer>(input);
   std::shared_ptr<Parser> p = std::make_shared<Parser>(l);
 
-  std::unique_ptr<Program> program = p->ParseProgram();
+  std::unique_ptr<Program> program = p->ParseProgram(true);
   if (CheckParserErrors(p)) {
     return;
   }
@@ -115,7 +155,7 @@ void TestReturnStatements() {
 
   auto l = std::make_shared<Lexer>(input);
   auto p = std::make_shared<Parser>(l);
-  std::unique_ptr<Program> program = p->ParseProgram();
+  std::unique_ptr<Program> program = p->ParseProgram(true);
   if (program == nullptr) {
     std::cout << "program = nullptr\n";
     return;
@@ -152,6 +192,7 @@ int main() {
   TestVarStatements();
   TestReturnStatements();
   TestString();
+  TestIdentityExpressions();
 
   return 0;
 }

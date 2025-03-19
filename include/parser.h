@@ -4,12 +4,28 @@
 #include <lexer.h>
 #include <ast.h>
 #include <memory>
+#include <functional>
+#include <unordered_map>
+
+using prefixParseFn = std::function<std::shared_ptr<Expression> ()>;
+using infixParseFn = std::function<std::shared_ptr<Expression>(std::shared_ptr<Expression>)>;
+
+enum class Precedence : int {
+  LOWEST,
+  EQUALS,
+  LESSGREATER,
+  SUM,
+  PRODUCT,
+  PREFIX,
+  CALL 
+};
+
 
 class Parser {
   
   public:
     Parser(std::shared_ptr<Lexer> l);
-    std::unique_ptr<Program> ParseProgram();
+    std::unique_ptr<Program> ParseProgram(bool skipexpr = false);
 
     inline std::vector<std::string> GetErrors() {
       return errors_;
@@ -21,9 +37,24 @@ class Parser {
     void PeekError_(TokenType t);
     bool ExpectPeek_(TokenType t);
     bool CurrTokenIs_(TokenType t);
-    std::shared_ptr<Statement> ParseStatement_();
-    std::shared_ptr<VarStatement> ParseVarStatement_();
-    std::shared_ptr<ReturnStatement> ParseReturnStatement_(); 
+
+    inline void RegisterPrefixFns_(prefixParseFn fn, TokenType t) {
+      prefixParseFns_[t] = fn;
+    }
+
+    inline void RegisterInfixFns_(infixParseFn fn, TokenType t) {
+      infixParseFns_[t] = fn;
+    }
+
+    std::shared_ptr<Statement> ParseStatement_(bool);
+    std::shared_ptr<VarStatement> ParseVarStatement_(bool);
+    std::shared_ptr<ReturnStatement> ParseReturnStatement_(bool); 
+    std::shared_ptr<ExpressionStatement> ParseExpressionStatement_();
+    std::shared_ptr<Expression> ParseExpression_(Precedence pr);
+    std::shared_ptr<Identifier> ParseIdentifier_();
+    prefixParseFn GetParseIdentifierFn_();
+    std::unordered_map<TokenType, prefixParseFn> prefixParseFns_;
+    std::unordered_map<TokenType, infixParseFn> infixParseFns_;
     std::shared_ptr<Token> curr_token_;
     std::shared_ptr<Token> peek_token_;
     std::vector<std::string> errors_;

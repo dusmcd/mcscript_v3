@@ -82,8 +82,18 @@ class Identifier : public Expression {
 
 class ExpressionStatement : public Statement {
   public:
+    ExpressionStatement(std::shared_ptr<Token> token) : token_(token) {}
+
     inline std::string TokenLiteral() const override {
       return token_->GetLiteral();
+    }
+
+    inline std::shared_ptr<Expression> GetExpression() const {
+      return expression_;
+    }
+
+    inline void SetExpression(std::shared_ptr<Expression> expr) {
+      expression_ = expr;
     }
 
     std::string String() const override;

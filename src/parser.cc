@@ -10,8 +10,20 @@ Parser::Parser(std::shared_ptr<Lexer> l) {
   curr_token_ = nullptr;
   peek_token_ = nullptr;
 
+  RegisterPrefixFns_(GetParseIdentifierFn_(), TokenType::IDENT);
+
   NextToken_();
   NextToken_();
+}
+
+std::shared_ptr<Identifier> Parser::ParseIdentifier_() {
+  auto i = std::make_shared<Identifier>(curr_token_->GetLiteral(), curr_token_);
+  return i;
+}
+
+prefixParseFn Parser::GetParseIdentifierFn_() {
+  prefixParseFn fn = std::bind(&Parser::ParseIdentifier_, this);
+  return fn;
 }
 
 bool Parser::PeekTokenIs_(TokenType t) {
@@ -41,7 +53,7 @@ bool Parser::CurrTokenIs_(TokenType t) {
   return curr_token_->GetType() == t;
 }
 
-std::shared_ptr<VarStatement> Parser::ParseVarStatement_() {
+std::shared_ptr<VarStatement> Parser::ParseVarStatement_(bool skipexpr) {
   auto vs = std::make_shared<VarStatement>(curr_token_);
 
   if (!ExpectPeek_(TokenType::IDENT)) {
@@ -56,46 +68,72 @@ std::shared_ptr<VarStatement> Parser::ParseVarStatement_() {
     return nullptr;
   }
 
-  // skipping expressions for now
-  while (!CurrTokenIs_(TokenType::SEMICOLON)) {
-    NextToken_();
+  if (skipexpr) {
+    while (!CurrTokenIs_(TokenType::SEMICOLON)) {
+      NextToken_();
+    }
   }
 
   return vs;
 }
 
-std::shared_ptr<ReturnStatement> Parser::ParseReturnStatement_() {
+std::shared_ptr<ReturnStatement> Parser::ParseReturnStatement_(bool skipexpr) {
   auto rs = std::make_shared<ReturnStatement>(curr_token_);
 
-  // skipping expressions for now
-  while (!CurrTokenIs_(TokenType::SEMICOLON)) {
-    NextToken_();
+  if (skipexpr) {
+    while (!CurrTokenIs_(TokenType::SEMICOLON)) {
+      NextToken_();
+    }
   }
 
   return rs;
 }
 
-std::shared_ptr<Statement> Parser::ParseStatement_() {
+std::shared_ptr<Statement> Parser::ParseStatement_(bool skipexpr) {
   std::shared_ptr<Statement> stmt;
   switch(curr_token_->GetType()) {
       case TokenType::VAR:
-        stmt = ParseVarStatement_();
+        stmt = ParseVarStatement_(skipexpr);
         break;
       case TokenType::RETURN:
-        stmt = ParseReturnStatement_();
+        stmt = ParseReturnStatement_(skipexpr);
         break;
       default:
-        printf("We hit default\n");
+        stmt = ParseExpressionStatement_();
     }
 
   return stmt;
 }
 
-std::unique_ptr<Program> Parser::ParseProgram(){
+std::shared_ptr<ExpressionStatement> Parser::ParseExpressionStatement_() {
+  auto stmt = std::make_shared<ExpressionStatement>(curr_token_);
+
+  stmt->SetExpression(ParseExpression_(Precedence::LOWEST));
+
+  if (PeekTokenIs_(TokenType::SEMICOLON)) {
+    NextToken_();
+  }
+
+  return stmt;
+}
+
+std::shared_ptr<Expression> Parser::ParseExpression_(Precedence pr) {
+  if (prefixParseFns_.count(curr_token_->GetType()) < 1)
+    return nullptr;
+
+  prefixParseFn prefix = prefixParseFns_.at(curr_token_->GetType());
+  if (prefix == nullptr) {
+    return nullptr;
+  }
+
+  return prefix();
+}
+
+std::unique_ptr<Program> Parser::ParseProgram(bool skipexpr){
   auto program = std::make_unique<Program>();
   
   while (!CurrTokenIs_(TokenType::EOI)) {
-    std::shared_ptr<Statement> stmt = ParseStatement_();
+    std::shared_ptr<Statement> stmt = ParseStatement_(skipexpr);
     if (stmt != nullptr) {
       program->AppendStatements(stmt);
     }
