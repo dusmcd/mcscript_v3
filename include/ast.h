@@ -10,12 +10,14 @@
 class Node {
   public:
     virtual std::string TokenLiteral() const = 0;
+    virtual std::string String() const = 0;
 };
 
 // Statement interface
 class Statement : public Node {
   public:
     virtual std::string TokenLiteral() const = 0;
+    virtual std::string String() const = 0;
   protected:
     virtual void StatementNode_() const = 0;
 };
@@ -24,6 +26,7 @@ class Statement : public Node {
 class Expression : public Node {
   public:
     virtual std::string TokenLiteral() const = 0;
+    virtual std::string String() const = 0;
   protected:
     virtual void ExpressionNode_() const = 0;
 };
@@ -36,6 +39,8 @@ class Program : public Node {
     inline std::vector<std::shared_ptr<Statement>> GetStatements() const {
       return statements_;
     }
+
+    std::string String() const override;
 
     inline void AppendStatements(std::shared_ptr<Statement> stmt) {
       statements_.push_back(stmt);
@@ -63,6 +68,8 @@ class Identifier : public Expression {
     inline std::shared_ptr<Token> GetToken() const {
       return token_;
     }
+
+    std::string String() const override;
   
   protected:
     inline void ExpressionNode_() const override {}
@@ -73,6 +80,22 @@ class Identifier : public Expression {
 
 };
 
+class ExpressionStatement : public Statement {
+  public:
+    inline std::string TokenLiteral() const override {
+      return token_->GetLiteral();
+    }
+
+    std::string String() const override;
+
+  protected:
+    void StatementNode_() const override {}
+
+  private:
+    std::shared_ptr<Token> token_;
+    std::shared_ptr<Expression> expression_;
+};
+
 
 class VarStatement : public Statement {
   public:
@@ -81,6 +104,8 @@ class VarStatement : public Statement {
     inline std::string TokenLiteral() const override {
       return token_->GetLiteral();
     }
+
+    std::string String() const override;
 
     inline std::shared_ptr<Token> GetToken() const {
       return token_;
@@ -120,6 +145,8 @@ class ReturnStatement : public Statement {
     inline std::string TokenLiteral() const override {
       return token_->GetLiteral();
     }
+
+    std::string String() const override;
 
     inline std::shared_ptr<Expression> GetReturnVal() const {
       return return_value_;

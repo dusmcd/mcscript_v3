@@ -1,9 +1,32 @@
 #include <parser.h>
+#include <ast.h>
 #include <iostream>
 
 struct Test {
     std::string literal;
   };
+
+void TestString() {
+  auto vs = std::make_shared<VarStatement>(std::make_shared<Token>(TokenType::VAR, "var"));
+  
+  vs->SetName(std::make_shared<Identifier>("myVar", std::make_shared<Token>(TokenType::IDENT, "myVar")));
+  vs->SetValue(std::make_shared<Identifier>("anotherVar", std::make_shared<Token>(TokenType::IDENT, "anotherVar")));
+ 
+  std::vector<std::shared_ptr<Statement>> stmts = {
+    vs
+  };
+
+  for (auto stmt : stmts) {
+    const std::string test = "var myVar = anotherVar;";
+    std::string actual = stmt->String();
+
+    if (test.compare(actual) != 0) {
+      std::cout << "TestString() failed\n";
+      return;
+    }
+  }
+  std::cout << "TestString() passed\n";
+}
 
 
 bool TestVarStatement(std::shared_ptr<VarStatement> vs, Test test) {
@@ -128,6 +151,7 @@ void TestReturnStatements() {
 int main() {
   TestVarStatements();
   TestReturnStatements();
+  TestString();
 
   return 0;
 }
