@@ -1,47 +1,136 @@
 #ifndef MCSCRIPT_V3_AST_H
 #define MCSCRIPT_V3_AST_H
 
+#include <string>
+#include <vector>
+#include <memory>
 #include <token.h>
-#include <list.h>
 
-typedef union {
-  int val;
-} expression_t;
+// Node interface
+class Node {
+  public:
+    virtual std::string TokenLiteral() const = 0;
+};
 
-typedef struct {
-  token_t* token;
-  const char* value;
-} identifier_t;
+// Statement interface
+class Statement : public Node {
+  public:
+    virtual std::string TokenLiteral() const = 0;
+  protected:
+    virtual void StatementNode_() const = 0;
+};
 
-typedef struct {
-  token_t* token;
-  expression_t value;
-  identifier_t* name;
-} var_stmt_t;
+// Expression interface
+class Expression : public Node {
+  public:
+    virtual std::string TokenLiteral() const = 0;
+  protected:
+    virtual void ExpressionNode_() const = 0;
+};
 
-typedef struct {
-  token_t* token;
-  expression_t return_value;
-} return_stmt_t;
+class Program : public Node {
+  public:
+    inline std::string TokenLiteral() const override {
+      return statements_[0]->TokenLiteral();
+    }
+    inline std::vector<std::shared_ptr<Statement>> GetStatements() const {
+      return statements_;
+    }
 
-typedef enum {
-  VAR_S,
-  RETURN_S
-} stmt_type_t;
+    inline void AppendStatements(std::shared_ptr<Statement> stmt) {
+      statements_.push_back(stmt);
+    }
 
-typedef union {
-  var_stmt_t* var_stmt;
-  return_stmt_t* return_stmt;
-} stmt_data_t;
+  private:
+    std::vector<std::shared_ptr<Statement>> statements_;
+};
 
-typedef struct {
-  stmt_type_t type;
-  stmt_data_t stmt;
-} statement_t;
+class Identifier : public Expression {
+  public:
+    Identifier(std::string value, std::shared_ptr<Token> token) : 
+        value_(value), token_(token) {
+        // empty
+    }
 
-typedef struct {
-  list_t* statements; // list of statement_t structs
-} program_t;
+    inline std::string TokenLiteral() const override {
+      return token_->GetLiteral();
+    }
+
+    inline std::string GetValue() const {
+      return value_;
+    }
+
+    inline std::shared_ptr<Token> GetToken() const {
+      return token_;
+    }
+  
+  protected:
+    inline void ExpressionNode_() const override {}
+  
+  private:
+    std::string value_;
+    std::shared_ptr<Token> token_;
+
+};
 
 
+class VarStatement : public Statement {
+  public:
+    VarStatement(std::shared_ptr<Token> token) : token_(token) {}
+
+    inline std::string TokenLiteral() const override {
+      return token_->GetLiteral();
+    }
+
+    inline std::shared_ptr<Token> GetToken() const {
+      return token_;
+    }
+
+    inline std::shared_ptr<Expression> GetValue() const {
+      return value_;
+    }
+    inline std::shared_ptr<Identifier> GetName() const {
+      return name_;
+    }
+
+    inline void SetValue(std::shared_ptr<Expression> val) {
+      value_ = val;
+    }
+
+    inline void SetName(std::shared_ptr<Identifier> name) {
+      name_ = name;
+    }
+  
+  protected:
+    inline void StatementNode_() const override { 
+      // empty
+    }
+  
+  private:
+    std::shared_ptr<Token> token_;
+    std::shared_ptr<Expression> value_;
+    std::shared_ptr<Identifier> name_;
+    
+};
+
+class ReturnStatement : public Statement {
+  public:
+    ReturnStatement(std::shared_ptr<Token> tok) : token_(tok) {}
+
+    inline std::string TokenLiteral() const override {
+      return token_->GetLiteral();
+    }
+
+    inline std::shared_ptr<Expression> GetReturnVal() const {
+      return return_value_;
+    }
+  
+  protected:
+    inline void StatementNode_() const override {}
+  
+
+  private:
+    std::shared_ptr<Token> token_;
+    std::shared_ptr<Expression> return_value_;
+};
 #endif // MCSCRIPT_V3_AST_H

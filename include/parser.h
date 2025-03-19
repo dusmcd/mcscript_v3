@@ -3,18 +3,32 @@
 
 #include <lexer.h>
 #include <ast.h>
+#include <memory>
 
-typedef struct {
-  lexer_t* l;
-  token_t* curr_token;
-  token_t* peek_token;
-  list_t* used_tokens;
-  list_t* errors;
-} parser_t;
+class Parser {
+  
+  public:
+    Parser(std::shared_ptr<Lexer> l);
+    std::unique_ptr<Program> ParseProgram();
 
-parser_t* new_parser(lexer_t* l);
-program_t* parse_program(parser_t* p);
+    inline std::vector<std::string> GetErrors() {
+      return errors_;
+    }
 
+  private:
+    void NextToken_(); 
+    bool PeekTokenIs_(TokenType t);
+    void PeekError_(TokenType t);
+    bool ExpectPeek_(TokenType t);
+    bool CurrTokenIs_(TokenType t);
+    std::shared_ptr<Statement> ParseStatement_();
+    std::shared_ptr<VarStatement> ParseVarStatement_();
+    std::shared_ptr<ReturnStatement> ParseReturnStatement_(); 
+    std::shared_ptr<Token> curr_token_;
+    std::shared_ptr<Token> peek_token_;
+    std::vector<std::string> errors_;
+    std::shared_ptr<Lexer> l_;
+};
 
 
 #endif //MCSCRIPT_V3_PARSER_H
