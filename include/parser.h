@@ -52,6 +52,8 @@ class Parser {
     std::shared_ptr<ExpressionStatement> ParseExpressionStatement_();
     std::shared_ptr<Expression> ParseExpression_(Precedence pr);
     std::shared_ptr<Identifier> ParseIdentifier_();
+    std::shared_ptr<IntegerLiteral> ParseIntegerLiteral_();
+    prefixParseFn GetIntegerLiteralFn_();
     prefixParseFn GetParseIdentifierFn_();
     std::unordered_map<TokenType, prefixParseFn> prefixParseFns_;
     std::unordered_map<TokenType, infixParseFn> infixParseFns_;

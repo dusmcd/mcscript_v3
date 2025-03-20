@@ -6,6 +6,74 @@ struct Test {
     std::string literal;
   };
 
+bool CheckParserErrors(std::shared_ptr<Parser> p) {
+  int num_errors = p->GetErrors().size();
+  if (num_errors == 0)
+    return false;
+  
+  printf("parser has %d errors\n", num_errors);
+  std::cerr << "parser has " << num_errors << " errors\n";
+
+  for (std::string err : p->GetErrors()) {
+    std::cerr << "parser error: " << err << "\n";
+  }
+
+  return true;
+
+}
+
+void TestIntegerLiterals() {
+  std::string input = "5;";
+
+  auto l = std::make_shared<Lexer>(input);
+  auto p = std::make_shared<Parser>(l);
+  std::unique_ptr<Program> program = p->ParseProgram();
+  if (program == nullptr) {
+    std::cerr << "program = nullptr\n";
+    return;
+  }
+
+  if (CheckParserErrors(p)) {
+    return;
+  }
+
+  std::vector<std::shared_ptr<Statement>> stmts = program->GetStatements();
+  if (stmts.size() != 1) {
+    std::cerr << "program->GetStatements() does not have 1 statement. got=" <<
+              stmts.size() << "\n";
+    return;
+  }
+
+  for (auto stmt : stmts) {
+    auto es = std::dynamic_pointer_cast<ExpressionStatement>(stmt);
+    if (es == nullptr) {
+      std::cerr << "statement not an expression\n";
+      return;
+    }
+
+    auto il = std::dynamic_pointer_cast<IntegerLiteral>(es->GetExpression());
+    if (il == nullptr) {
+      std::cerr << "expression not an integer literal\n";
+      return;
+    }
+
+    if (il->GetValue() != 5) {
+      std::cerr << "il->GetValue() wrong. expected=" << 5 << " got=" << 
+          il->GetValue() << "\n";
+      return;
+    }
+
+    if (il->TokenLiteral().compare("5") != 0) {
+      std::cerr << "il->TokenLiteral() wrong. expected=5" << "got=" <<
+          il->TokenLiteral() << "\n";
+    }
+
+    std::cout << "TestIntegerLiterals() passed\n";
+
+  }
+}
+
+
 void TestIdentityExpressions() {
   std::string input = "foobar;";
   std::string expLiteral = "foobar";
@@ -13,31 +81,35 @@ void TestIdentityExpressions() {
   auto p = std::make_shared<Parser>(l);
   std::unique_ptr<Program> program = p->ParseProgram();
   if (program == nullptr) {
-    std::cout << "program = nullptr\n";
+    std::cerr << "program = nullptr\n";
+    return;
+  }
+
+  if (CheckParserErrors(p)) {
     return;
   }
 
   std::vector<std::shared_ptr<Statement>> stmts = program->GetStatements();
   if (stmts.size() != 1) {
-    std::cout << "program->GetStatements().size() does not equal 1\n";
+    std::cerr << "program->GetStatements().size() does not equal 1\n";
     return;
   }
 
   for (auto stmt : stmts) {
     auto es = std::dynamic_pointer_cast<ExpressionStatement>(stmt);
     if (es == nullptr) {
-      std::cout << "statement is not an expression statement\n";
+      std::cerr << "statement is not an expression statement\n";
       return;
     }
 
     auto i = std::dynamic_pointer_cast<Identifier>(es->GetExpression());
     if (i == nullptr) {
-      std::cout << "expression is not an identity expression\n";
+      std::cerr << "expression is not an identity expression\n";
       return;
     }
 
     if (i->GetValue().compare(expLiteral) != 0) {
-      std::cout << "identifier value wrong. expected: " << expLiteral
+      std::cerr << "identifier value wrong. expected: " << expLiteral
             << ", got: " << i->GetValue() << "\n";
       return;
     }
@@ -61,49 +133,33 @@ void TestString() {
     std::string actual = stmt->String();
 
     if (test.compare(actual) != 0) {
-      std::cout << "TestString() failed\n";
+      std::cerr << "TestString() failed\n";
       return;
     }
   }
-  std::cout << "TestString() passed\n";
+  std::cerr << "TestString() passed\n";
 }
 
 
 bool TestVarStatement(std::shared_ptr<VarStatement> vs, Test test) {
   if (vs->TokenLiteral().compare("var") != 0) {
-    std::cout << "not a var statemnt. expected var, got \n" << vs->TokenLiteral();
+    std::cerr << "not a var statemnt. expected var, got \n" << vs->TokenLiteral();
     return false;
   }
 
   if (vs->GetName()->GetValue().compare(test.literal) != 0) {
-    std::cout << "wrong identifier. expected " << test.literal
+    std::cerr << "wrong identifier. expected " << test.literal
           << ", got " << vs->GetName()->GetValue() << "\n";
     return false;
   }
 
   if (vs->GetName()->GetToken()->GetLiteral().compare(test.literal) != 0) {
-    std::cout << "wrong identifier. expected " << test.literal
+    std::cerr << "wrong identifier. expected " << test.literal
       << ", got " << vs->GetName()->GetToken()->GetLiteral();
     return false;
   }
 
   return true;
-}
-
-bool CheckParserErrors(std::shared_ptr<Parser> p) {
-  int num_errors = p->GetErrors().size();
-  if (num_errors == 0)
-    return false;
-  
-  printf("parser has %d errors\n", num_errors);
-  std::cout << "parser has " << num_errors << " errors\n";
-
-  for (std::string err : p->GetErrors()) {
-    std::cout << "parser error: " << err << "\n";
-  }
-
-  return true;
-
 }
 
 void TestVarStatements() {
@@ -119,12 +175,12 @@ void TestVarStatements() {
   }
 
   if (program == nullptr) {
-    std::cout << "program = nullptr\n";
+    std::cerr << "program = nullptr\n";
     return;
   }
 
   if (program->GetStatements().size() != 2) {
-    std::cout << "program should have 2 statements\n";
+    std::cerr << "program should have 2 statements\n";
     return;
   }
 
@@ -138,7 +194,7 @@ void TestVarStatements() {
   for (size_t i = 0; i < stmts.size(); i++) {
     auto vs = std::dynamic_pointer_cast<VarStatement>(stmts[i]);
     if (vs == nullptr) {
-      std::cout << "statement not a var statement\n";
+      std::cerr << "statement not a var statement\n";
       return;
     }
     if (!TestVarStatement(vs, tests[i])) {
@@ -157,7 +213,7 @@ void TestReturnStatements() {
   auto p = std::make_shared<Parser>(l);
   std::unique_ptr<Program> program = p->ParseProgram(true);
   if (program == nullptr) {
-    std::cout << "program = nullptr\n";
+    std::cerr << "program = nullptr\n";
     return;
   } 
 
@@ -166,7 +222,7 @@ void TestReturnStatements() {
   }
 
   if (program->GetStatements().size() != 2) {
-    std::cout << "program.statements_ does not contain 2 arguments. got " 
+    std::cerr << "program.statements_ does not contain 2 arguments. got " 
           << program->GetStatements().size() << "\n";
     return;
   }
@@ -174,12 +230,12 @@ void TestReturnStatements() {
   for (auto& stmt : program->GetStatements()) {
     auto rs = std::dynamic_pointer_cast<ReturnStatement>(stmt);
     if (rs == nullptr) {
-      std::cout << "statement not a return statement\n";
+      std::cerr << "statement not a return statement\n";
       return;
     }
 
     if (rs->TokenLiteral().compare("return") != 0) {
-      std::cout << "wront literal. expected 'return', got " << rs->TokenLiteral() << "\n";
+      std::cerr << "wront literal. expected 'return', got " << rs->TokenLiteral() << "\n";
       return;
     }
   }
@@ -193,6 +249,7 @@ int main() {
   TestReturnStatements();
   TestString();
   TestIdentityExpressions();
+  TestIntegerLiterals();
 
   return 0;
 }

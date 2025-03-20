@@ -170,4 +170,34 @@ class ReturnStatement : public Statement {
     std::shared_ptr<Token> token_;
     std::shared_ptr<Expression> return_value_;
 };
+
+class IntegerLiteral : public Expression {
+  public:
+    IntegerLiteral(std::shared_ptr<Token> token) : token_(token) {}
+
+    inline std::string TokenLiteral() const override {
+      return token_->GetLiteral();
+    }
+
+    inline std::string String() const override {
+      return token_->GetLiteral();
+    }
+
+    inline long GetValue() const {
+      return value_;
+    }
+
+    inline void SetValue(long value) {
+      value_ = value;
+    }
+
+  protected:
+    void ExpressionNode_() const override {}
+
+  private:
+    std::shared_ptr<Token> token_;
+    long value_;
+  
+    
+};
 #endif // MCSCRIPT_V3_AST_H

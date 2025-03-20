@@ -11,6 +11,7 @@ Parser::Parser(std::shared_ptr<Lexer> l) {
   peek_token_ = nullptr;
 
   RegisterPrefixFns_(GetParseIdentifierFn_(), TokenType::IDENT);
+  RegisterPrefixFns_(GetIntegerLiteralFn_(), TokenType::INT);
 
   NextToken_();
   NextToken_();
@@ -141,4 +142,24 @@ std::unique_ptr<Program> Parser::ParseProgram(bool skipexpr){
   }
   
   return program;
+}
+
+
+std::shared_ptr<IntegerLiteral> Parser::ParseIntegerLiteral_() {
+  auto il = std::make_shared<IntegerLiteral>(curr_token_);
+
+  long val = atol(curr_token_->GetLiteral().c_str());
+  if (val == 0 && curr_token_->GetLiteral().compare("0") != 0) {
+    std::string msg = "could not parse integer literal";
+    errors_.push_back(msg);
+    return nullptr;
+  }
+  il->SetValue(val);
+
+  return il;
+}
+
+prefixParseFn Parser::GetIntegerLiteralFn_() {
+  prefixParseFn fn = std::bind(&Parser::ParseIntegerLiteral_, this);
+  return fn;
 }
