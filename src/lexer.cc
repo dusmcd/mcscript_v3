@@ -80,9 +80,8 @@ std::shared_ptr<Token> Lexer::NextToken()  {
         char temp = ch_;
         ReadChar_();
 
-        std::string str = "";
-        str += temp;
-        str += ch_;
+        char buff[] = {temp, ch_, '\0'};
+        std::string str(buff);
         tok = std::make_shared<Token>(TokenType::EQ, str);
       } else {
         tok = NewToken_(TokenType::ASSIGN, ch_);
@@ -92,10 +91,9 @@ std::shared_ptr<Token> Lexer::NextToken()  {
       if (input_[reader_position_] == '=') {
         char temp = ch_;
         ReadChar_();
+        char buff[] = {temp, ch_, '\0'};
               
-        std::string str = "";
-        str += temp;
-        str += ch_;
+        std::string str(buff);
         tok = std::make_shared<Token>(TokenType::NOT_EQ, str);
       } else {
         tok = NewToken_(TokenType::BANG, ch_);
@@ -109,6 +107,9 @@ std::shared_ptr<Token> Lexer::NextToken()  {
       break;
     case '+':
       tok = NewToken_(TokenType::PLUS, ch_);
+      break;
+    case '-':
+      tok = NewToken_(TokenType::MINUS, ch_);
       break;
     case '(':
       tok = NewToken_(TokenType::LPAREN, ch_);

@@ -44,3 +44,13 @@ std::string ReturnStatement::String() const {
 
   return str;
 }
+
+std::string PrefixExpression::String() const {
+  char buff[256];
+  snprintf(buff, sizeof(buff), "(%s, %s)",
+      op_.c_str(), right_->String().c_str());
+  
+  std::string str(buff);
+
+  return str;
+}

@@ -200,4 +200,32 @@ class IntegerLiteral : public Expression {
   
     
 };
+
+class PrefixExpression : public Expression {
+  public:
+    PrefixExpression(std::shared_ptr<Token> token, std::string op) : token_(token), op_(op) {}
+
+    inline std::string TokenLiteral() const override {
+      return token_->GetLiteral();
+    }
+
+    std::string String() const override;
+
+    inline std::shared_ptr<Expression> GetRight() const {
+      return right_;
+    }
+
+    inline void SetRight(std::shared_ptr<Expression> right) {
+      right_ = right;
+    }
+
+  protected:
+    inline void ExpressionNode_() const override {}
+
+  private:
+    std::shared_ptr<Token> token_;
+    std::string op_;
+    std::shared_ptr<Expression> right_;
+
+};
 #endif // MCSCRIPT_V3_AST_H

@@ -12,6 +12,9 @@ Parser::Parser(std::shared_ptr<Lexer> l) {
 
   RegisterPrefixFns_(GetParseIdentifierFn_(), TokenType::IDENT);
   RegisterPrefixFns_(GetIntegerLiteralFn_(), TokenType::INT);
+  RegisterPrefixFns_(GetPrefixExpressionFn_(), TokenType::BANG);
+  RegisterPrefixFns_(GetPrefixExpressionFn_(), TokenType::MINUS);
+
 
   NextToken_();
   NextToken_();
@@ -119,8 +122,14 @@ std::shared_ptr<ExpressionStatement> Parser::ParseExpressionStatement_() {
 }
 
 std::shared_ptr<Expression> Parser::ParseExpression_(Precedence pr) {
-  if (prefixParseFns_.count(curr_token_->GetType()) < 1)
+  if (prefixParseFns_.count(curr_token_->GetType()) < 1) {
+    char buff[256];
+    snprintf(buff, sizeof(buff), "no parser function for type %d",
+           static_cast<int>(curr_token_->GetType()));
+    std::string msg(buff);
+    errors_.push_back(msg);
     return nullptr;
+  }
 
   prefixParseFn prefix = prefixParseFns_.at(curr_token_->GetType());
   if (prefix == nullptr) {
@@ -138,7 +147,7 @@ std::unique_ptr<Program> Parser::ParseProgram(bool skipexpr){
     if (stmt != nullptr) {
       program->AppendStatements(stmt);
     }
-      NextToken_();
+    NextToken_();
   }
   
   return program;
@@ -163,3 +172,18 @@ prefixParseFn Parser::GetIntegerLiteralFn_() {
   prefixParseFn fn = std::bind(&Parser::ParseIntegerLiteral_, this);
   return fn;
 }
+
+std::shared_ptr<PrefixExpression> Parser::ParsePrefixExpression_() {
+  auto pe = std::make_shared<PrefixExpression>(curr_token_, curr_token_->GetLiteral());
+
+  NextToken_();
+  pe->SetRight(ParseExpression_(Precedence::PREFIX));
+
+  return pe;
+}
+
+prefixParseFn Parser::GetPrefixExpressionFn_() {
+  prefixParseFn fn = std::bind(&Parser::ParsePrefixExpression_, this);
+  return fn;
+}
+

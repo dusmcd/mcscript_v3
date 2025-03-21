@@ -6,6 +6,12 @@ struct Test {
     std::string literal;
   };
 
+struct PrefixTest {
+  long value;
+  std::string op;
+  std::string input;
+};
+
 bool CheckParserErrors(std::shared_ptr<Parser> p) {
   int num_errors = p->GetErrors().size();
   if (num_errors == 0)
@@ -20,6 +26,77 @@ bool CheckParserErrors(std::shared_ptr<Parser> p) {
 
   return true;
 
+}
+
+bool TestIntegerLiteral(std::shared_ptr<IntegerLiteral> il, PrefixTest test) {
+  if (il->GetValue() != test.value) {
+    std::cerr << "Right expression wrong value. expected: " << test.value
+        << ", got: " << il->GetValue() << "\n";
+    
+    return false;
+  }
+
+  return true;
+}
+
+void TestPrefixExpressions() {
+  std::vector<PrefixTest> tests = {
+   (PrefixTest){.value = 15, .op = "-", .input = "-15;"},
+   (PrefixTest){.value = 5, .op = "!", .input = "!5;"},
+   (PrefixTest){.value = 10, .op = "-", .input = "-10;"},
+  };
+
+  for (size_t i = 0; i < tests.size(); i++) {
+    PrefixTest test = tests[i];
+    auto l = std::make_shared<Lexer>(test.input);
+    auto p = std::make_shared<Parser>(l);
+    std::unique_ptr<Program> program = p->ParseProgram();
+    if (program == nullptr) {
+      std::cerr << "program = nullptr\n";
+      return;
+    }
+
+    if (CheckParserErrors(p)) {
+      return;
+    }
+
+    std::vector<std::shared_ptr<Statement>> stmts = program->GetStatements();
+    if (stmts.size() != 1) {
+      std::cerr << "program->GetStatements().size() does not equal 1. got="
+              << stmts.size() << "\n";
+      return;
+    }
+
+    auto es = std::dynamic_pointer_cast<ExpressionStatement>(stmts[0]);
+    if (es == nullptr) {
+      std::cerr << "stmts[0] not an ExpressionStatement\n";
+      return;
+    }
+
+    auto pe = std::dynamic_pointer_cast<PrefixExpression>(es->GetExpression());
+    if (pe == nullptr) {
+      std::cerr << "es->GetExpression() not a PrefixExpression\n";
+      return;
+    }
+
+    if (pe->TokenLiteral().compare(test.op)) {
+      std::cerr << "wrong operator. expected: " << test.op << ", got = "
+          << pe->TokenLiteral() << "\n";
+      return;
+    }
+
+    auto il = std::dynamic_pointer_cast<IntegerLiteral>(pe->GetRight());
+    if (il == nullptr) {
+      std::cerr << "pe->GetRight() not an IntegerLiteral\n";
+      return;
+    }
+
+    if (!TestIntegerLiteral(il, test)) {
+      return;
+    }
+  }
+
+  std::cout << "TestPrefixExpressions() passed\n";
 }
 
 void TestIntegerLiterals() {
@@ -250,6 +327,7 @@ int main() {
   TestString();
   TestIdentityExpressions();
   TestIntegerLiterals();
+  TestPrefixExpressions();
 
   return 0;
 }
