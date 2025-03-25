@@ -15,6 +15,15 @@ Parser::Parser(std::shared_ptr<Lexer> l) {
   RegisterPrefixFns_(GetPrefixExpressionFn_(), TokenType::BANG);
   RegisterPrefixFns_(GetPrefixExpressionFn_(), TokenType::MINUS);
 
+  RegisterInfixFns_(GetInfixExpressionFn_(), TokenType::PLUS);
+  RegisterInfixFns_(GetInfixExpressionFn_(), TokenType::MINUS);
+  RegisterInfixFns_(GetInfixExpressionFn_(), TokenType::SLASH);
+  RegisterInfixFns_(GetInfixExpressionFn_(), TokenType::ASTERISK);
+  RegisterInfixFns_(GetInfixExpressionFn_(), TokenType::LT);
+  RegisterInfixFns_(GetInfixExpressionFn_(), TokenType::GT);
+  RegisterInfixFns_(GetInfixExpressionFn_(), TokenType::EQ);
+  RegisterInfixFns_(GetInfixExpressionFn_(), TokenType::NOT_EQ);
+
 
   NextToken_();
   NextToken_();
@@ -135,8 +144,19 @@ std::shared_ptr<Expression> Parser::ParseExpression_(Precedence pr) {
   if (prefix == nullptr) {
     return nullptr;
   }
+  std::shared_ptr<Expression> leftExp = prefix();
 
-  return prefix();
+  while (!PeekTokenIs_(TokenType::SEMICOLON) && pr < PeekPrecedence_()) {
+    infixParseFn infix = infixParseFns_.count(peek_token_->GetType()) > 0 ? 
+                        infixParseFns_.at(peek_token_->GetType()) : nullptr;
+    if (infix == nullptr)
+      return nullptr;
+
+    NextToken_();
+    leftExp = infix(leftExp);
+  }
+
+  return leftExp;
 }
 
 std::unique_ptr<Program> Parser::ParseProgram(bool skipexpr){
@@ -187,3 +207,33 @@ prefixParseFn Parser::GetPrefixExpressionFn_() {
   return fn;
 }
 
+std::shared_ptr<InfixExpression> Parser::ParseInfixExpression_
+            (std::shared_ptr<Expression> left) {
+  auto infix = std::make_shared<InfixExpression>(curr_token_, curr_token_->GetLiteral(), left);
+
+  Precedence pr = CurrPrecedence_();
+  NextToken_();
+  infix->SetRight(ParseExpression_(pr));
+  return infix;
+}
+
+infixParseFn Parser::GetInfixExpressionFn_() {
+  infixParseFn fn = std::bind(&Parser::ParseInfixExpression_, this, std::placeholders::_1);
+  return fn;
+}
+
+Precedence Parser::CurrPrecedence_() {
+  if (prMap.count(curr_token_->GetType()) > 0) {
+    return prMap.at(curr_token_->GetType());
+  }
+
+  return Precedence::LOWEST;
+}
+
+Precedence Parser::PeekPrecedence_() {
+  if (prMap.count(peek_token_->GetType()) > 0) {
+    return prMap.at(peek_token_->GetType());
+  }
+
+  return Precedence::LOWEST;
+}

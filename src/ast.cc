@@ -1,10 +1,11 @@
 #include <ast.h>
 
 std::string Program::String() const {
+  std::string result = "";
   for (auto stmt : statements_) {
-    return stmt->String();
+    result.append(stmt->String());
   }
-  return "";
+  return result;
 }
 
 std::string Identifier::String() const {
@@ -47,10 +48,20 @@ std::string ReturnStatement::String() const {
 
 std::string PrefixExpression::String() const {
   char buff[256];
-  snprintf(buff, sizeof(buff), "(%s, %s)",
+  snprintf(buff, sizeof(buff), "(%s%s)",
       op_.c_str(), right_->String().c_str());
   
   std::string str(buff);
 
+  return str;
+}
+
+std::string InfixExpression::String() const {
+  char buff[256];
+  snprintf(buff, sizeof(buff), "(%s %s %s)",
+      left_->String().c_str(), op_.c_str(),
+       right_->String().c_str());
+  
+  std::string str(buff);
   return str;
 }

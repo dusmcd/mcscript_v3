@@ -111,6 +111,12 @@ std::shared_ptr<Token> Lexer::NextToken()  {
     case '-':
       tok = NewToken_(TokenType::MINUS, ch_);
       break;
+    case '*':
+      tok = NewToken_(TokenType::ASTERISK, ch_);
+      break;
+    case '/':
+      tok = NewToken_(TokenType::SLASH, ch_);
+      break;
     case '(':
       tok = NewToken_(TokenType::LPAREN, ch_);
       break;

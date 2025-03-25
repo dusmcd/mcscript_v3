@@ -14,6 +14,8 @@ enum class TokenType : int {
   GT, // >
   LT, // <
   BANG, // !
+  SLASH,
+  ASTERISK,
 
   // objects
   INT,

@@ -54,15 +54,30 @@ class Parser {
     std::shared_ptr<Identifier> ParseIdentifier_();
     std::shared_ptr<IntegerLiteral> ParseIntegerLiteral_();
     std::shared_ptr<PrefixExpression> ParsePrefixExpression_();
+    std::shared_ptr<InfixExpression> ParseInfixExpression_(std::shared_ptr<Expression> left);
+    infixParseFn GetInfixExpressionFn_();
     prefixParseFn GetPrefixExpressionFn_();
     prefixParseFn GetIntegerLiteralFn_();
     prefixParseFn GetParseIdentifierFn_();
+    Precedence CurrPrecedence_();
+    Precedence PeekPrecedence_();
     std::unordered_map<TokenType, prefixParseFn> prefixParseFns_;
     std::unordered_map<TokenType, infixParseFn> infixParseFns_;
     std::shared_ptr<Token> curr_token_;
     std::shared_ptr<Token> peek_token_;
     std::vector<std::string> errors_;
     std::shared_ptr<Lexer> l_;
+};
+
+static const std::unordered_map<TokenType, Precedence> prMap = {
+  {TokenType::PLUS, Precedence::SUM},
+  {TokenType::MINUS, Precedence::SUM},
+  {TokenType::ASTERISK, Precedence::PRODUCT},
+  {TokenType::SLASH, Precedence::PRODUCT},
+  {TokenType::EQ, Precedence::EQUALS},
+  {TokenType::NOT_EQ, Precedence::EQUALS},
+  {TokenType::LT, Precedence::LESSGREATER},
+  {TokenType::GT, Precedence::LESSGREATER},
 };
 
 

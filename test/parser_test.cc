@@ -28,9 +28,9 @@ bool CheckParserErrors(std::shared_ptr<Parser> p) {
 
 }
 
-bool TestIntegerLiteral(std::shared_ptr<IntegerLiteral> il, PrefixTest test) {
-  if (il->GetValue() != test.value) {
-    std::cerr << "Right expression wrong value. expected: " << test.value
+bool TestIntegerLiteral(std::shared_ptr<IntegerLiteral> il, int value) {
+  if (il->GetValue() != value) {
+    std::cerr << "Right expression wrong value. expected: " << value
         << ", got: " << il->GetValue() << "\n";
     
     return false;
@@ -38,6 +38,82 @@ bool TestIntegerLiteral(std::shared_ptr<IntegerLiteral> il, PrefixTest test) {
 
   return true;
 }
+
+
+void TestInfixExpressions() {
+  struct InfixTest {
+    std::string input;
+    long left;
+    std::string op;
+    long right;
+  };
+  std::vector<InfixTest> tests = {
+    (InfixTest){.input = "5 + 5;", .left = 5, .op = "+", .right = 5},
+    (InfixTest){.input = "5 - 5;", .left = 5, .op = "-", .right = 5},
+    (InfixTest){.input = "5 * 5;", .left = 5, .op = "*", .right = 5},
+    (InfixTest){.input = "5 / 5;", .left = 5, .op = "/", .right = 5},
+  };
+
+  for (auto test : tests) {
+    auto l = std::make_shared<Lexer>(test.input);
+    auto p = std::make_shared<Parser>(l);
+    std::unique_ptr<Program> program = p->ParseProgram();
+    if (CheckParserErrors(p)) {
+      return;
+    }
+
+    std::vector<std::shared_ptr<Statement>> stmts = program->GetStatements();
+    if (stmts.size() != 1) {
+      std::cerr << "stmt.size() does not equal 1. got=" << stmts.size() << "\n";
+      return;
+    }
+
+    auto es = std::dynamic_pointer_cast<ExpressionStatement>(stmts[0]);
+    if (es == nullptr) {
+      std::cerr << "stmt is not an ExpressionStatement\n";
+      return;
+    }
+
+    auto ie = std::dynamic_pointer_cast<InfixExpression>(es->GetExpression());
+    if (ie == nullptr) {
+      std::cerr << "expression is not an InfixExpression\n";
+      return;
+    }
+
+    auto left = std::dynamic_pointer_cast<IntegerLiteral>(ie->GetLeft());
+    if (left == nullptr) {
+      std::cerr << "left expression is not an IntegerLiteral\n";
+      return;
+    } 
+
+    auto right = std::dynamic_pointer_cast<IntegerLiteral>(ie->GetRight());
+    if (right == nullptr) {
+      std::cerr << "right expression is not an IntegerLiteral\n";
+      return;
+    }
+
+    if (test.op.compare(ie->GetOp()) != 0) {
+      std::cerr << "wrong operator. expected: " << test.op 
+            << ", got: " << ie->GetOp() << "\n";
+      return;
+    }
+
+    if (!TestIntegerLiteral(left, test.left)) {
+      return;
+    }
+
+    if (!TestIntegerLiteral(right, test.right)) {
+      return;
+    }
+
+    std::cout << "TestInfixExpressions() passed\n";
+
+  }
+
+  }
+
+
+
 
 void TestPrefixExpressions() {
   std::vector<PrefixTest> tests = {
@@ -91,7 +167,7 @@ void TestPrefixExpressions() {
       return;
     }
 
-    if (!TestIntegerLiteral(il, test)) {
+    if (!TestIntegerLiteral(il, test.value)) {
       return;
     }
   }
@@ -328,6 +404,7 @@ int main() {
   TestIdentityExpressions();
   TestIntegerLiterals();
   TestPrefixExpressions();
+  TestInfixExpressions();
 
   return 0;
 }
