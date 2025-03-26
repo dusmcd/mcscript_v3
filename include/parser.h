@@ -55,6 +55,8 @@ class Parser {
     std::shared_ptr<IntegerLiteral> ParseIntegerLiteral_();
     std::shared_ptr<PrefixExpression> ParsePrefixExpression_();
     std::shared_ptr<InfixExpression> ParseInfixExpression_(std::shared_ptr<Expression> left);
+    std::shared_ptr<Expression> ParseGroupedExpression_();
+    prefixParseFn GetParseGroupedExprFn_();
     infixParseFn GetInfixExpressionFn_();
     prefixParseFn GetPrefixExpressionFn_();
     prefixParseFn GetIntegerLiteralFn_();

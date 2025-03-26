@@ -1,10 +1,14 @@
 #include <parser.h>
 
-void Parser::NextToken_() {
-  curr_token_ = peek_token_;
-  peek_token_ = l_->NextToken();
-}
+/*
+===========================================
+PUBLIC METHODS
+===========================================
+*/
 
+/*
+  constuctor
+*/
 Parser::Parser(std::shared_ptr<Lexer> l) {
   l_ = l;
   curr_token_ = nullptr;
@@ -14,6 +18,7 @@ Parser::Parser(std::shared_ptr<Lexer> l) {
   RegisterPrefixFns_(GetIntegerLiteralFn_(), TokenType::INT);
   RegisterPrefixFns_(GetPrefixExpressionFn_(), TokenType::BANG);
   RegisterPrefixFns_(GetPrefixExpressionFn_(), TokenType::MINUS);
+  RegisterPrefixFns_(GetParseGroupedExprFn_(), TokenType::LPAREN);
 
   RegisterInfixFns_(GetInfixExpressionFn_(), TokenType::PLUS);
   RegisterInfixFns_(GetInfixExpressionFn_(), TokenType::MINUS);
@@ -29,14 +34,34 @@ Parser::Parser(std::shared_ptr<Lexer> l) {
   NextToken_();
 }
 
-std::shared_ptr<Identifier> Parser::ParseIdentifier_() {
-  auto i = std::make_shared<Identifier>(curr_token_->GetLiteral(), curr_token_);
-  return i;
+
+std::unique_ptr<Program> Parser::ParseProgram(bool skipexpr){
+  auto program = std::make_unique<Program>();
+  
+  while (!CurrTokenIs_(TokenType::EOI)) {
+    std::shared_ptr<Statement> stmt = ParseStatement_(skipexpr);
+    if (stmt != nullptr) {
+      program->AppendStatements(stmt);
+    }
+    NextToken_();
+  }
+  
+  return program;
 }
 
-prefixParseFn Parser::GetParseIdentifierFn_() {
-  prefixParseFn fn = std::bind(&Parser::ParseIdentifier_, this);
-  return fn;
+
+/*
+===============================================================
+PRIVATE METHODS
+===============================================================
+*/
+
+/*
+  utility methods
+*/
+void Parser::NextToken_() {
+  curr_token_ = peek_token_;
+  peek_token_ = l_->NextToken();
 }
 
 bool Parser::PeekTokenIs_(TokenType t) {
@@ -61,11 +86,29 @@ bool Parser::ExpectPeek_(TokenType t) {
   return false;
 }
 
-
 bool Parser::CurrTokenIs_(TokenType t) {
   return curr_token_->GetType() == t;
 }
 
+Precedence Parser::CurrPrecedence_() {
+  if (prMap.count(curr_token_->GetType()) > 0) {
+    return prMap.at(curr_token_->GetType());
+  }
+
+  return Precedence::LOWEST;
+}
+
+Precedence Parser::PeekPrecedence_() {
+  if (prMap.count(peek_token_->GetType()) > 0) {
+    return prMap.at(peek_token_->GetType());
+  }
+
+  return Precedence::LOWEST;
+}
+
+/*
+  statement parsing
+*/
 std::shared_ptr<VarStatement> Parser::ParseVarStatement_(bool skipexpr) {
   auto vs = std::make_shared<VarStatement>(curr_token_);
 
@@ -130,6 +173,36 @@ std::shared_ptr<ExpressionStatement> Parser::ParseExpressionStatement_() {
   return stmt;
 }
 
+/*
+  expression parsing
+*/
+
+std::shared_ptr<Identifier> Parser::ParseIdentifier_() {
+  auto i = std::make_shared<Identifier>(curr_token_->GetLiteral(), curr_token_);
+  return i;
+}
+
+prefixParseFn Parser::GetParseIdentifierFn_() {
+  prefixParseFn fn = std::bind(&Parser::ParseIdentifier_, this);
+  return fn;
+}
+
+std::shared_ptr<Expression> Parser::ParseGroupedExpression_() {
+  NextToken_();
+  std::shared_ptr<Expression> exp = ParseExpression_(Precedence::LOWEST);
+
+  if (!ExpectPeek_(TokenType::RPAREN)) {
+    return nullptr;
+  }
+
+  return exp;
+}
+
+prefixParseFn Parser::GetParseGroupedExprFn_() {
+  prefixParseFn fn = std::bind(&Parser::ParseGroupedExpression_, this);
+  return fn;
+}
+
 std::shared_ptr<Expression> Parser::ParseExpression_(Precedence pr) {
   if (prefixParseFns_.count(curr_token_->GetType()) < 1) {
     char buff[256];
@@ -159,19 +232,6 @@ std::shared_ptr<Expression> Parser::ParseExpression_(Precedence pr) {
   return leftExp;
 }
 
-std::unique_ptr<Program> Parser::ParseProgram(bool skipexpr){
-  auto program = std::make_unique<Program>();
-  
-  while (!CurrTokenIs_(TokenType::EOI)) {
-    std::shared_ptr<Statement> stmt = ParseStatement_(skipexpr);
-    if (stmt != nullptr) {
-      program->AppendStatements(stmt);
-    }
-    NextToken_();
-  }
-  
-  return program;
-}
 
 
 std::shared_ptr<IntegerLiteral> Parser::ParseIntegerLiteral_() {
@@ -222,18 +282,3 @@ infixParseFn Parser::GetInfixExpressionFn_() {
   return fn;
 }
 
-Precedence Parser::CurrPrecedence_() {
-  if (prMap.count(curr_token_->GetType()) > 0) {
-    return prMap.at(curr_token_->GetType());
-  }
-
-  return Precedence::LOWEST;
-}
-
-Precedence Parser::PeekPrecedence_() {
-  if (prMap.count(peek_token_->GetType()) > 0) {
-    return prMap.at(peek_token_->GetType());
-  }
-
-  return Precedence::LOWEST;
-}
