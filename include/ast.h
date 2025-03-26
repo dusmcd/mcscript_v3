@@ -269,4 +269,30 @@ class InfixExpression : public Expression {
     std::shared_ptr<Expression> right_;
 };
 
+class BooleanExpression : public Expression {
+  public:
+    BooleanExpression(std::shared_ptr<Token> token, bool value) : token_(token), value_(value) {
+      // empty
+    }
+
+    inline std::string TokenLiteral() const override {
+      return token_->GetLiteral();
+    }
+
+    inline std::string String() const override {
+      return token_->GetLiteral();
+    }
+
+    inline bool GetValue() const {
+      return value_;
+    }
+  
+  protected:
+    void ExpressionNode_() const override {}
+  
+  private:
+    std::shared_ptr<Token> token_;
+    bool value_;
+};
+
 #endif // MCSCRIPT_V3_AST_H

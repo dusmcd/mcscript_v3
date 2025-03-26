@@ -19,6 +19,8 @@ Parser::Parser(std::shared_ptr<Lexer> l) {
   RegisterPrefixFns_(GetPrefixExpressionFn_(), TokenType::BANG);
   RegisterPrefixFns_(GetPrefixExpressionFn_(), TokenType::MINUS);
   RegisterPrefixFns_(GetParseGroupedExprFn_(), TokenType::LPAREN);
+  RegisterPrefixFns_(GetParseBooleanFn_(), TokenType::TRUE),
+  RegisterPrefixFns_(GetParseBooleanFn_(), TokenType::FALSE),
 
   RegisterInfixFns_(GetInfixExpressionFn_(), TokenType::PLUS);
   RegisterInfixFns_(GetInfixExpressionFn_(), TokenType::MINUS);
@@ -176,6 +178,16 @@ std::shared_ptr<ExpressionStatement> Parser::ParseExpressionStatement_() {
 /*
   expression parsing
 */
+
+std::shared_ptr<BooleanExpression> Parser::ParseBooleanExpression_() {
+  return std::make_shared<BooleanExpression>(curr_token_, CurrTokenIs_(TokenType::TRUE));
+}
+
+prefixParseFn Parser::GetParseBooleanFn_() {
+  prefixParseFn fn = std::bind(&Parser::ParseBooleanExpression_, this);
+  return fn;
+}
+
 
 std::shared_ptr<Identifier> Parser::ParseIdentifier_() {
   auto i = std::make_shared<Identifier>(curr_token_->GetLiteral(), curr_token_);

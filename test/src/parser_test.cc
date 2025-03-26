@@ -19,7 +19,7 @@ void ParserTest::Run() {
     TestString_();
     TestVarStatements_();
     TestReturnStatements_();
-
+    TestOperatorPrecedence_();
 }
 
 /*
@@ -31,6 +31,23 @@ PRIVATE METHODS
 /*
   helper methods
 */
+
+bool ParserTest::TestBooleanExpression_(std::shared_ptr<Expression> exp, bool value) {
+  auto boolExp = std::dynamic_pointer_cast<BooleanExpression>(exp);
+  if (boolExp == nullptr) {
+    std::cerr << "boolExp not BooleanExpression\n";
+    return false;
+  }
+
+  if (boolExp->GetValue() != value) {
+    std::cerr << "boolExp->GetValue() not " << value
+          << ", got=" << boolExp->GetValue() << "\n";
+    return false;
+  }
+
+  return true;
+}
+
 bool ParserTest::CheckParserErrors_(std::shared_ptr<Parser> p) {
   int num_errors = p->GetErrors().size();
   if (num_errors == 0)
@@ -89,8 +106,10 @@ template <typename T>
 bool ParserTest::TestLiteralExpression_(std::shared_ptr<Expression> exp, T value) {
   if constexpr (std::is_same_v<T, long>) {
     return TestIntegerLiteral_(exp, value);
-  } else if constexpr (std::is_same_v<T, std::string>()) {
+  } else if constexpr (std::is_same_v<T, std::string>) {
     return TestIdentityExpression_(exp, value); 
+  } else if constexpr (std::is_same_v<T, bool>) {
+    return TestBooleanExpression_(exp, value);
   }
 
   std::cerr << "value of type T not supported\n";
@@ -183,7 +202,37 @@ void ParserTest::TestInfixExpressions_() {
     if (!TestInfixExpression_(es->GetExpression(), test.left, test.op, test.right)) {
       return;
     }
+  }
+  std::vector<InfixTest<bool>> bTests = {
+    InfixTest<bool>{.input = "true == true", .left = true, .op = "==", .right = true},
+    InfixTest<bool>{.input = "false != true", .left = false, .op = "!=", .right = true},
+    InfixTest<bool>{.input = "false == false", .left = false, .op = "==", .right = false},
+  };
 
+  for (const auto& test : bTests) {
+    auto l = std::make_shared<Lexer>(test.input);
+    auto p = std::make_shared<Parser>(l);
+    std::unique_ptr<Program> program = p->ParseProgram();
+    if (CheckParserErrors_(p)) {
+      return;
+    }
+
+    std::vector<std::shared_ptr<Statement>> stmts = program->GetStatements();
+    if (stmts.size() != 1) {
+      std::cerr << "stmts.size() does not equal " << 1 << ". got=" << stmts.size()
+        << "\n";
+      return;
+    }
+
+    auto exp = std::dynamic_pointer_cast<ExpressionStatement>(stmts[0]);
+    if (exp == nullptr) {
+      std::cerr << "stmts[0] not Expression Statement\n";
+      return;
+    }
+
+    if (!TestInfixExpression_(exp->GetExpression(), test.left, test.op, test.right)) {
+      return;
+    }
   }
   std::cout << "TestInfixExpressions() passed\n";
 }
@@ -433,6 +482,41 @@ void ParserTest::TestReturnStatements_() {
   }
 
   std::cout << "TestReturnStatements() passed\n";
+}
+
+void ParserTest::TestOperatorPrecedence_() {
+  struct PTest {
+    std::string input;
+    std::string expected;
+  };
+
+  std::vector<PTest> tests = {
+    (PTest){.input = "5 + 5", .expected = "(5 + 5)"},
+    (PTest){.input = "1 + 2 + 3", .expected = "((1 + 2) + 3)"},
+    (PTest){.input = "1 + 2 * 3", .expected = "(1 + (2 * 3))"},
+    (PTest){.input = "10 / (2 + 3)", .expected = "(10 / (2 + 3))"},
+    (PTest){.input = "10 - 4 / 2", .expected = "(10 - (4 / 2))"},
+    (PTest){.input = "true == true", .expected = "(true == true)"},
+    (PTest){.input = "!(x < y)", .expected = "(!(x < y))"},
+    (PTest){.input = "!(false == true) != true", .expected = "((!(false == true)) != true)"}
+  };
+
+  for (const auto& test : tests) {
+    auto l = std::make_shared<Lexer>(test.input);
+    auto p = std::make_shared<Parser>(l);
+    std::unique_ptr<Program> program = p->ParseProgram();
+    if (CheckParserErrors_(p)) {
+      return;
+    }
+
+    if (program->String().compare(test.expected) != 0) {
+      std::cerr << "program->String() wrong. expected: " 
+        << test.expected << ", got: " << program->String() << "\n";
+      return;
+    }
+  }
+
+  std::cout << "TestOperatorPrecedence_() passed\n";
 }
 
 

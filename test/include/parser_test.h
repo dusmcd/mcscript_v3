@@ -36,6 +36,7 @@ class ParserTest {
     bool TestIntegerLiteral_(std::shared_ptr<Expression> exp, long value);
     bool TestVarStatement_(std::shared_ptr<VarStatement> vs, Test test);
     bool TestIdentityExpression_(std::shared_ptr<Expression> exp, std::string value);
+    bool TestBooleanExpression_(std::shared_ptr<Expression> exp, bool value);
     
     template <typename T>
     bool TestInfixExpression_(
@@ -56,6 +57,7 @@ class ParserTest {
     void TestString_();
     void TestVarStatements_();
     void TestReturnStatements_();
+    void TestOperatorPrecedence_();
 
 };
 
