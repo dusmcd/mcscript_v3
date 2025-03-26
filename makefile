@@ -1,8 +1,8 @@
 flags = -Wall -g -std=c++17
-flags += -I include
+flags += -I include -I test/include
 exec_dir = bin
 build_dir = build
-test_dir = test
+test_dir = test/src
 src_dir = src
 
 # Source files

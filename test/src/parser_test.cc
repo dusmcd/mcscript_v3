@@ -1,18 +1,36 @@
 #include <parser.h>
 #include <ast.h>
 #include <iostream>
+#include <parser_test.h>
 
-struct Test {
-    std::string literal;
-  };
+/*
+==========================================
+PUBLIC METHODS
+==========================================
+*/
 
-struct PrefixTest {
-  long value;
-  std::string op;
-  std::string input;
-};
+void ParserTest::Run() {
+  // call all main test methods
+    TestInfixExpressions_();
+    TestPrefixExpressions_();
+    TestIntegerLiterals_();
+    TestIdentityExpressions_();
+    TestString_();
+    TestVarStatements_();
+    TestReturnStatements_();
 
-bool CheckParserErrors(std::shared_ptr<Parser> p) {
+}
+
+/*
+==========================================
+PRIVATE METHODS
+==========================================
+*/
+
+/*
+  helper methods
+*/
+bool ParserTest::CheckParserErrors_(std::shared_ptr<Parser> p) {
   int num_errors = p->GetErrors().size();
   if (num_errors == 0)
     return false;
@@ -28,7 +46,7 @@ bool CheckParserErrors(std::shared_ptr<Parser> p) {
 
 }
 
-bool TestIntegerLiteral(std::shared_ptr<IntegerLiteral> il, int value) {
+bool ParserTest::TestIntegerLiteral_(std::shared_ptr<IntegerLiteral> il, int value) {
   if (il->GetValue() != value) {
     std::cerr << "Right expression wrong value. expected: " << value
         << ", got: " << il->GetValue() << "\n";
@@ -39,8 +57,37 @@ bool TestIntegerLiteral(std::shared_ptr<IntegerLiteral> il, int value) {
   return true;
 }
 
+bool ParserTest::TestVarStatement_(std::shared_ptr<VarStatement> vs, Test test) {
+  if (vs->TokenLiteral().compare("var") != 0) {
+    std::cerr << "not a var statemnt. expected var, got \n" << vs->TokenLiteral();
+    return false;
+  }
 
-void TestInfixExpressions() {
+  if (vs->GetName()->GetValue().compare(test.literal) != 0) {
+    std::cerr << "wrong identifier. expected " << test.literal
+          << ", got " << vs->GetName()->GetValue() << "\n";
+    return false;
+  }
+
+  if (vs->GetName()->GetToken()->GetLiteral().compare(test.literal) != 0) {
+    std::cerr << "wrong identifier. expected " << test.literal
+      << ", got " << vs->GetName()->GetToken()->GetLiteral();
+    return false;
+  }
+
+  return true;
+}
+
+
+/*
+  end helper methods
+*/
+
+
+/*
+  main test methods
+*/
+void ParserTest::TestInfixExpressions_() {
   struct InfixTest {
     std::string input;
     long left;
@@ -58,7 +105,7 @@ void TestInfixExpressions() {
     auto l = std::make_shared<Lexer>(test.input);
     auto p = std::make_shared<Parser>(l);
     std::unique_ptr<Program> program = p->ParseProgram();
-    if (CheckParserErrors(p)) {
+    if (CheckParserErrors_(p)) {
       return;
     }
 
@@ -98,11 +145,11 @@ void TestInfixExpressions() {
       return;
     }
 
-    if (!TestIntegerLiteral(left, test.left)) {
+    if (!TestIntegerLiteral_(left, test.left)) {
       return;
     }
 
-    if (!TestIntegerLiteral(right, test.right)) {
+    if (!TestIntegerLiteral_(right, test.right)) {
       return;
     }
 
@@ -110,12 +157,9 @@ void TestInfixExpressions() {
 
   }
 
-  }
+}
 
-
-
-
-void TestPrefixExpressions() {
+void ParserTest::TestPrefixExpressions_() {
   std::vector<PrefixTest> tests = {
    (PrefixTest){.value = 15, .op = "-", .input = "-15;"},
    (PrefixTest){.value = 5, .op = "!", .input = "!5;"},
@@ -132,7 +176,7 @@ void TestPrefixExpressions() {
       return;
     }
 
-    if (CheckParserErrors(p)) {
+    if (CheckParserErrors_(p)) {
       return;
     }
 
@@ -167,7 +211,7 @@ void TestPrefixExpressions() {
       return;
     }
 
-    if (!TestIntegerLiteral(il, test.value)) {
+    if (!TestIntegerLiteral_(il, test.value)) {
       return;
     }
   }
@@ -175,7 +219,7 @@ void TestPrefixExpressions() {
   std::cout << "TestPrefixExpressions() passed\n";
 }
 
-void TestIntegerLiterals() {
+void ParserTest::TestIntegerLiterals_() {
   std::string input = "5;";
 
   auto l = std::make_shared<Lexer>(input);
@@ -186,7 +230,7 @@ void TestIntegerLiterals() {
     return;
   }
 
-  if (CheckParserErrors(p)) {
+  if (CheckParserErrors_(p)) {
     return;
   }
 
@@ -221,13 +265,13 @@ void TestIntegerLiterals() {
           il->TokenLiteral() << "\n";
     }
 
-    std::cout << "TestIntegerLiterals() passed\n";
+    std::cout << "TestIntegerLiteral_s() passed\n";
 
   }
 }
 
 
-void TestIdentityExpressions() {
+void ParserTest::TestIdentityExpressions_() {
   std::string input = "foobar;";
   std::string expLiteral = "foobar";
   auto l = std::make_shared<Lexer>(input);
@@ -238,7 +282,7 @@ void TestIdentityExpressions() {
     return;
   }
 
-  if (CheckParserErrors(p)) {
+  if (CheckParserErrors_(p)) {
     return;
   }
 
@@ -271,7 +315,7 @@ void TestIdentityExpressions() {
   std::cout << "TestIdentityExpressions() passed\n";
 }
 
-void TestString() {
+void ParserTest::TestString_() {
   auto vs = std::make_shared<VarStatement>(std::make_shared<Token>(TokenType::VAR, "var"));
   
   vs->SetName(std::make_shared<Identifier>("myVar", std::make_shared<Token>(TokenType::IDENT, "myVar")));
@@ -294,28 +338,8 @@ void TestString() {
 }
 
 
-bool TestVarStatement(std::shared_ptr<VarStatement> vs, Test test) {
-  if (vs->TokenLiteral().compare("var") != 0) {
-    std::cerr << "not a var statemnt. expected var, got \n" << vs->TokenLiteral();
-    return false;
-  }
 
-  if (vs->GetName()->GetValue().compare(test.literal) != 0) {
-    std::cerr << "wrong identifier. expected " << test.literal
-          << ", got " << vs->GetName()->GetValue() << "\n";
-    return false;
-  }
-
-  if (vs->GetName()->GetToken()->GetLiteral().compare(test.literal) != 0) {
-    std::cerr << "wrong identifier. expected " << test.literal
-      << ", got " << vs->GetName()->GetToken()->GetLiteral();
-    return false;
-  }
-
-  return true;
-}
-
-void TestVarStatements() {
+void ParserTest::TestVarStatements_() {
   std::string input = "var x = 10;"
                       "var num = 5;";
   
@@ -323,7 +347,7 @@ void TestVarStatements() {
   std::shared_ptr<Parser> p = std::make_shared<Parser>(l);
 
   std::unique_ptr<Program> program = p->ParseProgram(true);
-  if (CheckParserErrors(p)) {
+  if (CheckParserErrors_(p)) {
     return;
   }
 
@@ -350,7 +374,7 @@ void TestVarStatements() {
       std::cerr << "statement not a var statement\n";
       return;
     }
-    if (!TestVarStatement(vs, tests[i])) {
+    if (!TestVarStatement_(vs, tests[i])) {
       return;
     }
   }
@@ -358,7 +382,7 @@ void TestVarStatements() {
   std::cout << "TestVarStatements() passed\n";
 }
 
-void TestReturnStatements() {
+void ParserTest::TestReturnStatements_() {
   std::string input = "return 5;"
                       "return 8904832;";
 
@@ -370,7 +394,7 @@ void TestReturnStatements() {
     return;
   } 
 
-  if (CheckParserErrors(p)) {
+  if (CheckParserErrors_(p)) {
     return;
   }
 
@@ -388,7 +412,7 @@ void TestReturnStatements() {
     }
 
     if (rs->TokenLiteral().compare("return") != 0) {
-      std::cerr << "wront literal. expected 'return', got " << rs->TokenLiteral() << "\n";
+      std::cerr << "wrong literal. expected 'return', got " << rs->TokenLiteral() << "\n";
       return;
     }
   }
@@ -398,13 +422,8 @@ void TestReturnStatements() {
 
 
 int main() {
-  TestVarStatements();
-  TestReturnStatements();
-  TestString();
-  TestIdentityExpressions();
-  TestIntegerLiterals();
-  TestPrefixExpressions();
-  TestInfixExpressions();
-
+  ParserTest pTest = ParserTest();
+  pTest.Run();
   return 0;
+
 }
