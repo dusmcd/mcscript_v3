@@ -2,6 +2,7 @@
 #include <ast.h>
 #include <iostream>
 #include <parser_test.h>
+#include <type_traits>
 
 /*
 ==========================================
@@ -46,7 +47,13 @@ bool ParserTest::CheckParserErrors_(std::shared_ptr<Parser> p) {
 
 }
 
-bool ParserTest::TestIntegerLiteral_(std::shared_ptr<IntegerLiteral> il, int value) {
+bool ParserTest::TestIntegerLiteral_(std::shared_ptr<Expression> exp, long value) {
+  auto il = std::dynamic_pointer_cast<IntegerLiteral>(exp);
+  if (exp == nullptr) {
+    std::cerr << "exp not IntegerLiteral\n";
+    return false;
+  }
+
   if (il->GetValue() != value) {
     std::cerr << "Right expression wrong value. expected: " << value
         << ", got: " << il->GetValue() << "\n";
@@ -78,6 +85,64 @@ bool ParserTest::TestVarStatement_(std::shared_ptr<VarStatement> vs, Test test) 
   return true;
 }
 
+template <typename T>
+bool ParserTest::TestLiteralExpression_(std::shared_ptr<Expression> exp, T value) {
+  if constexpr (std::is_same_v<T, long>) {
+    return TestIntegerLiteral_(exp, value);
+  } else if constexpr (std::is_same_v<T, std::string>()) {
+    return TestIdentityExpression_(exp, value); 
+  }
+
+  std::cerr << "value of type T not supported\n";
+  return false;
+}
+
+bool ParserTest::TestIdentityExpression_(std::shared_ptr<Expression> exp, std::string value) {
+  auto i = std::dynamic_pointer_cast<Identifier>(exp);
+  if (i == nullptr) {
+    std::cerr << "exp not an Identifier\n";
+    return false;
+  }
+
+  if (i->GetValue().compare(value) != 0) {
+    std::cerr << "i value wrong. expected: " << value 
+        << ", got: " << i->GetValue() << "\n";
+    return false;
+  }
+
+  return true;
+}
+
+template <typename T>
+bool ParserTest::TestInfixExpression_(
+      std::shared_ptr<Expression> exp,
+      T left,
+      std::string op,
+      T right
+    ) {
+  auto infix = std::dynamic_pointer_cast<InfixExpression>(exp);
+  if (infix == nullptr) {
+    std::cerr << "infix is not of type InfixExpression\n";
+    return false;
+  }
+
+  if (!TestLiteralExpression_(infix->GetLeft(), left)) {
+    return false;
+  }
+
+  if (infix->GetOp().compare(op) != 0) {
+    std::cerr << "infix->GetOp() does not equal " << op
+        << ", got=" << infix->GetOp() << "\n";
+    return false;
+  }
+
+  if (!TestLiteralExpression_(infix->GetRight(), right)) {
+    return false;
+  }
+
+  return true;
+}
+
 
 /*
   end helper methods
@@ -88,17 +153,11 @@ bool ParserTest::TestVarStatement_(std::shared_ptr<VarStatement> vs, Test test) 
   main test methods
 */
 void ParserTest::TestInfixExpressions_() {
-  struct InfixTest {
-    std::string input;
-    long left;
-    std::string op;
-    long right;
-  };
-  std::vector<InfixTest> tests = {
-    (InfixTest){.input = "5 + 5;", .left = 5, .op = "+", .right = 5},
-    (InfixTest){.input = "5 - 5;", .left = 5, .op = "-", .right = 5},
-    (InfixTest){.input = "5 * 5;", .left = 5, .op = "*", .right = 5},
-    (InfixTest){.input = "5 / 5;", .left = 5, .op = "/", .right = 5},
+  std::vector<InfixTest<long>> tests = {
+    (InfixTest<long>){.input = "5 + 5;", .left = 5, .op = "+", .right = 5},
+    (InfixTest<long>){.input = "5 - 5;", .left = 5, .op = "-", .right = 5},
+    (InfixTest<long>){.input = "5 * 5;", .left = 5, .op = "*", .right = 5},
+    (InfixTest<long>){.input = "5 / 5;", .left = 5, .op = "/", .right = 5},
   };
 
   for (auto test : tests) {
@@ -121,49 +180,19 @@ void ParserTest::TestInfixExpressions_() {
       return;
     }
 
-    auto ie = std::dynamic_pointer_cast<InfixExpression>(es->GetExpression());
-    if (ie == nullptr) {
-      std::cerr << "expression is not an InfixExpression\n";
+    if (!TestInfixExpression_(es->GetExpression(), test.left, test.op, test.right)) {
       return;
     }
-
-    auto left = std::dynamic_pointer_cast<IntegerLiteral>(ie->GetLeft());
-    if (left == nullptr) {
-      std::cerr << "left expression is not an IntegerLiteral\n";
-      return;
-    } 
-
-    auto right = std::dynamic_pointer_cast<IntegerLiteral>(ie->GetRight());
-    if (right == nullptr) {
-      std::cerr << "right expression is not an IntegerLiteral\n";
-      return;
-    }
-
-    if (test.op.compare(ie->GetOp()) != 0) {
-      std::cerr << "wrong operator. expected: " << test.op 
-            << ", got: " << ie->GetOp() << "\n";
-      return;
-    }
-
-    if (!TestIntegerLiteral_(left, test.left)) {
-      return;
-    }
-
-    if (!TestIntegerLiteral_(right, test.right)) {
-      return;
-    }
-
-    std::cout << "TestInfixExpressions() passed\n";
 
   }
-
+  std::cout << "TestInfixExpressions() passed\n";
 }
 
 void ParserTest::TestPrefixExpressions_() {
-  std::vector<PrefixTest> tests = {
-   (PrefixTest){.value = 15, .op = "-", .input = "-15;"},
-   (PrefixTest){.value = 5, .op = "!", .input = "!5;"},
-   (PrefixTest){.value = 10, .op = "-", .input = "-10;"},
+  std::vector<PrefixTest<long>> tests = {
+   (PrefixTest<long>){.value = 15, .op = "-", .input = "-15;"},
+   (PrefixTest<long>){.value = 5, .op = "!", .input = "!5;"},
+   (PrefixTest<long>){.value = 10, .op = "-", .input = "-10;"},
   };
 
   for (size_t i = 0; i < tests.size(); i++) {
@@ -205,13 +234,7 @@ void ParserTest::TestPrefixExpressions_() {
       return;
     }
 
-    auto il = std::dynamic_pointer_cast<IntegerLiteral>(pe->GetRight());
-    if (il == nullptr) {
-      std::cerr << "pe->GetRight() not an IntegerLiteral\n";
-      return;
-    }
-
-    if (!TestIntegerLiteral_(il, test.value)) {
+    if (!TestIntegerLiteral_(pe->GetRight(), test.value)) {
       return;
     }
   }
@@ -248,21 +271,13 @@ void ParserTest::TestIntegerLiterals_() {
       return;
     }
 
-    auto il = std::dynamic_pointer_cast<IntegerLiteral>(es->GetExpression());
-    if (il == nullptr) {
-      std::cerr << "expression not an integer literal\n";
+    if (!TestIntegerLiteral_(es->GetExpression(), 5)) {
       return;
     }
 
-    if (il->GetValue() != 5) {
-      std::cerr << "il->GetValue() wrong. expected=" << 5 << " got=" << 
-          il->GetValue() << "\n";
-      return;
-    }
-
-    if (il->TokenLiteral().compare("5") != 0) {
+    if (es->GetExpression()->TokenLiteral().compare("5") != 0) {
       std::cerr << "il->TokenLiteral() wrong. expected=5" << "got=" <<
-          il->TokenLiteral() << "\n";
+          es->GetExpression()->TokenLiteral() << "\n";
     }
 
     std::cout << "TestIntegerLiteral_s() passed\n";

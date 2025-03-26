@@ -6,11 +6,20 @@
 #include <iostream>
 
 struct Test {
-    std::string literal;
+  std::string literal;
 };
 
+template <typename T>
+struct InfixTest {
+  std::string input;
+  T left;
+  std::string op;
+  T right;
+};
+
+template <typename T>
 struct PrefixTest {
-  long value;
+  T value;
   std::string op;
   std::string input;
 };
@@ -24,8 +33,20 @@ class ParserTest {
     
     // helper methods
     bool CheckParserErrors_(std::shared_ptr<Parser> p);
-    bool TestIntegerLiteral_(std::shared_ptr<IntegerLiteral> il, int value);
+    bool TestIntegerLiteral_(std::shared_ptr<Expression> exp, long value);
     bool TestVarStatement_(std::shared_ptr<VarStatement> vs, Test test);
+    bool TestIdentityExpression_(std::shared_ptr<Expression> exp, std::string value);
+    
+    template <typename T>
+    bool TestInfixExpression_(
+      std::shared_ptr<Expression> exp,
+      T left,
+      std::string op,
+      T right
+    );
+    
+    template <typename T>
+    bool TestLiteralExpression_(std::shared_ptr<Expression> exp, T value);
 
     // main test methods
     void TestInfixExpressions_();
