@@ -25,7 +25,7 @@ class Parser {
   
   public:
     Parser(std::shared_ptr<Lexer> l);
-    std::unique_ptr<Program> ParseProgram(bool skipexpr = false);
+    std::unique_ptr<Program> ParseProgram();
 
     inline std::vector<std::string> GetErrors() {
       return errors_;
@@ -46,9 +46,9 @@ class Parser {
       infixParseFns_[t] = fn;
     }
 
-    std::shared_ptr<Statement> ParseStatement_(bool);
-    std::shared_ptr<VarStatement> ParseVarStatement_(bool);
-    std::shared_ptr<ReturnStatement> ParseReturnStatement_(bool); 
+    std::shared_ptr<Statement> ParseStatement_();
+    std::shared_ptr<VarStatement> ParseVarStatement_();
+    std::shared_ptr<ReturnStatement> ParseReturnStatement_(); 
     std::shared_ptr<ExpressionStatement> ParseExpressionStatement_();
     std::shared_ptr<Expression> ParseExpression_(Precedence pr);
     std::shared_ptr<Identifier> ParseIdentifier_();
@@ -57,6 +57,9 @@ class Parser {
     std::shared_ptr<InfixExpression> ParseInfixExpression_(std::shared_ptr<Expression> left);
     std::shared_ptr<Expression> ParseGroupedExpression_();
     std::shared_ptr<BooleanExpression> ParseBooleanExpression_();
+    std::shared_ptr<IfExpression> ParseIfExpression_();
+    std::shared_ptr<BlockStatement> ParseBlockStatement_();
+    prefixParseFn GetParseIfExpression_();
     prefixParseFn GetParseBooleanFn_();
     prefixParseFn GetParseGroupedExprFn_();
     infixParseFn GetInfixExpressionFn_();

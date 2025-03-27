@@ -65,3 +65,30 @@ std::string InfixExpression::String() const {
   std::string str(buff);
   return str;
 }
+
+std::string BlockStatement::String() const {
+  std::string str = "";
+  for (const auto& stmt : statements_) {
+    str.append(stmt->String());
+  }
+
+  return str;
+  
+}
+
+std::string IfExpression::String() const {
+  std::string str = "if ";
+  str.append(condition_->String());
+  str.append("{ ");
+  str.append(consequence_->String());
+  str.append(" }");
+
+  if (alternative_ != nullptr) {
+    str.append(" else ");
+    str.append("{ ");
+    str.append(alternative_->String());
+    str.append(" }");
+  }
+
+  return str;
+}

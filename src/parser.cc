@@ -21,6 +21,7 @@ Parser::Parser(std::shared_ptr<Lexer> l) {
   RegisterPrefixFns_(GetParseGroupedExprFn_(), TokenType::LPAREN);
   RegisterPrefixFns_(GetParseBooleanFn_(), TokenType::TRUE),
   RegisterPrefixFns_(GetParseBooleanFn_(), TokenType::FALSE),
+  RegisterPrefixFns_(GetParseIfExpression_(), TokenType::IF);
 
   RegisterInfixFns_(GetInfixExpressionFn_(), TokenType::PLUS);
   RegisterInfixFns_(GetInfixExpressionFn_(), TokenType::MINUS);
@@ -37,11 +38,11 @@ Parser::Parser(std::shared_ptr<Lexer> l) {
 }
 
 
-std::unique_ptr<Program> Parser::ParseProgram(bool skipexpr){
+std::unique_ptr<Program> Parser::ParseProgram(){
   auto program = std::make_unique<Program>();
   
   while (!CurrTokenIs_(TokenType::EOI)) {
-    std::shared_ptr<Statement> stmt = ParseStatement_(skipexpr);
+    std::shared_ptr<Statement> stmt = ParseStatement_();
     if (stmt != nullptr) {
       program->AppendStatements(stmt);
     }
@@ -111,7 +112,22 @@ Precedence Parser::PeekPrecedence_() {
 /*
   statement parsing
 */
-std::shared_ptr<VarStatement> Parser::ParseVarStatement_(bool skipexpr) {
+std::shared_ptr<BlockStatement> Parser::ParseBlockStatement_() {
+  auto bs = std::make_shared<BlockStatement>(curr_token_);
+  NextToken_(); // jumping over left brace
+
+  while (!CurrTokenIs_(TokenType::RBRACE) && !CurrTokenIs_(TokenType::EOI)) {
+    std::shared_ptr<Statement> stmt = ParseStatement_();
+    if (stmt != nullptr) {
+      bs->AppendStatements(stmt);
+    }
+    NextToken_();
+  }
+
+  return bs;
+}
+
+std::shared_ptr<VarStatement> Parser::ParseVarStatement_() {
   auto vs = std::make_shared<VarStatement>(curr_token_);
 
   if (!ExpectPeek_(TokenType::IDENT)) {
@@ -126,35 +142,37 @@ std::shared_ptr<VarStatement> Parser::ParseVarStatement_(bool skipexpr) {
     return nullptr;
   }
 
-  if (skipexpr) {
-    while (!CurrTokenIs_(TokenType::SEMICOLON)) {
-      NextToken_();
-    }
+  NextToken_();
+  vs->SetValue(ParseExpression_(Precedence::LOWEST));
+
+  if (PeekTokenIs_(TokenType::SEMICOLON)) {
+    NextToken_();
   }
 
   return vs;
 }
 
-std::shared_ptr<ReturnStatement> Parser::ParseReturnStatement_(bool skipexpr) {
+std::shared_ptr<ReturnStatement> Parser::ParseReturnStatement_() {
   auto rs = std::make_shared<ReturnStatement>(curr_token_);
 
-  if (skipexpr) {
-    while (!CurrTokenIs_(TokenType::SEMICOLON)) {
-      NextToken_();
-    }
-  }
+  NextToken_();
+  rs->SetReturnVal(ParseExpression_(Precedence::LOWEST));
 
+  if (PeekTokenIs_(TokenType::SEMICOLON)) {
+    NextToken_();
+  }
+  
   return rs;
 }
 
-std::shared_ptr<Statement> Parser::ParseStatement_(bool skipexpr) {
+std::shared_ptr<Statement> Parser::ParseStatement_() {
   std::shared_ptr<Statement> stmt;
   switch(curr_token_->GetType()) {
       case TokenType::VAR:
-        stmt = ParseVarStatement_(skipexpr);
+        stmt = ParseVarStatement_();
         break;
       case TokenType::RETURN:
-        stmt = ParseReturnStatement_(skipexpr);
+        stmt = ParseReturnStatement_();
         break;
       default:
         stmt = ParseExpressionStatement_();
@@ -178,6 +196,47 @@ std::shared_ptr<ExpressionStatement> Parser::ParseExpressionStatement_() {
 /*
   expression parsing
 */
+
+std::shared_ptr<IfExpression> Parser::ParseIfExpression_() {
+  auto ifExp = std::make_shared<IfExpression>(curr_token_);
+
+  if (!ExpectPeek_(TokenType::LPAREN)) {
+    return nullptr;
+  }
+
+  NextToken_(); // skip over left paren to condition
+
+  ifExp->SetCondition(ParseExpression_(Precedence::LOWEST));
+
+  if (!ExpectPeek_(TokenType::RPAREN)) {
+    return nullptr;
+  }
+
+  if (!ExpectPeek_(TokenType::LBRACE)) {
+    return nullptr;
+  }
+
+  ifExp->SetConsequence(ParseBlockStatement_());
+
+  if (PeekTokenIs_(TokenType::ELSE)) {
+    NextToken_();
+    if (!ExpectPeek_(TokenType::LBRACE)) {
+      return nullptr;
+    }
+
+    ifExp->SetAlternative(ParseBlockStatement_());
+  }
+
+  return ifExp;
+
+}
+
+prefixParseFn Parser::GetParseIfExpression_() {
+  prefixParseFn fn = std::bind(&Parser::ParseIfExpression_, this);
+  return fn;
+}
+
+
 
 std::shared_ptr<BooleanExpression> Parser::ParseBooleanExpression_() {
   return std::make_shared<BooleanExpression>(curr_token_, CurrTokenIs_(TokenType::TRUE));

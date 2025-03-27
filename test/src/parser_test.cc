@@ -410,7 +410,7 @@ void ParserTest::TestVarStatements_() {
   std::shared_ptr<Lexer> l = std::make_shared<Lexer>(input);
   std::shared_ptr<Parser> p = std::make_shared<Parser>(l);
 
-  std::unique_ptr<Program> program = p->ParseProgram(true);
+  std::unique_ptr<Program> program = p->ParseProgram();
   if (CheckParserErrors_(p)) {
     return;
   }
@@ -452,7 +452,7 @@ void ParserTest::TestReturnStatements_() {
 
   auto l = std::make_shared<Lexer>(input);
   auto p = std::make_shared<Parser>(l);
-  std::unique_ptr<Program> program = p->ParseProgram(true);
+  std::unique_ptr<Program> program = p->ParseProgram();
   if (program == nullptr) {
     std::cerr << "program = nullptr\n";
     return;

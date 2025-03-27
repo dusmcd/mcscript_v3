@@ -161,6 +161,10 @@ class ReturnStatement : public Statement {
     inline std::shared_ptr<Expression> GetReturnVal() const {
       return return_value_;
     }
+
+    inline void SetReturnVal(std::shared_ptr<Expression> exp) {
+      return_value_ = exp;
+    }
   
   protected:
     inline void StatementNode_() const override {}
@@ -293,6 +297,68 @@ class BooleanExpression : public Expression {
   private:
     std::shared_ptr<Token> token_;
     bool value_;
+};
+
+class BlockStatement : public Statement {
+  public:
+    BlockStatement(std::shared_ptr<Token> token) : token_(token) {
+      // empty
+    }
+
+    inline std::string TokenLiteral() const override {
+      return token_->GetLiteral();
+    }
+
+    inline void AppendStatements(std::shared_ptr<Statement> stmt) {
+      statements_.push_back(stmt);
+    }
+
+    inline std::vector<std::shared_ptr<Statement>> GetStatements() const {
+      return statements_;
+    }
+
+    std::string String() const override;
+
+  protected:
+    void StatementNode_() const override {}
+
+  private:
+    std::shared_ptr<Token> token_;
+    std::vector<std::shared_ptr<Statement>> statements_;
+};
+
+class IfExpression : public Expression {
+  public:
+    IfExpression(std::shared_ptr<Token> token) : token_(token) {
+      // empty
+    }
+
+    inline std::string TokenLiteral() const override {
+      return token_->GetLiteral();
+    }
+
+    std::string String() const override;
+
+    inline void SetCondition(std::shared_ptr<Expression> exp) {
+      condition_ = exp;
+    }
+
+    inline void SetConsequence(std::shared_ptr<BlockStatement> bs) {
+      consequence_ = bs;
+    }
+
+    inline void SetAlternative(std::shared_ptr<BlockStatement> bs) {
+      alternative_ = bs;
+    }
+
+  protected:
+    void ExpressionNode_() const override {}
+  
+  private:
+    std::shared_ptr<Token> token_;
+    std::shared_ptr<Expression> condition_;
+    std::shared_ptr<BlockStatement> consequence_;
+    std::shared_ptr<BlockStatement> alternative_;
 };
 
 #endif // MCSCRIPT_V3_AST_H
