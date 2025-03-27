@@ -337,6 +337,18 @@ class IfExpression : public Expression {
       return token_->GetLiteral();
     }
 
+    inline std::shared_ptr<Expression> GetCondition() const {
+      return condition_;
+    }
+
+    inline std::shared_ptr<BlockStatement> GetConsequence() const {
+      return consequence_;
+    }
+
+    inline std::shared_ptr<BlockStatement> GetAlternative() const {
+      return alternative_;
+    }
+
     std::string String() const override;
 
     inline void SetCondition(std::shared_ptr<Expression> exp) {

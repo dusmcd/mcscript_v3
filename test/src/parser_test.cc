@@ -20,6 +20,8 @@ void ParserTest::Run() {
     TestVarStatements_();
     TestReturnStatements_();
     TestOperatorPrecedence_();
+    TestIfExpression_();
+
 }
 
 /*
@@ -171,6 +173,66 @@ bool ParserTest::TestInfixExpression_(
 /*
   main test methods
 */
+
+void ParserTest::TestIfExpression_() {
+  struct IfTest {
+    std::string input;
+    std::string left;
+    std::string right;
+  };
+  IfTest test = {.input = "if (x > y) { x }", .left = "x", .right = "y"};
+
+  auto l = std::make_shared<Lexer>(test.input);
+  auto p = std::make_shared<Parser>(l);
+  std::unique_ptr<Program> program = p->ParseProgram();
+
+  if (CheckParserErrors_(p)) {
+    return;
+  }
+
+  std::vector<std::shared_ptr<Statement>> stmts = program->GetStatements();
+  if (stmts.size() != 1) {
+    std::cerr << "stmts.size() does not equal " << 1 << ", got=" 
+            << stmts.size() << "\n";
+    return;
+  }
+
+  auto es = std::dynamic_pointer_cast<ExpressionStatement>(stmts[0]);
+  if (es == nullptr) {
+    std::cerr << "stmts[0] is not ExpressionStatement\n";
+    return;
+  }
+
+  auto ifExp = std::dynamic_pointer_cast<IfExpression>(es->GetExpression());
+  if (ifExp == nullptr) {
+    std::cerr << "es->GetExpression() is not IfExpression\n";
+    return;
+  }
+
+  if (!TestInfixExpression_(ifExp->GetCondition(), test.left, ">", test.right)) {
+    return;
+  }
+
+  auto consequence = std::dynamic_pointer_cast<BlockStatement>(ifExp->GetConsequence());
+  if (consequence == nullptr) {
+    std::cerr << "consequence is not BlockStatement\n";
+    return;
+  }
+
+  es = std::dynamic_pointer_cast<ExpressionStatement>(consequence->GetStatements()[0]);
+  if (es == nullptr) {
+    std::cerr << "consequence->GetStatements() not ExpressionStatement\n";
+    return;
+  }
+
+  if (!TestLiteralExpression_(es->GetExpression(), std::string("x"))) {
+    return;
+  }
+
+  std::cout << "TestIfExpression_() passed\n";
+  
+}
+
 void ParserTest::TestInfixExpressions_() {
   std::vector<InfixTest<long>> tests = {
     (InfixTest<long>){.input = "5 + 5;", .left = 5, .op = "+", .right = 5},

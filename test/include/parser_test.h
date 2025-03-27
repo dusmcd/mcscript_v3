@@ -58,6 +58,7 @@ class ParserTest {
     void TestVarStatements_();
     void TestReturnStatements_();
     void TestOperatorPrecedence_();
+    void TestIfExpression_();
 
 };
 
