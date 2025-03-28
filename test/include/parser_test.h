@@ -4,22 +4,23 @@
 #include <parser.h>
 #include <ast.h>
 #include <iostream>
+#include <variant>
+
+using expressionVal = std::variant<long, bool, std::string>;
 
 struct Test {
   std::string literal;
 };
 
-template <typename T>
 struct InfixTest {
   std::string input;
-  T left;
+  expressionVal left;
   std::string op;
-  T right;
+  expressionVal right;
 };
 
-template <typename T>
 struct PrefixTest {
-  T value;
+  expressionVal value;
   std::string op;
   std::string input;
 };
@@ -33,21 +34,20 @@ class ParserTest {
     
     // helper methods
     bool CheckParserErrors_(std::shared_ptr<Parser> p);
-    bool TestIntegerLiteral_(std::shared_ptr<Expression> exp, long value);
+    bool TestIntegerLiteral_(std::shared_ptr<Expression> exp, expressionVal value);
     bool TestVarStatement_(std::shared_ptr<VarStatement> vs, Test test);
-    bool TestIdentityExpression_(std::shared_ptr<Expression> exp, std::string value);
-    bool TestBooleanExpression_(std::shared_ptr<Expression> exp, bool value);
+    bool TestIdentityExpression_(std::shared_ptr<Expression> exp, expressionVal value);
+    bool TestBooleanExpression_(std::shared_ptr<Expression> exp, expressionVal value);
+    bool TestBlockStatement_(std::shared_ptr<BlockStatement> block, size_t size, expressionVal value);
     
-    template <typename T>
     bool TestInfixExpression_(
       std::shared_ptr<Expression> exp,
-      T left,
+      expressionVal left,
       std::string op,
-      T right
+      expressionVal right
     );
     
-    template <typename T>
-    bool TestLiteralExpression_(std::shared_ptr<Expression> exp, T value);
+    bool TestLiteralExpression_(std::shared_ptr<Expression> exp, expressionVal value);
 
     // main test methods
     void TestInfixExpressions_();
@@ -59,6 +59,7 @@ class ParserTest {
     void TestReturnStatements_();
     void TestOperatorPrecedence_();
     void TestIfExpression_();
+    void TestIfElseExpression_();
 
 };
 

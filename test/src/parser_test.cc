@@ -21,6 +21,7 @@ void ParserTest::Run() {
     TestReturnStatements_();
     TestOperatorPrecedence_();
     TestIfExpression_();
+    TestIfElseExpression_();
 
 }
 
@@ -34,15 +35,38 @@ PRIVATE METHODS
   helper methods
 */
 
-bool ParserTest::TestBooleanExpression_(std::shared_ptr<Expression> exp, bool value) {
+bool ParserTest::TestBlockStatement_(std::shared_ptr<BlockStatement> block, size_t size, expressionVal value) {
+  std::string val = std::get<std::string>(value);
+  std::vector<std::shared_ptr<Statement>> bStmts = block->GetStatements();
+  if (bStmts.size() != size) {
+    std::cerr << "bStmts.size() does not equal " << 1 
+          << " got=" << bStmts.size() << "\n";
+    return false;
+  }
+
+  auto es = std::dynamic_pointer_cast<ExpressionStatement>(bStmts[0]);
+  if (es == nullptr) {
+    std::cerr << "bStmts[0] is not ExpressionStatement\n";
+    return false;
+  }
+
+  if (!TestLiteralExpression_(es->GetExpression(), val)) {
+    return false;
+  }
+  return true;
+
+}
+
+bool ParserTest::TestBooleanExpression_(std::shared_ptr<Expression> exp, expressionVal value) {
+  bool val = std::get<bool>(value);
   auto boolExp = std::dynamic_pointer_cast<BooleanExpression>(exp);
   if (boolExp == nullptr) {
     std::cerr << "boolExp not BooleanExpression\n";
     return false;
   }
 
-  if (boolExp->GetValue() != value) {
-    std::cerr << "boolExp->GetValue() not " << value
+  if (boolExp->GetValue() != val) {
+    std::cerr << "boolExp->GetValue() not " << val
           << ", got=" << boolExp->GetValue() << "\n";
     return false;
   }
@@ -66,15 +90,16 @@ bool ParserTest::CheckParserErrors_(std::shared_ptr<Parser> p) {
 
 }
 
-bool ParserTest::TestIntegerLiteral_(std::shared_ptr<Expression> exp, long value) {
+bool ParserTest::TestIntegerLiteral_(std::shared_ptr<Expression> exp, expressionVal value) {
+  long val = std::get<long>(value);
   auto il = std::dynamic_pointer_cast<IntegerLiteral>(exp);
   if (exp == nullptr) {
     std::cerr << "exp not IntegerLiteral\n";
     return false;
   }
 
-  if (il->GetValue() != value) {
-    std::cerr << "Right expression wrong value. expected: " << value
+  if (il->GetValue() != val) {
+    std::cerr << "Right expression wrong value. expected: " << val
         << ", got: " << il->GetValue() << "\n";
     
     return false;
@@ -104,13 +129,12 @@ bool ParserTest::TestVarStatement_(std::shared_ptr<VarStatement> vs, Test test) 
   return true;
 }
 
-template <typename T>
-bool ParserTest::TestLiteralExpression_(std::shared_ptr<Expression> exp, T value) {
-  if constexpr (std::is_same_v<T, long>) {
+bool ParserTest::TestLiteralExpression_(std::shared_ptr<Expression> exp, expressionVal value) {
+  if (std::holds_alternative<long>(value)) {
     return TestIntegerLiteral_(exp, value);
-  } else if constexpr (std::is_same_v<T, std::string>) {
+  } else if (std::holds_alternative<std::string>(value)) {
     return TestIdentityExpression_(exp, value); 
-  } else if constexpr (std::is_same_v<T, bool>) {
+  } else if (std::holds_alternative<bool>(value)) {
     return TestBooleanExpression_(exp, value);
   }
 
@@ -118,15 +142,16 @@ bool ParserTest::TestLiteralExpression_(std::shared_ptr<Expression> exp, T value
   return false;
 }
 
-bool ParserTest::TestIdentityExpression_(std::shared_ptr<Expression> exp, std::string value) {
+bool ParserTest::TestIdentityExpression_(std::shared_ptr<Expression> exp, expressionVal value) {
+  std::string val = std::get<std::string>(value);
   auto i = std::dynamic_pointer_cast<Identifier>(exp);
   if (i == nullptr) {
     std::cerr << "exp not an Identifier\n";
     return false;
   }
 
-  if (i->GetValue().compare(value) != 0) {
-    std::cerr << "i value wrong. expected: " << value 
+  if (i->GetValue().compare(val) != 0) {
+    std::cerr << "i value wrong. expected: " << val
         << ", got: " << i->GetValue() << "\n";
     return false;
   }
@@ -134,12 +159,11 @@ bool ParserTest::TestIdentityExpression_(std::shared_ptr<Expression> exp, std::s
   return true;
 }
 
-template <typename T>
 bool ParserTest::TestInfixExpression_(
       std::shared_ptr<Expression> exp,
-      T left,
+      expressionVal left,
       std::string op,
-      T right
+      expressionVal right
     ) {
   auto infix = std::dynamic_pointer_cast<InfixExpression>(exp);
   if (infix == nullptr) {
@@ -174,15 +198,57 @@ bool ParserTest::TestInfixExpression_(
   main test methods
 */
 
-void ParserTest::TestIfExpression_() {
-  struct IfTest {
-    std::string input;
-    std::string left;
-    std::string right;
-  };
-  IfTest test = {.input = "if (x > y) { x }", .left = "x", .right = "y"};
 
-  auto l = std::make_shared<Lexer>(test.input);
+void ParserTest::TestIfElseExpression_() {
+  std::string input = "if (x > y) { x } else { y }";
+
+  auto l = std::make_shared<Lexer>(input);
+  auto p = std::make_shared<Parser>(l);
+  std::unique_ptr<Program> program = p->ParseProgram();
+  if (CheckParserErrors_(p)) {
+    return;
+  }
+
+  std::vector<std::shared_ptr<Statement>> stmts = program->GetStatements();
+  if (stmts.size() != 1) {
+    std::cerr << "stmts.size() does not equal " << 1 << " got=" << stmts.size() << "\n";
+    return;
+  }
+
+  auto es = std::dynamic_pointer_cast<ExpressionStatement>(stmts[0]);
+  if (es == nullptr) {
+    std::cerr << "stmts[0] not ExpressionStatement \n";
+    return;
+  }
+
+  auto ifExp = std::dynamic_pointer_cast<IfExpression>(es->GetExpression());
+  if (ifExp == nullptr) {
+    std::cerr << "es->GetExpression() not IfExpression\n";
+    return;
+  }
+
+  if (!TestInfixExpression_(ifExp->GetCondition(), std::string("x"), ">", std::string("y"))) {
+    return;
+  }
+
+  std::shared_ptr<BlockStatement> block = ifExp->GetConsequence();
+  if (!TestBlockStatement_(block, 1, std::string("x"))) {
+    return;
+  }
+
+  std::shared_ptr<BlockStatement> alt = ifExp->GetAlternative();
+  if (!TestBlockStatement_(alt, 1, std::string("y"))) {
+    return;
+  }
+
+  std::cout << "TestIfElseExpression_() passed\n";
+
+}
+
+void ParserTest::TestIfExpression_() {
+  std::string input = "if (x > y) { x }";
+
+  auto l = std::make_shared<Lexer>(input);
   auto p = std::make_shared<Parser>(l);
   std::unique_ptr<Program> program = p->ParseProgram();
 
@@ -209,23 +275,17 @@ void ParserTest::TestIfExpression_() {
     return;
   }
 
-  if (!TestInfixExpression_(ifExp->GetCondition(), test.left, ">", test.right)) {
+  if (!TestInfixExpression_(ifExp->GetCondition(), std::string("x"), ">", std::string("y"))) {
     return;
   }
 
-  auto consequence = std::dynamic_pointer_cast<BlockStatement>(ifExp->GetConsequence());
-  if (consequence == nullptr) {
-    std::cerr << "consequence is not BlockStatement\n";
+  std::shared_ptr<BlockStatement> block = ifExp->GetConsequence();
+  if (!TestBlockStatement_(block, 1, std::string("x"))) {
     return;
   }
 
-  es = std::dynamic_pointer_cast<ExpressionStatement>(consequence->GetStatements()[0]);
-  if (es == nullptr) {
-    std::cerr << "consequence->GetStatements() not ExpressionStatement\n";
-    return;
-  }
-
-  if (!TestLiteralExpression_(es->GetExpression(), std::string("x"))) {
+  if (ifExp->GetAlternative() != nullptr) {
+    std::cerr << "ifExp->GetAlternative() should be null. no else statement\n";
     return;
   }
 
@@ -234,11 +294,14 @@ void ParserTest::TestIfExpression_() {
 }
 
 void ParserTest::TestInfixExpressions_() {
-  std::vector<InfixTest<long>> tests = {
-    (InfixTest<long>){.input = "5 + 5;", .left = 5, .op = "+", .right = 5},
-    (InfixTest<long>){.input = "5 - 5;", .left = 5, .op = "-", .right = 5},
-    (InfixTest<long>){.input = "5 * 5;", .left = 5, .op = "*", .right = 5},
-    (InfixTest<long>){.input = "5 / 5;", .left = 5, .op = "/", .right = 5},
+  std::vector<InfixTest> tests = {
+    (InfixTest){.input = "5 + 5;", .left = 5, .op = "+", .right = 5},
+    (InfixTest){.input = "5 - 5;", .left = 5, .op = "-", .right = 5},
+    (InfixTest){.input = "5 * 5;", .left = 5, .op = "*", .right = 5},
+    (InfixTest){.input = "5 / 5;", .left = 5, .op = "/", .right = 5},
+    (InfixTest){.input = "true == true", .left = true, .op = "==", .right = true},
+    (InfixTest){.input = "false != true", .left = false, .op = "!=", .right = true},
+    (InfixTest){.input = "false == false", .left = false, .op = "==", .right = false},
   };
 
   for (auto test : tests) {
@@ -265,45 +328,15 @@ void ParserTest::TestInfixExpressions_() {
       return;
     }
   }
-  std::vector<InfixTest<bool>> bTests = {
-    InfixTest<bool>{.input = "true == true", .left = true, .op = "==", .right = true},
-    InfixTest<bool>{.input = "false != true", .left = false, .op = "!=", .right = true},
-    InfixTest<bool>{.input = "false == false", .left = false, .op = "==", .right = false},
-  };
 
-  for (const auto& test : bTests) {
-    auto l = std::make_shared<Lexer>(test.input);
-    auto p = std::make_shared<Parser>(l);
-    std::unique_ptr<Program> program = p->ParseProgram();
-    if (CheckParserErrors_(p)) {
-      return;
-    }
-
-    std::vector<std::shared_ptr<Statement>> stmts = program->GetStatements();
-    if (stmts.size() != 1) {
-      std::cerr << "stmts.size() does not equal " << 1 << ". got=" << stmts.size()
-        << "\n";
-      return;
-    }
-
-    auto exp = std::dynamic_pointer_cast<ExpressionStatement>(stmts[0]);
-    if (exp == nullptr) {
-      std::cerr << "stmts[0] not Expression Statement\n";
-      return;
-    }
-
-    if (!TestInfixExpression_(exp->GetExpression(), test.left, test.op, test.right)) {
-      return;
-    }
-  }
   std::cout << "TestInfixExpressions() passed\n";
 }
 
 void ParserTest::TestPrefixExpressions_() {
-  std::vector<PrefixTest<long>> tests = {
-   (PrefixTest<long>){.value = 15, .op = "-", .input = "-15;"},
-   (PrefixTest<long>){.value = 5, .op = "!", .input = "!5;"},
-   (PrefixTest<long>){.value = 10, .op = "-", .input = "-10;"},
+  std::vector<PrefixTest> tests = {
+   (PrefixTest){.value = 15, .op = "-", .input = "-15;"},
+   (PrefixTest){.value = 5, .op = "!", .input = "!5;"},
+   (PrefixTest){.value = 10, .op = "-", .input = "-10;"},
   };
 
   for (size_t i = 0; i < tests.size(); i++) {
