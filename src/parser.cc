@@ -211,17 +211,17 @@ std::shared_ptr<FunctionLiteral> Parser::ParseFunctionLiteral_() {
     // no parameters
     function->SetParameters(params);
   } else {
-    while (true) {
+    NextToken_();
+    auto i = std::make_shared<Identifier>(curr_token_->GetLiteral(), curr_token_);
+    params.push_back(i);
+    while (PeekTokenIs_(TokenType::COMMA)) {
       NextToken_();
+      NextToken_();
+
       auto i = std::make_shared<Identifier>(curr_token_->GetLiteral(), curr_token_);
       params.push_back(i);
-
-      if (!PeekTokenIs_(TokenType::COMMA)) {
-        break;
-      }
-
-      NextToken_();
     }
+
     function->SetParameters(params);
   }
 
