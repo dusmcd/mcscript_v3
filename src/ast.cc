@@ -92,3 +92,23 @@ std::string IfExpression::String() const {
 
   return str;
 }
+
+std::string FunctionLiteral::String() const {
+  std::string str = "";
+  str.append(token_->GetLiteral());
+  str.append("(");
+  for (size_t i = 0; i < parameters_.size(); i++) {
+    str.append(parameters_[i]->String());
+    if (i < parameters_.size() - 1) {
+      str.append(", ");
+    } else {
+      str.append(") ");
+    }
+  }
+
+  str.append("{ ");
+  str.append(body_->String());
+  str.append(" };");
+
+  return str;
+}

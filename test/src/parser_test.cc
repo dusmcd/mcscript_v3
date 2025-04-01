@@ -22,6 +22,7 @@ void ParserTest::Run() {
     TestOperatorPrecedence_();
     TestIfExpression_();
     TestIfElseExpression_();
+    TestFunctionLiteral_();
 
 }
 
@@ -197,6 +198,66 @@ bool ParserTest::TestInfixExpression_(
 /*
   main test methods
 */
+
+void ParserTest::TestFunctionLiteral_() {
+  std::vector<FunctionTest> tests = {
+    (FunctionTest){.input = "function(a) { a; }", .expectedParams = std::vector<std::string>{"a"}, .body = std::string("a")},
+    (FunctionTest){.input = "function() { x; }", .expectedParams = std::vector<std::string>{}, .body = std::string("x")},
+    (FunctionTest){.input = "function(a, b) { b; }", .expectedParams = std::vector<std::string>{"a", "b"}, .body = std::string("b")},
+  };
+
+  for (const auto& test : tests) {
+    auto l = std::make_shared<Lexer>(test.input);
+    auto p = std::make_shared<Parser>(l);
+    std::unique_ptr<Program> program = p->ParseProgram();
+    if (CheckParserErrors_(p)) {
+      return;
+    }
+
+    std::vector<std::shared_ptr<Statement>> stmts = program->GetStatements();
+    if (stmts.size() != 1) {
+      std::cerr << "stmts.size() does not equal " << 1 << ", got=" << stmts.size() << "\n";
+      return;
+    }
+
+    auto es = std::dynamic_pointer_cast<ExpressionStatement>(stmts[0]);
+    if (es == nullptr) {
+      std::cerr << "stmts[0] not ExpressionStatement\n";
+      return;
+    }
+
+    auto function = std::dynamic_pointer_cast<FunctionLiteral>(es->GetExpression());
+    if (function == nullptr) {
+      std::cerr << "es->GetExpression() not a FunctionLiteral\n";
+      return;
+    }
+
+    if (test.expectedParams.size() != function->GetParameters().size()) {
+      std::cerr << "wrong number of parameters. expected: " <<
+          test.expectedParams.size() << ", got: " << function->GetParameters().size()
+          << "\n";
+      return;
+    }
+
+    for (size_t i = 0; i < function->GetParameters().size(); i++) {
+      if (!TestIdentityExpression_(function->GetParameters()[i], test.expectedParams[i])){
+        return;
+      }
+    }
+
+    auto body = std::dynamic_pointer_cast<BlockStatement>(function->GetBody());
+    if (body == nullptr) {
+      std::cerr << "function->GetBody() not a BlockStatement\n";
+      return;
+    }
+
+    if (!TestBlockStatement_(body, 1, test.body)) {
+      return;
+    }
+  }
+
+  std::cout << "TestFunctionLiteral_() passed\n";
+}
 
 
 void ParserTest::TestIfElseExpression_() {

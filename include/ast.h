@@ -373,4 +373,42 @@ class IfExpression : public Expression {
     std::shared_ptr<BlockStatement> alternative_;
 };
 
+class FunctionLiteral : public Expression {
+  public:
+    FunctionLiteral(std::shared_ptr<Token> token) : token_(token) {
+      // empty
+    }
+
+    inline std::string TokenLiteral() const override {
+      return token_->GetLiteral();
+    }
+
+    inline std::vector<std::shared_ptr<Identifier>> GetParameters() const {
+      return parameters_;
+    }
+
+    inline std::shared_ptr<BlockStatement> GetBody() const {
+      return body_;
+    }
+
+    inline void SetParameters(std::vector<std::shared_ptr<Identifier>> params) {
+      parameters_ = params;
+    }
+
+    inline void SetBody(std::shared_ptr<BlockStatement> block) {
+      body_ = block;
+    }
+
+    std::string String() const override;
+
+  protected:
+    void ExpressionNode_() const override {}
+
+  private:
+    std::shared_ptr<Token> token_;
+    std::vector<std::shared_ptr<Identifier>> parameters_;
+    std::shared_ptr<BlockStatement> body_;
+};
+
+
 #endif // MCSCRIPT_V3_AST_H

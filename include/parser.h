@@ -59,6 +59,8 @@ class Parser {
     std::shared_ptr<BooleanExpression> ParseBooleanExpression_();
     std::shared_ptr<IfExpression> ParseIfExpression_();
     std::shared_ptr<BlockStatement> ParseBlockStatement_();
+    std::shared_ptr<FunctionLiteral> ParseFunctionLiteral_();
+    prefixParseFn GetParseFunctionLiteralFn_();
     prefixParseFn GetParseIfExpression_();
     prefixParseFn GetParseBooleanFn_();
     prefixParseFn GetParseGroupedExprFn_();

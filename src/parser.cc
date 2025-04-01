@@ -22,6 +22,7 @@ Parser::Parser(std::shared_ptr<Lexer> l) {
   RegisterPrefixFns_(GetParseBooleanFn_(), TokenType::TRUE),
   RegisterPrefixFns_(GetParseBooleanFn_(), TokenType::FALSE),
   RegisterPrefixFns_(GetParseIfExpression_(), TokenType::IF);
+  RegisterPrefixFns_(GetParseFunctionLiteralFn_(), TokenType::FUNCTION);
 
   RegisterInfixFns_(GetInfixExpressionFn_(), TokenType::PLUS);
   RegisterInfixFns_(GetInfixExpressionFn_(), TokenType::MINUS);
@@ -196,6 +197,52 @@ std::shared_ptr<ExpressionStatement> Parser::ParseExpressionStatement_() {
 /*
   expression parsing
 */
+
+std::shared_ptr<FunctionLiteral> Parser::ParseFunctionLiteral_() {
+  auto function = std::make_shared<FunctionLiteral>(curr_token_);
+
+  if (!ExpectPeek_(TokenType::LPAREN)) {
+    return nullptr;
+  }
+
+  std::vector<std::shared_ptr<Identifier>> params = {};
+
+  if (PeekTokenIs_(TokenType::RPAREN)) {
+    // no parameters
+    function->SetParameters(params);
+  } else {
+    while (true) {
+      NextToken_();
+      auto i = std::make_shared<Identifier>(curr_token_->GetLiteral(), curr_token_);
+      params.push_back(i);
+
+      if (!PeekTokenIs_(TokenType::COMMA)) {
+        break;
+      }
+
+      NextToken_();
+    }
+    function->SetParameters(params);
+  }
+
+  if (!ExpectPeek_(TokenType::RPAREN)) {
+    return nullptr;
+  }
+
+  if (!ExpectPeek_(TokenType::LBRACE)) {
+    return nullptr;
+  }
+
+  function->SetBody(ParseBlockStatement_());
+
+  return function;
+}
+
+prefixParseFn Parser::GetParseFunctionLiteralFn_() {
+  prefixParseFn fn = std::bind(&Parser::ParseFunctionLiteral_, this);
+  return fn;
+}
+
 
 std::shared_ptr<IfExpression> Parser::ParseIfExpression_() {
   auto ifExp = std::make_shared<IfExpression>(curr_token_);

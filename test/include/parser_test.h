@@ -25,6 +25,12 @@ struct PrefixTest {
   std::string input;
 };
 
+struct FunctionTest {
+  std::string input;
+  std::vector<std::string> expectedParams;
+  expressionVal body;
+};
+
 
 class ParserTest {
   public:
@@ -60,6 +66,7 @@ class ParserTest {
     void TestOperatorPrecedence_();
     void TestIfExpression_();
     void TestIfElseExpression_();
+    void TestFunctionLiteral_();
 
 };
 
