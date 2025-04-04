@@ -31,6 +31,10 @@ struct FunctionTest {
   expressionVal body;
 };
 
+struct CallTest {
+  std::string input;
+  std::vector<expressionVal> expectedParams;
+};
 
 class ParserTest {
   public:
@@ -67,6 +71,7 @@ class ParserTest {
     void TestIfExpression_();
     void TestIfElseExpression_();
     void TestFunctionLiteral_();
+    void TestCallExpressions_();
 
 };
 

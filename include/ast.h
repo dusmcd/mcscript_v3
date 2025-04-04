@@ -426,6 +426,10 @@ class CallExpression : public Expression {
       args_ = args;
     }
 
+    inline std::vector<std::shared_ptr<Expression>> GetArgs() const {
+      return args_;
+    }
+
   protected:
     void ExpressionNode_() const override {}
 

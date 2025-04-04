@@ -23,6 +23,7 @@ void ParserTest::Run() {
     TestIfExpression_();
     TestIfElseExpression_();
     TestFunctionLiteral_();
+    TestCallExpressions_();
 
 }
 
@@ -198,6 +199,60 @@ bool ParserTest::TestInfixExpression_(
 /*
   main test methods
 */
+
+void ParserTest::TestCallExpressions_() {
+  std::vector<CallTest> tests = {
+    (CallTest){.input = "add(1, 2);", .expectedParams = std::vector<expressionVal>{1, 2}},
+    (CallTest){.input = "add(true);", .expectedParams = std::vector<expressionVal>{true}},
+    (CallTest){.input = "add();", .expectedParams = std::vector<expressionVal>{}}
+  };
+
+  for (const auto& test : tests) {
+    auto l = std::make_shared<Lexer>(test.input);
+    auto p = std::make_shared<Parser>(l);
+    std::unique_ptr<Program> program = p->ParseProgram();
+    if (CheckParserErrors_(p)) {
+      return;
+    }
+
+    std::vector<std::shared_ptr<Statement>> stmts = program->GetStatements();
+
+    if (stmts.size() != 1) {
+      std::cerr << "program does not contain " << 1 << " statement. got="
+          << stmts.size() << "\n";
+      return;
+    }
+
+    auto es = std::dynamic_pointer_cast<ExpressionStatement>(stmts[0]);
+    if (es == nullptr) {
+      std::cerr << "stmts[0] is not an ExpressionStatement\n";
+      return;
+    }
+
+    auto call = std::dynamic_pointer_cast<CallExpression>(es->GetExpression());
+    if (call == nullptr) {
+      std::cerr << "es->GetExpression() is not a CallExpression\n";
+      return;
+    }
+
+    std::vector<std::shared_ptr<Expression>> args = call->GetArgs();
+
+    if (args.size() != test.expectedParams.size()) {
+      std::cerr << "wrong number of arguments. expected: "
+          << test.expectedParams.size() << ", got: " << args.size()
+          << "\n";
+      return;
+    }
+
+    for (size_t i = 0; i < args.size(); i++) {
+      if (!TestLiteralExpression_(args[i], test.expectedParams[i])) {
+        return;
+      }
+    }
+  }
+
+  std::cout << "TestCallExpressions_() passed\n";
+}
 
 void ParserTest::TestFunctionLiteral_() {
   std::vector<FunctionTest> tests = {
