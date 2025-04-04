@@ -410,5 +410,30 @@ class FunctionLiteral : public Expression {
     std::shared_ptr<BlockStatement> body_;
 };
 
+class CallExpression : public Expression {
+  public:
+    CallExpression(std::shared_ptr<Token> tok, std::shared_ptr<Expression> func) : token_(tok), func_(func) {
+      //empty
+    }
+
+    std::string TokenLiteral() const override {
+      return token_->GetLiteral();
+    }
+
+    std::string String() const;
+
+    inline void SetArgs(std::vector<std::shared_ptr<Expression>> args) {
+      args_ = args;
+    }
+
+  protected:
+    void ExpressionNode_() const override {}
+
+  private:
+    std::shared_ptr<Token> token_;
+    std::shared_ptr<Expression> func_;
+    std::vector<std::shared_ptr<Expression>> args_;
+};
+
 
 #endif // MCSCRIPT_V3_AST_H

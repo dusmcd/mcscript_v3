@@ -2,7 +2,7 @@
 
 
 TokenType Token::LookUpIdent(std::string literal) {
-  if (keywords.count(literal))
+  if (keywords.count(literal) > 0)
     return keywords.at(literal);
 
   return TokenType::IDENT;

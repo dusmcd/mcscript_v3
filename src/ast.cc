@@ -112,3 +112,21 @@ std::string FunctionLiteral::String() const {
 
   return str;
 }
+
+std::string CallExpression::String() const {
+  std::string str = "";
+  str.append(token_->GetLiteral());
+  str.append("(");
+
+  for (size_t i = 0; i < args_.size(); i++) {
+    std::shared_ptr<Expression> arg = args_[i];
+    str.append(arg->String());
+    if (i < args_.size() - 1) {
+      str.append(", ");
+    } else {
+      str.append(")");
+    }
+  }
+  str.append(";");
+  return str;
+}

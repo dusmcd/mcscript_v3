@@ -60,6 +60,9 @@ class Parser {
     std::shared_ptr<IfExpression> ParseIfExpression_();
     std::shared_ptr<BlockStatement> ParseBlockStatement_();
     std::shared_ptr<FunctionLiteral> ParseFunctionLiteral_();
+    std::shared_ptr<CallExpression> ParseCallExpression_(std::shared_ptr<Expression> func);
+    std::vector<std::shared_ptr<Expression>> ParseCallParameters_();
+    infixParseFn GetParseCallExpressionFn_();
     prefixParseFn GetParseFunctionLiteralFn_();
     prefixParseFn GetParseIfExpression_();
     prefixParseFn GetParseBooleanFn_();
@@ -87,6 +90,7 @@ static const std::unordered_map<TokenType, Precedence> prMap = {
   {TokenType::NOT_EQ, Precedence::EQUALS},
   {TokenType::LT, Precedence::LESSGREATER},
   {TokenType::GT, Precedence::LESSGREATER},
+  {TokenType::LPAREN, Precedence::CALL}
 };
 
 

@@ -7,7 +7,7 @@ PUBLIC METHODS
 */
 
 /*
-  constuctor
+  constructor
 */
 Parser::Parser(std::shared_ptr<Lexer> l) {
   l_ = l;
@@ -32,6 +32,8 @@ Parser::Parser(std::shared_ptr<Lexer> l) {
   RegisterInfixFns_(GetInfixExpressionFn_(), TokenType::GT);
   RegisterInfixFns_(GetInfixExpressionFn_(), TokenType::EQ);
   RegisterInfixFns_(GetInfixExpressionFn_(), TokenType::NOT_EQ);
+  RegisterInfixFns_(GetParseCallExpressionFn_(), TokenType::LPAREN);
+
 
 
   NextToken_();
@@ -197,6 +199,42 @@ std::shared_ptr<ExpressionStatement> Parser::ParseExpressionStatement_() {
 /*
   expression parsing
 */
+
+std::shared_ptr<CallExpression> Parser::ParseCallExpression_(std::shared_ptr<Expression> func) {
+  auto exp = std::make_shared<CallExpression>(curr_token_, func);
+  exp->SetArgs(ParseCallParameters_());
+  return exp;
+}
+
+infixParseFn Parser::GetParseCallExpressionFn_() {
+  infixParseFn fn = std::bind(&Parser::ParseCallExpression_, this, std::placeholders::_1);
+  return fn;
+}
+
+std::vector<std::shared_ptr<Expression>> Parser::ParseCallParameters_() {
+  std::vector<std::shared_ptr<Expression>> args = {};
+
+  if (PeekTokenIs_(TokenType::RPAREN)) {
+    NextToken_();
+    return args;
+  }
+
+  NextToken_();
+  args.push_back(ParseExpression_(Precedence::LOWEST));
+  while (PeekTokenIs_(TokenType::COMMA)) {
+    NextToken_();
+    NextToken_();
+    args.push_back(ParseExpression_(Precedence::LOWEST));
+  }
+
+  if (!ExpectPeek_(TokenType::RPAREN)) {
+    return std::vector<std::shared_ptr<Expression>>{};
+  }
+
+  return args;
+
+}
+
 
 std::shared_ptr<FunctionLiteral> Parser::ParseFunctionLiteral_() {
   auto function = std::make_shared<FunctionLiteral>(curr_token_);
