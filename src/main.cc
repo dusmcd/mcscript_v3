@@ -1,6 +1,13 @@
 #include <lexer.h>
+#include <parser.h>
 #include <iostream>
 #include <string>
+
+void PrintParserErrors(std::vector<std::string> errs) {
+  for (const std::string& err : errs) {
+    std::cerr << err << "\n";
+  }
+}
 
 int main() {
   std::cout << "McScript v3.0 Programming Language\n";
@@ -11,12 +18,19 @@ int main() {
     std::string input;
     std::cin >> input;
 
-    Lexer l = Lexer(input);
+    auto l = std::make_shared<Lexer>(input);
+    auto p = std::make_shared<Parser>(l);
+    std::unique_ptr<Program> program = p->ParseProgram();
 
-    for (std::shared_ptr<Token> tok = l.NextToken(); tok->GetType() != TokenType::EOI; tok = l.NextToken()) {
-      std::cout << "{type: " << static_cast<int>(tok->GetType()) << ", literal: " << tok->GetLiteral() << "}\n";
+    if (p->GetErrors().size() > 0) {
+      PrintParserErrors(p->GetErrors());
     }
+    
 
+    for (const auto& stmt : program->GetStatements()) {
+      std::cout << stmt->String();
+      std::cout << std::endl;
+    }
   }
 
 

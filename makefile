@@ -31,11 +31,12 @@ parser_test.o: $(test_dir)/parser_test.cc
 lexer_test.o: $(test_dir)/lexer_test.cc
 	g++ $(flags) -c $< -o $(build_dir)/lexer_test.o 
 
-main: main.o lexer.o token.o
-	g++ $(flags) $(build_dir)/main.o $(build_dir)/lexer.o $(build_dir)/token.o \
-	-o $(exec_dir)/main
-
 # Executables
+
+main: main.o lexer.o token.o parser.o ast.o
+	g++ $(flags) $(build_dir)/main.o $(build_dir)/lexer.o $(build_dir)/token.o \
+	$(build_dir)/parser.o $(build_dir)/ast.o -o $(exec_dir)/main
+
 
 lexer_test: lexer_test.o lexer.o token.o
 	g++ $(flags) $(build_dir)/lexer_test.o $(build_dir)/token.o $(build_dir)/lexer.o \
