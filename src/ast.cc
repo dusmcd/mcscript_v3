@@ -115,7 +115,7 @@ std::string FunctionLiteral::String() const {
 
 std::string CallExpression::String() const {
   std::string str = "";
-  str.append(token_->GetLiteral());
+  str.append(func_->String());
   str.append("(");
 
   for (size_t i = 0; i < args_.size(); i++) {
@@ -123,10 +123,8 @@ std::string CallExpression::String() const {
     str.append(arg->String());
     if (i < args_.size() - 1) {
       str.append(", ");
-    } else {
-      str.append(")");
-    }
+    }  
   }
-  str.append(";");
+  str.append(");");
   return str;
 }

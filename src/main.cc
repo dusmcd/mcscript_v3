@@ -16,7 +16,7 @@ int main() {
   while (true) {
     std::cout << ">> ";
     std::string input;
-    std::cin >> input;
+    std::getline(std::cin, input);
 
     auto l = std::make_shared<Lexer>(input);
     auto p = std::make_shared<Parser>(l);
