@@ -23,6 +23,9 @@ parser.o: $(src_dir)/parser.cc
 ast.o: $(src_dir)/ast.cc
 	g++ $(flags) -c $< -o $(build_dir)/ast.o
 
+evaluator.o: $(src_dir)/evaluator.cc
+	g++ $(flags) -c $< -o $(build_dir)/evaluator.o
+
 # Test files
 
 parser_test.o: $(test_dir)/parser_test.cc
@@ -30,6 +33,9 @@ parser_test.o: $(test_dir)/parser_test.cc
 
 lexer_test.o: $(test_dir)/lexer_test.cc
 	g++ $(flags) -c $< -o $(build_dir)/lexer_test.o 
+
+evaluator_test.o: $(test_dir)/evaluator_test.cc
+	g++ $(flags) -c $< -o $(build_dir)/evaluator_test.o
 
 # Executables
 
@@ -46,9 +52,15 @@ parser_test: parser_test.o lexer.o parser.o token.o ast.o
 	g++ $(flags) $(build_dir)/parser_test.o $(build_dir)/lexer.o $(build_dir)/parser.o \
 	$(build_dir)/token.o $(build_dir)/ast.o -o $(exec_dir)/parser_test
 
-test: lexer_test parser_test
+evaluator_test: evaluator_test.o lexer.o parser.o token.o ast.o evaluator.o
+	g++ $(flags) $(build_dir)/evaluator_test.o $(build_dir)/lexer.o $(build_dir)/parser.o \
+	$(build_dir)/token.o $(build_dir)/ast.o $(build_dir)/evaluator.o -o $(exec_dir)/evaluator_test
+
+
+test: lexer_test parser_test evaluator_test
 	$(exec_dir)/lexer_test
 	$(exec_dir)/parser_test
+	$(exec_dir)/evaluator_test
 
 # Utility
 

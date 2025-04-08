@@ -1,0 +1,33 @@
+#include <evaluator.h>
+#include <typeinfo>
+
+std::shared_ptr<::Object> Eval(std::shared_ptr<::Node> node) {
+  const std::string typeName(typeid(*node).name());
+  if (typeName.compare("Program") == 0) {
+    // evaluate statements
+    auto program = std::dynamic_pointer_cast<Program>(node);
+    return EvalStatements(program->GetStatements());
+  }
+  else if (typeName.compare("ExpressionStatement") == 0) {
+    // evaluate expression
+    auto es = std::dynamic_pointer_cast<::ExpressionStatement>(node);
+    return Eval(es->GetExpression());
+  }
+
+  // evaluate expressions
+  else if (typeName.compare("IntegerLiteral") == 0) {
+    auto exp = std::dynamic_pointer_cast<::IntegerLiteral>(node);
+    auto obj = std::make_shared<::Integer>(exp->GetValue());
+    return obj;
+  }
+
+  return nullptr;
+}
+
+std::shared_ptr<::Object> EvalStatements(std::vector<std::shared_ptr<::Statement>> stmts) {
+  for (const auto& stmt : stmts) {
+    return Eval(stmt);
+  }
+
+  return nullptr;
+}
