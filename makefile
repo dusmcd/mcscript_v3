@@ -39,9 +39,9 @@ evaluator_test.o: $(test_dir)/evaluator_test.cc
 
 # Executables
 
-main: main.o lexer.o token.o parser.o ast.o
+main: main.o lexer.o token.o parser.o ast.o evaluator.o
 	g++ $(flags) $(build_dir)/main.o $(build_dir)/lexer.o $(build_dir)/token.o \
-	$(build_dir)/parser.o $(build_dir)/ast.o -o $(exec_dir)/main
+	$(build_dir)/parser.o $(build_dir)/ast.o $(build_dir)/evaluator.o -o $(exec_dir)/main
 
 
 lexer_test: lexer_test.o lexer.o token.o

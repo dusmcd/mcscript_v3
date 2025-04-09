@@ -1,5 +1,6 @@
 #include <lexer.h>
 #include <parser.h>
+#include <evaluator.h>
 #include <iostream>
 #include <string>
 
@@ -26,11 +27,11 @@ int main() {
       PrintParserErrors(p->GetErrors());
     }
     
-
-    for (const auto& stmt : program->GetStatements()) {
-      std::cout << stmt->String();
-      std::cout << std::endl;
+    std::shared_ptr<Object> obj = Eval(program);
+    if (obj != nullptr) {
+      std::cout << obj->Inspect();
     }
+    std::cout << std::endl;
   }
 
 
