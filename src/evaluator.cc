@@ -1,8 +1,14 @@
 #include <evaluator.h>
 #include <typeinfo>
+#include <cxxabi.h>
+#include <stdlib.h>
 
 std::shared_ptr<::Object> Eval(std::shared_ptr<::Node> node) {
-  const std::string typeName(typeid(*node).name());
+  const std::string typeName = GetTypeName(node);
+  if (typeName.size() == 0) {
+    return nullptr;
+  }
+
   if (typeName.compare("Program") == 0) {
     // evaluate statements
     auto program = std::dynamic_pointer_cast<Program>(node);
@@ -22,6 +28,20 @@ std::shared_ptr<::Object> Eval(std::shared_ptr<::Node> node) {
   }
 
   return nullptr;
+}
+
+
+std::string GetTypeName(std::shared_ptr<::Node> node) {
+  const char* mangled = typeid(*node).name();
+  int status;
+  char* demangled = abi::__cxa_demangle(mangled, nullptr, nullptr, &status);
+  if (status != 0) {
+    return "";
+  }
+  std::string result(demangled);
+
+  free(demangled);
+  return result;
 }
 
 std::shared_ptr<::Object> EvalStatements(std::vector<std::shared_ptr<::Statement>> stmts) {

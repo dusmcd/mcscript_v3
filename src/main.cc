@@ -20,7 +20,7 @@ int main() {
 
     auto l = std::make_shared<Lexer>(input);
     auto p = std::make_shared<Parser>(l);
-    std::unique_ptr<Program> program = p->ParseProgram();
+    std::shared_ptr<Program> program = p->ParseProgram();
 
     if (p->GetErrors().size() > 0) {
       PrintParserErrors(p->GetErrors());

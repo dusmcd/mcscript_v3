@@ -41,8 +41,8 @@ Parser::Parser(std::shared_ptr<Lexer> l) {
 }
 
 
-std::unique_ptr<Program> Parser::ParseProgram(){
-  auto program = std::make_unique<Program>();
+std::shared_ptr<Program> Parser::ParseProgram(){
+  auto program = std::make_shared<Program>();
   
   while (!CurrTokenIs_(TokenType::EOI)) {
     std::shared_ptr<Statement> stmt = ParseStatement_();

@@ -25,7 +25,7 @@ class Parser {
   
   public:
     Parser(std::shared_ptr<Lexer> l);
-    std::unique_ptr<Program> ParseProgram();
+    std::shared_ptr<Program> ParseProgram();
 
     inline std::vector<std::string> GetErrors() {
       return errors_;

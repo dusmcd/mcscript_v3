@@ -210,7 +210,7 @@ void ParserTest::TestCallExpressions_() {
   for (const auto& test : tests) {
     auto l = std::make_shared<Lexer>(test.input);
     auto p = std::make_shared<Parser>(l);
-    std::unique_ptr<Program> program = p->ParseProgram();
+    std::shared_ptr<Program> program = p->ParseProgram();
     if (CheckParserErrors_(p)) {
       return;
     }
@@ -264,7 +264,7 @@ void ParserTest::TestFunctionLiteral_() {
   for (const auto& test : tests) {
     auto l = std::make_shared<Lexer>(test.input);
     auto p = std::make_shared<Parser>(l);
-    std::unique_ptr<Program> program = p->ParseProgram();
+    std::shared_ptr<Program> program = p->ParseProgram();
     if (CheckParserErrors_(p)) {
       return;
     }
@@ -320,7 +320,7 @@ void ParserTest::TestIfElseExpression_() {
 
   auto l = std::make_shared<Lexer>(input);
   auto p = std::make_shared<Parser>(l);
-  std::unique_ptr<Program> program = p->ParseProgram();
+  std::shared_ptr<Program> program = p->ParseProgram();
   if (CheckParserErrors_(p)) {
     return;
   }
@@ -366,7 +366,7 @@ void ParserTest::TestIfExpression_() {
 
   auto l = std::make_shared<Lexer>(input);
   auto p = std::make_shared<Parser>(l);
-  std::unique_ptr<Program> program = p->ParseProgram();
+  std::shared_ptr<Program> program = p->ParseProgram();
 
   if (CheckParserErrors_(p)) {
     return;
@@ -423,7 +423,7 @@ void ParserTest::TestInfixExpressions_() {
   for (auto test : tests) {
     auto l = std::make_shared<Lexer>(test.input);
     auto p = std::make_shared<Parser>(l);
-    std::unique_ptr<Program> program = p->ParseProgram();
+    std::shared_ptr<Program> program = p->ParseProgram();
     if (CheckParserErrors_(p)) {
       return;
     }
@@ -459,7 +459,7 @@ void ParserTest::TestPrefixExpressions_() {
     PrefixTest test = tests[i];
     auto l = std::make_shared<Lexer>(test.input);
     auto p = std::make_shared<Parser>(l);
-    std::unique_ptr<Program> program = p->ParseProgram();
+    std::shared_ptr<Program> program = p->ParseProgram();
     if (program == nullptr) {
       std::cerr << "program = nullptr\n";
       return;
@@ -507,7 +507,7 @@ void ParserTest::TestIntegerLiterals_() {
 
   auto l = std::make_shared<Lexer>(input);
   auto p = std::make_shared<Parser>(l);
-  std::unique_ptr<Program> program = p->ParseProgram();
+  std::shared_ptr<Program> program = p->ParseProgram();
   if (program == nullptr) {
     std::cerr << "program = nullptr\n";
     return;
@@ -551,7 +551,7 @@ void ParserTest::TestIdentityExpressions_() {
   std::string expLiteral = "foobar";
   auto l = std::make_shared<Lexer>(input);
   auto p = std::make_shared<Parser>(l);
-  std::unique_ptr<Program> program = p->ParseProgram();
+  std::shared_ptr<Program> program = p->ParseProgram();
   if (program == nullptr) {
     std::cerr << "program = nullptr\n";
     return;
@@ -621,7 +621,7 @@ void ParserTest::TestVarStatements_() {
   std::shared_ptr<Lexer> l = std::make_shared<Lexer>(input);
   std::shared_ptr<Parser> p = std::make_shared<Parser>(l);
 
-  std::unique_ptr<Program> program = p->ParseProgram();
+  std::shared_ptr<Program> program = p->ParseProgram();
   if (CheckParserErrors_(p)) {
     return;
   }
@@ -663,7 +663,7 @@ void ParserTest::TestReturnStatements_() {
 
   auto l = std::make_shared<Lexer>(input);
   auto p = std::make_shared<Parser>(l);
-  std::unique_ptr<Program> program = p->ParseProgram();
+  std::shared_ptr<Program> program = p->ParseProgram();
   if (program == nullptr) {
     std::cerr << "program = nullptr\n";
     return;
@@ -715,7 +715,7 @@ void ParserTest::TestOperatorPrecedence_() {
   for (const auto& test : tests) {
     auto l = std::make_shared<Lexer>(test.input);
     auto p = std::make_shared<Parser>(l);
-    std::unique_ptr<Program> program = p->ParseProgram();
+    std::shared_ptr<Program> program = p->ParseProgram();
     if (CheckParserErrors_(p)) {
       return;
     }
