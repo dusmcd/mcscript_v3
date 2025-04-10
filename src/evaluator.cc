@@ -29,7 +29,7 @@ std::shared_ptr<::Object> Eval(std::shared_ptr<::Node> node) {
 
   else if (typeName.compare("BooleanExpression") == 0) {
     auto exp = std::dynamic_pointer_cast<::BooleanExpression>(node);
-    auto obj = std::make_shared<::Boolean>(exp->GetValue());
+    auto obj = exp->GetValue() ? TRUE : FALSE; 
     return obj;
   }
 
