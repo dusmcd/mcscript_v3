@@ -11,6 +11,7 @@ PUBLIC METHODS
 
 void EvaluatorTest::Run() {
   TestIntegerEvals_();
+  TestBooleanEvals_();
 }
 
 /*
@@ -22,6 +23,36 @@ PRIVATE METHODS
 /*
   main test methods
 */
+
+void EvaluatorTest::TestBooleanEvals_() {
+  std::vector<BooleanTest> tests = {
+    (BooleanTest){.input = "true;", .expectedVal = true},
+    (BooleanTest){.input = "false;", .expectedVal = false}
+  };
+
+  for (const auto& test : tests) {
+    auto l = std::make_shared<Lexer>(test.input);
+    auto p = std::make_shared<Parser>(l);
+    std::shared_ptr<Program> program = p->ParseProgram();
+
+    std::shared_ptr<Object> obj = Eval(program);
+
+    auto boolean = std::dynamic_pointer_cast<Boolean>(obj);
+    if (obj == nullptr){
+      std::cerr << "obj is not a Boolean\n";
+      return;
+    }
+
+    if (boolean->GetValue() != test.expectedVal) {
+      std::cerr << "boolean value wrong. expected: " << test.expectedVal
+          << ", got: " << boolean->GetValue() << "\n";
+      return;
+    }
+
+  }
+
+  std::cout << "TestBooleanEvals_() passed\n";
+}
 
 void EvaluatorTest::TestIntegerEvals_() {
   std::vector<IntegerTest> tests = {

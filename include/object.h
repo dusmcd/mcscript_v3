@@ -39,12 +39,20 @@ class Integer : public Object {
 
 class Boolean : public Object {
   public:
+    Boolean(bool value) : value_(value) {
+      // empty
+    }
+
     inline std::string Inspect() const override {
       return value_ ? "true" : "false";
     }
 
     inline ObjectType Type() const override {
       return ObjectType::BOOLEAN_OBJ;
+    }
+
+    inline bool GetValue() const {
+      return value_;
     }
 
   private:

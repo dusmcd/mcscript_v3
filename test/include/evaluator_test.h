@@ -8,12 +8,18 @@ struct IntegerTest {
   long expectedVal;
 };
 
+struct BooleanTest {
+  std::string input;
+  bool expectedVal;
+};
+
 class EvaluatorTest {
   public:
     void Run();
 
   private:
     void TestIntegerEvals_();
+    void TestBooleanEvals_();
 };
 
 
