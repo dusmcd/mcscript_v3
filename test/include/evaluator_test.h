@@ -5,6 +5,14 @@
 #include <memory>
 #include <object.h>
 #include <evaluator.h>
+#include <variant>
+
+using ifVal = std::variant<long, void*, bool>;
+
+struct IfTest {
+  std::string input;
+  ifVal expectedVal;
+};
 
 struct IntegerTest {
   std::string input;
@@ -27,10 +35,13 @@ class EvaluatorTest {
     void TestIntegerEvals_();
     void TestBooleanEvals_();
     void TestBangOperatorEvals_();
+    void TestIfElseEvals_();
 
     // helper methods
     Object* TestEval_(std::string input);
     bool TestBooleanObject_(Object* obj, bool expected);
+    bool TestIntegerObject_(Object* obj, long expected);
+    bool TestNullObject_(Object* obj);
     Evaluator& evaluator_;
     
 };

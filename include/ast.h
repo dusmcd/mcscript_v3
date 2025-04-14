@@ -331,6 +331,7 @@ class IfExpression : public Expression {
   public:
     IfExpression(std::shared_ptr<Token> token) : token_(token) {
       // empty
+      alternative_ = nullptr;
     }
 
     inline std::string TokenLiteral() const override {

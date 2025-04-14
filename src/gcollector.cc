@@ -15,7 +15,7 @@ void GCollector::TrackObject(::Object* obj) {
 }
 
 GCollector::~GCollector() {
-  // clean up any remaining objects (should only be the static)
+  // clean up any remaining objects (should only be the Boolean and Null)
   for (auto& obj : objects_) {
     delete obj;
   }

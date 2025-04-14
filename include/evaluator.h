@@ -7,13 +7,10 @@
 #include <gcollector.h>
 
 
-static Boolean* TRUE = new Boolean(true);
-static Boolean* FALSE = new Boolean(false);
-static Null* NULL_T = new Null();
-
 class Evaluator {
   public:
-    Evaluator(::GCollector& gCollector) : gCollector_(gCollector) {
+    Evaluator(::GCollector& gCollector, Boolean* TRUE, Boolean* FALSE, Null* NULL_T)
+     : gCollector_(gCollector), TRUE_(TRUE), FALSE_(FALSE), NULL_T_(NULL_T) {
       //empty
     }
 
@@ -26,21 +23,42 @@ class Evaluator {
     inline void CollectGarbage() {
       gCollector_.Collect();
     }
+
+    inline Boolean* TRUE() {
+      return TRUE_;
+    }
+
+    inline Boolean* FALSE() {
+      return FALSE_;
+    }
+
+    inline Null* NULL_T() {
+      return NULL_T_;
+    }
+
   
   private:
     // garbage collector
     ::GCollector& gCollector_;
+    Boolean* TRUE_;
+    Boolean* FALSE_;
+    Null* NULL_T_;
 
     // methods
-    Object* EvalStatements_(std::vector<std::shared_ptr<::Statement>> stmts);
+    
+    // helpers
     std::string GetTypeName_(std::shared_ptr<::Node> node);
     Boolean* NativeBooleanToBooleanObj_(bool input);
+    bool IsTruthy_(Object* condition);
 
+    // evals
     Object* EvalPrefixExpression_(std::string op, Object* right);
     Object* EvalBangExpression_(Object* right);
     Object* EvalMinusExpression_(Object* right);
     Object* EvalInfixExpression_(std::string op, Object* left, Object* right);
     Object* EvalIntegerInfixExpression_(std::string op, Object* left, Object* right);
+    Object* EvalIfExpression_(std::shared_ptr<IfExpression> ie);
+    Object* EvalStatements_(std::vector<std::shared_ptr<::Statement>> stmts);
 };
 
 

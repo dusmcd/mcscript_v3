@@ -13,6 +13,7 @@ void EvaluatorTest::Run() {
   TestIntegerEvals_();
   TestBooleanEvals_();
   TestBangOperatorEvals_();
+  TestIfElseEvals_();
 }
 
 /*
@@ -123,16 +124,7 @@ void EvaluatorTest::TestIntegerEvals_() {
   for (const auto& test : tests) {
     Object* obj = TestEval_(test.input);
 
-    auto integer = dynamic_cast<Integer*>(obj);
-    if (integer == nullptr) {
-      std::cerr << "obj is not an Integer\n";
-      return;
-    }
-
-    if (integer->GetValue() != test.expectedVal) {
-      std::cerr << "wrong value. expected: " 
-          << test.expectedVal << ", got: " << integer->GetValue()
-          << "\n";
+    if (!TestIntegerObject_(obj, test.expectedVal)) {
       return;
     }
   }
@@ -141,9 +133,63 @@ void EvaluatorTest::TestIntegerEvals_() {
   std::cout << "TestIntegerEvals_() passed\n";
 }
 
+void EvaluatorTest::TestIfElseEvals_() {
+  std::vector<IfTest> tests = {
+    (IfTest){.input = "if (true) { 10 }", .expectedVal = 10},
+    (IfTest){.input = "if (false) { 10 }", .expectedVal = nullptr},
+    (IfTest){.input = "if (1 < 2) { 10 } else { 20 }", .expectedVal = 10},
+    (IfTest){.input = "if (1 > 2) { 10 } else { 20 }", .expectedVal = 20}
+  };
+
+  for (const auto& test : tests) {
+    Object* obj = TestEval_(test.input);
+
+    if (std::holds_alternative<long>(test.expectedVal)) {
+      if (!TestIntegerObject_(obj, std::get<long>(test.expectedVal))) {
+        return;
+      }
+    } else if (!TestNullObject_(obj)) {
+      return;
+    }
+  }
+
+  evaluator_.CollectGarbage();
+  std::cout << "TestIfElseEvals_() passed\n";
+}
+
+bool EvaluatorTest::TestIntegerObject_(Object* obj, long expected) {
+  auto integer = dynamic_cast<Integer*>(obj);
+  if (integer == nullptr) {
+    std::cerr << "obj is not an Integer\n";
+    return false;
+  }
+
+  if (integer->GetValue() != expected) {
+    std::cerr << "wrong value. expected: " 
+        << expected << ", got: " << integer->GetValue()
+        << "\n";
+    return false;
+  }
+
+  return true;
+}
+
+bool EvaluatorTest::TestNullObject_(Object* obj) {
+  if (obj != evaluator_.NULL_T()) {
+    std::cerr << "obj is not NULL_T\n";
+    return false;
+  }
+
+  return true;
+}
+
+
 int main() {
   GCollector& gCollector = GCollector::getGCollector();
-  Evaluator evaluator(gCollector);
+  Boolean* TRUE = new Boolean(true);
+  Boolean* FALSE = new Boolean(false);
+  Null* NULL_T = new Null();
+  Evaluator evaluator(gCollector, TRUE, FALSE, NULL_T);
   EvaluatorTest eTest(evaluator);
 
   eTest.Run();

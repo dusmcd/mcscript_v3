@@ -19,6 +19,10 @@ Object* Evaluator::Eval(std::shared_ptr<::Node> node) {
     auto es = std::dynamic_pointer_cast<::ExpressionStatement>(node);
     return Eval(es->GetExpression());
   }
+  else if (typeName.compare("BlockStatement") == 0) {
+    auto block = std::dynamic_pointer_cast<::BlockStatement>(node);
+    return EvalStatements_(block->GetStatements());
+  }
 
   // evaluate expressions
   else if (typeName.compare("IntegerLiteral") == 0) {
@@ -46,7 +50,37 @@ Object* Evaluator::Eval(std::shared_ptr<::Node> node) {
     return EvalInfixExpression_(exp->GetOp(), left, right);
   }
 
+  else if (typeName.compare("IfExpression") == 0) {
+    auto ie = std::dynamic_pointer_cast<IfExpression>(node);
+    return EvalIfExpression_(ie);
+  }
+
   return nullptr;
+}
+
+Object* Evaluator::EvalIfExpression_(std::shared_ptr<IfExpression> ie) {
+  Object* condition = Eval(ie->GetCondition());
+
+  if (IsTruthy_(condition)) {
+    return Eval(ie->GetConsequence());
+  } else if (ie->GetAlternative() != nullptr) {
+    return Eval(ie->GetAlternative());
+  }
+
+  return NULL_T();
+}
+
+
+bool Evaluator::IsTruthy_(Object* condition) {
+  if (condition == TRUE()) {
+    return true;
+  } else if (condition == FALSE()) {
+    return false;
+  } else if (condition == NULL_T()) {
+    return false;
+  }
+
+  return true;
 }
 
 Object* Evaluator::EvalInfixExpression_(std::string op, Object* left, Object* right) {
@@ -58,7 +92,7 @@ Object* Evaluator::EvalInfixExpression_(std::string op, Object* left, Object* ri
     return NativeBooleanToBooleanObj_(left != right);
   }
 
-  return NULL_T;
+  return NULL_T();
 }
 
 Object* Evaluator::EvalIntegerInfixExpression_(std::string op, Object* left, Object* right) {
@@ -88,15 +122,15 @@ Object* Evaluator::EvalIntegerInfixExpression_(std::string op, Object* left, Obj
     return NativeBooleanToBooleanObj_(leftVal != rightVal);
   }
 
-  return NULL_T;
+  return NULL_T();
 }
 
 
 Boolean* Evaluator::NativeBooleanToBooleanObj_(bool input) {
   if (input) {
-    return TRUE;
+    return TRUE();
   }
-  return FALSE;
+  return FALSE();
 }
 
 
@@ -108,7 +142,7 @@ Boolean* Evaluator::NativeBooleanToBooleanObj_(bool input) {
     return EvalMinusExpression_(right);
   }
 
-  return NULL_T;
+  return NULL_T();
 }
 
 Object* Evaluator::EvalMinusExpression_(Object* right) {
@@ -123,17 +157,17 @@ Object* Evaluator::EvalMinusExpression_(Object* right) {
 }
 
 ::Object* Evaluator::EvalBangExpression_(::Object* right) {
-  if (right == TRUE) {
-    return FALSE;
+  if (right == TRUE()) {
+    return FALSE();
   }
-  else if (right == FALSE) {
-    return TRUE;
+  else if (right == FALSE()) {
+    return TRUE();
   }
-  else if (right == NULL_T) {
-    return TRUE;
+  else if (right == NULL_T()) {
+    return TRUE();
   }
   else {
-    return FALSE;
+    return FALSE();
   }
 
 }
