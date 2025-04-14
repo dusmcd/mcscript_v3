@@ -13,6 +13,7 @@ class Object {
   public:
     virtual std::string Inspect() const = 0;
     virtual ObjectType Type() const = 0;
+    virtual ~Object() {}
 };
 
 class Null : public Object {

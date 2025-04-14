@@ -3,8 +3,8 @@
 #include <cxxabi.h>
 #include <stdlib.h>
 
-std::shared_ptr<::Object> Eval(std::shared_ptr<::Node> node) {
-  const std::string typeName = GetTypeName(node);
+Object* Evaluator::Eval(std::shared_ptr<::Node> node) {
+  const std::string typeName = GetTypeName_(node);
   if (typeName.size() == 0) {
     return nullptr;
   }
@@ -12,7 +12,7 @@ std::shared_ptr<::Object> Eval(std::shared_ptr<::Node> node) {
   if (typeName.compare("Program") == 0) {
     // evaluate statements
     auto program = std::dynamic_pointer_cast<::Program>(node);
-    return EvalStatements(program->GetStatements());
+    return EvalStatements_(program->GetStatements());
   }
   else if (typeName.compare("ExpressionStatement") == 0) {
     // evaluate expression
@@ -23,7 +23,7 @@ std::shared_ptr<::Object> Eval(std::shared_ptr<::Node> node) {
   // evaluate expressions
   else if (typeName.compare("IntegerLiteral") == 0) {
     auto exp = std::dynamic_pointer_cast<::IntegerLiteral>(node);
-    auto obj = std::make_shared<::Integer>(exp->GetValue());
+    Object* obj = new Integer(exp->GetValue());
     return obj;
   }
 
@@ -35,23 +35,23 @@ std::shared_ptr<::Object> Eval(std::shared_ptr<::Node> node) {
 
   else if (typeName.compare("PrefixExpression") == 0) {
     auto exp = std::dynamic_pointer_cast<::PrefixExpression>(node);
-    std::shared_ptr<::Object> right = Eval(exp->GetRight());
-    return EvalPrefixExpression(exp->TokenLiteral(), right);
+    ::Object* right = Eval(exp->GetRight());
+    return EvalPrefixExpression_(exp->TokenLiteral(), right);
   }
 
   return nullptr;
 }
 
 
-std::shared_ptr<::Object> EvalPrefixExpression(std::string op, std::shared_ptr<::Object> right) {
+::Object* Evaluator::EvalPrefixExpression_(std::string op, ::Object* right) {
   if (op.compare("!") == 0) {
-    return EvalBangExpression(right);
+    return EvalBangExpression_(right);
   }
 
   return NULL_T;
 }
 
-std::shared_ptr<::Object> EvalBangExpression(std::shared_ptr<::Object> right) {
+::Object* Evaluator::EvalBangExpression_(::Object* right) {
   if (right == TRUE) {
     return FALSE;
   }
@@ -68,7 +68,7 @@ std::shared_ptr<::Object> EvalBangExpression(std::shared_ptr<::Object> right) {
 }
 
 
-std::string GetTypeName(std::shared_ptr<::Node> node) {
+std::string Evaluator::GetTypeName_(std::shared_ptr<::Node> node) {
   const char* mangled = typeid(*node).name();
   int status;
   char* demangled = abi::__cxa_demangle(mangled, nullptr, nullptr, &status);
@@ -81,7 +81,7 @@ std::string GetTypeName(std::shared_ptr<::Node> node) {
   return result;
 }
 
-std::shared_ptr<::Object> EvalStatements(std::vector<std::shared_ptr<::Statement>> stmts) {
+::Object* Evaluator::EvalStatements_(std::vector<std::shared_ptr<::Statement>> stmts) {
   for (const auto& stmt : stmts) {
     return Eval(stmt);
   }

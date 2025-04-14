@@ -4,19 +4,44 @@
 #include <object.h>
 #include <ast.h>
 #include <memory>
+#include <gcollector.h>
 
 
-static const std::shared_ptr<Boolean> TRUE = std::make_shared<Boolean>(true);
-static const std::shared_ptr<Boolean> FALSE = std::make_shared<Boolean>(false);
-static const std::shared_ptr<Null> NULL_T = std::make_shared<Null>();
+static Boolean* TRUE = new Boolean(true);
+static Boolean* FALSE = new Boolean(false);
+static Null* NULL_T = new Null();
 
-std::shared_ptr<::Object> Eval(std::shared_ptr<::Node> node);
+class Evaluator {
+  public:
+    Evaluator(::GCollector& gCollector) : gCollector_(gCollector) {
+      //empty
+    }
 
-std::shared_ptr<::Object> EvalStatements(std::vector<std::shared_ptr<::Statement>> stmts);
-std::string GetTypeName(std::shared_ptr<::Node> node);
+    ::Object* Eval(std::shared_ptr<::Node> node);
 
-std::shared_ptr<::Object> EvalPrefixExpression(std::string op, std::shared_ptr<::Object> right);
-std::shared_ptr<::Object> EvalBangExpression(std::shared_ptr<::Object> right);
+    inline void TrackObject(Object* obj) {
+      gCollector_.TrackObject(obj);
+    }
+
+    inline void CollectGarbage() {
+      gCollector_.Collect();
+    }
+  
+  private:
+    // garbage collector
+    ::GCollector& gCollector_;
+
+    // methods
+    Object* EvalStatements_(std::vector<std::shared_ptr<::Statement>> stmts);
+    std::string GetTypeName_(std::shared_ptr<::Node> node);
+
+    Object* EvalPrefixExpression_(std::string op, Object* right);
+    Object* EvalBangExpression_(Object* right);
+
+
+};
+
+
 
 
 

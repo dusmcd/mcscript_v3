@@ -4,6 +4,7 @@
 #include <string>
 #include <memory>
 #include <object.h>
+#include <evaluator.h>
 
 struct IntegerTest {
   std::string input;
@@ -18,6 +19,9 @@ struct BooleanTest {
 class EvaluatorTest {
   public:
     void Run();
+    EvaluatorTest(Evaluator& evaluator) : evaluator_(evaluator) {
+      // empty
+    }
 
   private:
     void TestIntegerEvals_();
@@ -25,8 +29,10 @@ class EvaluatorTest {
     void TestBangOperatorEvals_();
 
     // helper methods
-    std::shared_ptr<Object> TestEval_(std::string input);
-    bool TestBooleanObject_(std::shared_ptr<Object> obj, bool expected);
+    Object* TestEval_(std::string input);
+    bool TestBooleanObject_(Object* obj, bool expected);
+    Evaluator& evaluator_;
+    
 };
 
 

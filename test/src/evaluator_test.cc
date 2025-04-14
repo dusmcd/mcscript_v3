@@ -25,8 +25,8 @@ PRIVATE METHODS
   helper methods
 */
 
-bool EvaluatorTest::TestBooleanObject_(std::shared_ptr<Object> obj, bool expected) {
-  auto boolean = std::dynamic_pointer_cast<Boolean>(obj);
+bool EvaluatorTest::TestBooleanObject_(Object* obj, bool expected) {
+  auto boolean = dynamic_cast<Boolean*>(obj);
   if (boolean == nullptr){
     std::cerr << "obj is not a Boolean\n";
     return false;
@@ -43,12 +43,13 @@ bool EvaluatorTest::TestBooleanObject_(std::shared_ptr<Object> obj, bool expecte
 }
 
 
-std::shared_ptr<Object> EvaluatorTest::TestEval_(std::string input) {
+Object* EvaluatorTest::TestEval_(std::string input) {
     auto l = std::make_shared<Lexer>(input);
     auto p = std::make_shared<Parser>(l);
     std::shared_ptr<Program> program = p->ParseProgram();
 
-    std::shared_ptr<Object> obj = Eval(program);
+    Object* obj = evaluator_.Eval(program);
+    evaluator_.TrackObject(obj);
 
     return obj;
 }
@@ -69,13 +70,14 @@ void EvaluatorTest::TestBangOperatorEvals_() {
   };
 
   for (const auto& test : tests) {
-    std::shared_ptr<Object> obj = TestEval_(test.input);
+    Object* obj = TestEval_(test.input);
 
     if (!TestBooleanObject_(obj, test.expectedVal)) {
       return;
     }
   }
 
+  evaluator_.CollectGarbage();
   std::cout << "TestBangOperatorEvals_() passed\n";
 }
 
@@ -86,7 +88,7 @@ void EvaluatorTest::TestBooleanEvals_() {
   };
 
   for (const auto& test : tests) {
-    std::shared_ptr<Object> obj = TestEval_(test.input);
+    Object* obj = TestEval_(test.input);
 
     if (!TestBooleanObject_(obj, test.expectedVal)) {
       return;
@@ -94,6 +96,7 @@ void EvaluatorTest::TestBooleanEvals_() {
 
   }
 
+  evaluator_.CollectGarbage();
   std::cout << "TestBooleanEvals_() passed\n";
 }
 
@@ -105,9 +108,9 @@ void EvaluatorTest::TestIntegerEvals_() {
   };
 
   for (const auto& test : tests) {
-    std::shared_ptr<Object> obj = TestEval_(test.input);
+    Object* obj = TestEval_(test.input);
 
-    auto integer = std::dynamic_pointer_cast<Integer>(obj);
+    auto integer = dynamic_cast<Integer*>(obj);
     if (integer == nullptr) {
       std::cerr << "obj is not an Integer\n";
       return;
@@ -121,11 +124,15 @@ void EvaluatorTest::TestIntegerEvals_() {
     }
   }
 
+  evaluator_.CollectGarbage();
   std::cout << "TestIntegerEvals_() passed\n";
 }
 
 int main() {
-  EvaluatorTest eTest = EvaluatorTest();
+  GCollector& gCollector = GCollector::getGCollector();
+  Evaluator evaluator(gCollector);
+  EvaluatorTest eTest(evaluator);
+
   eTest.Run();
 
   return 0;
