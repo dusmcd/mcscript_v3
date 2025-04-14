@@ -34,10 +34,13 @@ class Evaluator {
     // methods
     Object* EvalStatements_(std::vector<std::shared_ptr<::Statement>> stmts);
     std::string GetTypeName_(std::shared_ptr<::Node> node);
+    Boolean* NativeBooleanToBooleanObj_(bool input);
 
     Object* EvalPrefixExpression_(std::string op, Object* right);
     Object* EvalBangExpression_(Object* right);
     Object* EvalMinusExpression_(Object* right);
+    Object* EvalInfixExpression_(std::string op, Object* left, Object* right);
+    Object* EvalIntegerInfixExpression_(std::string op, Object* left, Object* right);
 };
 
 

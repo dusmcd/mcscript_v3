@@ -84,7 +84,14 @@ void EvaluatorTest::TestBangOperatorEvals_() {
 void EvaluatorTest::TestBooleanEvals_() {
   std::vector<BooleanTest> tests = {
     (BooleanTest){.input = "true;", .expectedVal = true},
-    (BooleanTest){.input = "false;", .expectedVal = false}
+    (BooleanTest){.input = "false;", .expectedVal = false},
+    (BooleanTest){.input = "1 > 2", .expectedVal = false},
+    (BooleanTest){.input = "1 < 2", .expectedVal = true},
+    (BooleanTest){.input = "1 == 1", .expectedVal = true},
+    (BooleanTest){.input = "1 != 2", .expectedVal = true},
+    (BooleanTest){.input = "true == true", .expectedVal = true},
+    (BooleanTest){.input = "true == false", .expectedVal = false},
+    (BooleanTest){.input = "(1 < 2) == true", .expectedVal = true}
   };
 
   for (const auto& test : tests) {
@@ -106,7 +113,11 @@ void EvaluatorTest::TestIntegerEvals_() {
     (IntegerTest){.input = "15;", .expectedVal = 15},
     (IntegerTest){.input = "10000;", .expectedVal = 10000},
     (IntegerTest){.input = "-5", .expectedVal = -5},
-    (IntegerTest){.input = "-10", .expectedVal = -10}
+    (IntegerTest){.input = "-10", .expectedVal = -10},
+    (IntegerTest){.input = "5 + 5", .expectedVal = 10},
+    (IntegerTest){.input = "5 * 5", .expectedVal = 25},
+    (IntegerTest){.input = "10 - 5", .expectedVal = 5},
+    (IntegerTest){.input = "10 / 5", .expectedVal = 2}
   };
 
   for (const auto& test : tests) {

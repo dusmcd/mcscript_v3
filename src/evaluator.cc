@@ -29,7 +29,7 @@ Object* Evaluator::Eval(std::shared_ptr<::Node> node) {
 
   else if (typeName.compare("BooleanExpression") == 0) {
     auto exp = std::dynamic_pointer_cast<::BooleanExpression>(node);
-    auto obj = exp->GetValue() ? TRUE : FALSE; 
+    Boolean* obj = NativeBooleanToBooleanObj_(exp->GetValue());
     return obj;
   }
 
@@ -39,7 +39,64 @@ Object* Evaluator::Eval(std::shared_ptr<::Node> node) {
     return EvalPrefixExpression_(exp->TokenLiteral(), right);
   }
 
+  else if (typeName.compare("InfixExpression") == 0) {
+    auto exp = std::dynamic_pointer_cast<::InfixExpression>(node);
+    ::Object* left = Eval(exp->GetLeft());
+    ::Object* right = Eval(exp->GetRight());
+    return EvalInfixExpression_(exp->GetOp(), left, right);
+  }
+
   return nullptr;
+}
+
+Object* Evaluator::EvalInfixExpression_(std::string op, Object* left, Object* right) {
+  if (left->Type() == ObjectType::INTEGER_OBJ && right->Type() == ObjectType::INTEGER_OBJ) {
+    return EvalIntegerInfixExpression_(op, left, right);
+  } else if (op.compare("==") == 0) {
+    return NativeBooleanToBooleanObj_(left == right);
+  } else if (op.compare("!=") == 0) {
+    return NativeBooleanToBooleanObj_(left != right);
+  }
+
+  return NULL_T;
+}
+
+Object* Evaluator::EvalIntegerInfixExpression_(std::string op, Object* left, Object* right) {
+  long leftVal = dynamic_cast<Integer*>(left)->GetValue();
+  long rightVal = dynamic_cast<Integer*>(right)->GetValue();
+
+  delete left;
+  delete right;
+  left = nullptr; 
+  right = nullptr;
+
+  if (op.compare("+") == 0) {
+    return new Integer(leftVal + rightVal);
+  } else if (op.compare("-") == 0) {
+    return new Integer(leftVal - rightVal);
+  } else if (op.compare("*") == 0) {
+    return new Integer(leftVal * rightVal);
+  } else if (op.compare("/") == 0) {
+    return new Integer(leftVal / rightVal);
+  } else if (op.compare("<") == 0) {
+    return NativeBooleanToBooleanObj_(leftVal < rightVal);
+  } else if (op.compare(">") == 0) {
+    return NativeBooleanToBooleanObj_(leftVal > rightVal);
+  } else if (op.compare("==") == 0) {
+    return NativeBooleanToBooleanObj_(leftVal == rightVal);
+  } else if (op.compare("!=") == 0) {
+    return NativeBooleanToBooleanObj_(leftVal != rightVal);
+  }
+
+  return NULL_T;
+}
+
+
+Boolean* Evaluator::NativeBooleanToBooleanObj_(bool input) {
+  if (input) {
+    return TRUE;
+  }
+  return FALSE;
 }
 
 
