@@ -15,6 +15,17 @@ class Object {
     virtual ObjectType Type() const = 0;
 };
 
+class Null : public Object {
+  public:
+    inline std::string Inspect() const override {
+      return "null";
+    }
+
+    inline ObjectType Type() const override {
+      return ObjectType::NULL_OBJ;
+    }
+};
+
 class Integer : public Object {
   public:
     Integer(long value) : value_(value) {

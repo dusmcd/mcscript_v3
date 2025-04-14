@@ -2,6 +2,8 @@
 #define MCSCRIPT_V3_TEST_EVALUATOR_TEST_H
 
 #include <string>
+#include <memory>
+#include <object.h>
 
 struct IntegerTest {
   std::string input;
@@ -20,6 +22,11 @@ class EvaluatorTest {
   private:
     void TestIntegerEvals_();
     void TestBooleanEvals_();
+    void TestBangOperatorEvals_();
+
+    // helper methods
+    std::shared_ptr<Object> TestEval_(std::string input);
+    bool TestBooleanObject_(std::shared_ptr<Object> obj, bool expected);
 };
 
 

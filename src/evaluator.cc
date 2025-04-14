@@ -11,7 +11,7 @@ std::shared_ptr<::Object> Eval(std::shared_ptr<::Node> node) {
 
   if (typeName.compare("Program") == 0) {
     // evaluate statements
-    auto program = std::dynamic_pointer_cast<Program>(node);
+    auto program = std::dynamic_pointer_cast<::Program>(node);
     return EvalStatements(program->GetStatements());
   }
   else if (typeName.compare("ExpressionStatement") == 0) {
@@ -33,7 +33,38 @@ std::shared_ptr<::Object> Eval(std::shared_ptr<::Node> node) {
     return obj;
   }
 
+  else if (typeName.compare("PrefixExpression") == 0) {
+    auto exp = std::dynamic_pointer_cast<::PrefixExpression>(node);
+    std::shared_ptr<::Object> right = Eval(exp->GetRight());
+    return EvalPrefixExpression(exp->TokenLiteral(), right);
+  }
+
   return nullptr;
+}
+
+
+std::shared_ptr<::Object> EvalPrefixExpression(std::string op, std::shared_ptr<::Object> right) {
+  if (op.compare("!") == 0) {
+    return EvalBangExpression(right);
+  }
+
+  return NULL_T;
+}
+
+std::shared_ptr<::Object> EvalBangExpression(std::shared_ptr<::Object> right) {
+  if (right == TRUE) {
+    return FALSE;
+  }
+  else if (right == FALSE) {
+    return TRUE;
+  }
+  else if (right == NULL_T) {
+    return TRUE;
+  }
+  else {
+    return FALSE;
+  }
+
 }
 
 

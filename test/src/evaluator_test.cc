@@ -12,6 +12,7 @@ PUBLIC METHODS
 void EvaluatorTest::Run() {
   TestIntegerEvals_();
   TestBooleanEvals_();
+  TestBangOperatorEvals_();
 }
 
 /*
@@ -21,8 +22,62 @@ PRIVATE METHODS
 */
 
 /*
+  helper methods
+*/
+
+bool EvaluatorTest::TestBooleanObject_(std::shared_ptr<Object> obj, bool expected) {
+  auto boolean = std::dynamic_pointer_cast<Boolean>(obj);
+  if (boolean == nullptr){
+    std::cerr << "obj is not a Boolean\n";
+    return false;
+  }
+
+  if (boolean->GetValue() != expected) {
+    std::cerr << "boolean value wrong. expected: " << expected
+        << ", got: " << boolean->GetValue() << "\n";
+    return false;
+  }
+
+  return true;
+
+}
+
+
+std::shared_ptr<Object> EvaluatorTest::TestEval_(std::string input) {
+    auto l = std::make_shared<Lexer>(input);
+    auto p = std::make_shared<Parser>(l);
+    std::shared_ptr<Program> program = p->ParseProgram();
+
+    std::shared_ptr<Object> obj = Eval(program);
+
+    return obj;
+}
+
+/*
   main test methods
 */
+
+
+void EvaluatorTest::TestBangOperatorEvals_() {
+  std::vector<BooleanTest> tests = {
+    (BooleanTest){.input = "!true", .expectedVal = false},
+    (BooleanTest){.input = "!false", .expectedVal = true},
+    (BooleanTest){.input = "!5", .expectedVal = false},
+    (BooleanTest){.input = "!!true", .expectedVal = true},
+    (BooleanTest){.input = "!!false", .expectedVal = false},
+    (BooleanTest){.input = "!!5", .expectedVal = true}
+  };
+
+  for (const auto& test : tests) {
+    std::shared_ptr<Object> obj = TestEval_(test.input);
+
+    if (!TestBooleanObject_(obj, test.expectedVal)) {
+      return;
+    }
+  }
+
+  std::cout << "TestBangOperatorEvals_() passed\n";
+}
 
 void EvaluatorTest::TestBooleanEvals_() {
   std::vector<BooleanTest> tests = {
@@ -31,21 +86,9 @@ void EvaluatorTest::TestBooleanEvals_() {
   };
 
   for (const auto& test : tests) {
-    auto l = std::make_shared<Lexer>(test.input);
-    auto p = std::make_shared<Parser>(l);
-    std::shared_ptr<Program> program = p->ParseProgram();
+    std::shared_ptr<Object> obj = TestEval_(test.input);
 
-    std::shared_ptr<Object> obj = Eval(program);
-
-    auto boolean = std::dynamic_pointer_cast<Boolean>(obj);
-    if (obj == nullptr){
-      std::cerr << "obj is not a Boolean\n";
-      return;
-    }
-
-    if (boolean->GetValue() != test.expectedVal) {
-      std::cerr << "boolean value wrong. expected: " << test.expectedVal
-          << ", got: " << boolean->GetValue() << "\n";
+    if (!TestBooleanObject_(obj, test.expectedVal)) {
       return;
     }
 
@@ -62,11 +105,7 @@ void EvaluatorTest::TestIntegerEvals_() {
   };
 
   for (const auto& test : tests) {
-    auto l = std::make_shared<Lexer>(test.input);
-    auto p = std::make_shared<Parser>(l);
-    std::shared_ptr<Program> program = p->ParseProgram();
-
-    std::shared_ptr<Object> obj = Eval(program);
+    std::shared_ptr<Object> obj = TestEval_(test.input);
 
     auto integer = std::dynamic_pointer_cast<Integer>(obj);
     if (integer == nullptr) {
