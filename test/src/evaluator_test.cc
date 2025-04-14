@@ -104,7 +104,9 @@ void EvaluatorTest::TestIntegerEvals_() {
   std::vector<IntegerTest> tests = {
     (IntegerTest){.input = "5;", .expectedVal = 5},
     (IntegerTest){.input = "15;", .expectedVal = 15},
-    (IntegerTest){.input = "10000;", .expectedVal = 10000}
+    (IntegerTest){.input = "10000;", .expectedVal = 10000},
+    (IntegerTest){.input = "-5", .expectedVal = -5},
+    (IntegerTest){.input = "-10", .expectedVal = -10}
   };
 
   for (const auto& test : tests) {

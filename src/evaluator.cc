@@ -47,8 +47,22 @@ Object* Evaluator::Eval(std::shared_ptr<::Node> node) {
   if (op.compare("!") == 0) {
     return EvalBangExpression_(right);
   }
+  if (op.compare("-") == 0) {
+    return EvalMinusExpression_(right);
+  }
 
   return NULL_T;
+}
+
+Object* Evaluator::EvalMinusExpression_(Object* right) {
+  if (right->Type() != ObjectType::INTEGER_OBJ) {
+    return nullptr;
+  }
+
+  auto obj = dynamic_cast<Integer*>(right);
+  obj->SetValue(obj->GetValue() * -1);
+
+  return obj;
 }
 
 ::Object* Evaluator::EvalBangExpression_(::Object* right) {

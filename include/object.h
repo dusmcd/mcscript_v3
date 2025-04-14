@@ -41,6 +41,10 @@ class Integer : public Object {
       return ObjectType::INTEGER_OBJ;
     }
 
+    inline void SetValue(long value) {
+      value_ = value;
+    }
+
     inline long GetValue() const {
       return value_;
     }

@@ -37,8 +37,7 @@ class Evaluator {
 
     Object* EvalPrefixExpression_(std::string op, Object* right);
     Object* EvalBangExpression_(Object* right);
-
-
+    Object* EvalMinusExpression_(Object* right);
 };
 
 
