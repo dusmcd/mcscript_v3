@@ -13,12 +13,3 @@ void GCollector::Collect() {
 void GCollector::TrackObject(::Object* obj) {
   objects_.push_back(obj);
 }
-
-GCollector::~GCollector() {
-  // clean up any remaining objects (should only be the Boolean and Null)
-  for (auto& obj : objects_) {
-    delete obj;
-  }
-
-  objects_.clear();
-}

@@ -14,6 +14,8 @@ class Evaluator {
       //empty
     }
 
+    ~Evaluator();
+
     ::Object* Eval(std::shared_ptr<::Node> node);
 
     inline void TrackObject(Object* obj) {

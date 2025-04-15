@@ -13,7 +13,6 @@ class GCollector {
       return gCollector;
     }
 
-    ~GCollector();
 
     GCollector(const GCollector&) = delete;
     GCollector& operator=(const GCollector&) = delete;

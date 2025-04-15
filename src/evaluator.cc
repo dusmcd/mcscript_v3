@@ -3,6 +3,13 @@
 #include <cxxabi.h>
 #include <stdlib.h>
 
+// destructor
+Evaluator::~Evaluator() {
+  delete TRUE_;
+  delete FALSE_;
+  delete NULL_T_;
+}
+
 Object* Evaluator::Eval(std::shared_ptr<::Node> node) {
   const std::string typeName = GetTypeName_(node);
   if (typeName.size() == 0) {
@@ -60,6 +67,7 @@ Object* Evaluator::Eval(std::shared_ptr<::Node> node) {
 
 Object* Evaluator::EvalIfExpression_(std::shared_ptr<IfExpression> ie) {
   Object* condition = Eval(ie->GetCondition());
+  TrackObject(condition);
 
   if (IsTruthy_(condition)) {
     return Eval(ie->GetConsequence());
