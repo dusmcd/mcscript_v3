@@ -36,6 +36,7 @@ class EvaluatorTest {
     void TestBooleanEvals_();
     void TestBangOperatorEvals_();
     void TestIfElseEvals_();
+    void TestReturnStmtEvals_();
 
     // helper methods
     Object* TestEval_(std::string input);

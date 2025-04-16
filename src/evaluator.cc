@@ -19,7 +19,7 @@ Object* Evaluator::Eval(std::shared_ptr<::Node> node) {
   if (typeName.compare("Program") == 0) {
     // evaluate statements
     auto program = std::dynamic_pointer_cast<::Program>(node);
-    return EvalStatements_(program->GetStatements());
+    return EvalProgram_(program);
   }
   else if (typeName.compare("ExpressionStatement") == 0) {
     // evaluate expression
@@ -28,7 +28,13 @@ Object* Evaluator::Eval(std::shared_ptr<::Node> node) {
   }
   else if (typeName.compare("BlockStatement") == 0) {
     auto block = std::dynamic_pointer_cast<::BlockStatement>(node);
-    return EvalStatements_(block->GetStatements());
+    return EvalBlockStatement_(block);
+  }
+
+  else if (typeName.compare("ReturnStatement") == 0) {
+    auto rs = std::dynamic_pointer_cast<ReturnStatement>(node);
+    Object* value = Eval(rs->GetReturnVal());
+    return new ReturnValue(value);
   }
 
   // evaluate expressions
@@ -194,10 +200,31 @@ std::string Evaluator::GetTypeName_(std::shared_ptr<::Node> node) {
   return result;
 }
 
-::Object* Evaluator::EvalStatements_(std::vector<std::shared_ptr<::Statement>> stmts) {
-  for (const auto& stmt : stmts) {
-    return Eval(stmt);
+Object* Evaluator::EvalProgram_(std::shared_ptr<Program> program) {
+  Object* result = nullptr;
+  for (const auto& stmt : program->GetStatements()) {
+    result = Eval(stmt);
+
+    auto returnValue = dynamic_cast<ReturnValue*>(result);
+    if (returnValue != nullptr) {
+      TrackObject(returnValue);
+      return returnValue->GetValue();
+    }
   }
 
-  return nullptr;
+  return result;
+}
+
+Object* Evaluator::EvalBlockStatement_(std::shared_ptr<BlockStatement> block) {
+  Object* result = nullptr;
+  for (const auto& stmt : block->GetStatements()) {
+    result = Eval(stmt);
+
+    auto returnValue = dynamic_cast<ReturnValue*>(result);
+    if (returnValue != nullptr) {
+      return returnValue;
+    }
+  }
+
+  return result;
 }

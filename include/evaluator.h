@@ -60,7 +60,8 @@ class Evaluator {
     Object* EvalInfixExpression_(std::string op, Object* left, Object* right);
     Object* EvalIntegerInfixExpression_(std::string op, Object* left, Object* right);
     Object* EvalIfExpression_(std::shared_ptr<IfExpression> ie);
-    Object* EvalStatements_(std::vector<std::shared_ptr<::Statement>> stmts);
+    Object* EvalProgram_(std::shared_ptr<Program> program);
+    Object* EvalBlockStatement_(std::shared_ptr<BlockStatement> block);
 };
 
 

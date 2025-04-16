@@ -6,7 +6,8 @@
 enum class ObjectType : int {
   INTEGER_OBJ,
   BOOLEAN_OBJ,
-  NULL_OBJ
+  NULL_OBJ,
+  RETURN_VALUE_OBJ
 };
 
 class Object {
@@ -75,5 +76,27 @@ class Boolean : public Object {
     bool value_;
 };
 
+class ReturnValue : public Object {
+  public:
+    ReturnValue(Object* value) : value_(value) {
+      // empty
+    }
 
-#endif
+    inline std::string Inspect() const override {
+      return value_->Inspect();
+    }
+
+    inline ObjectType Type() const override {
+      return ObjectType::RETURN_VALUE_OBJ;
+    }
+
+    inline Object* GetValue() const {
+      return value_;
+    }
+
+  private:
+    Object* value_;
+};
+
+
+#endif // MCSCRIPT_V3_OBJECT_H

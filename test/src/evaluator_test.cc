@@ -14,6 +14,7 @@ void EvaluatorTest::Run() {
   TestBooleanEvals_();
   TestBangOperatorEvals_();
   TestIfElseEvals_();
+  TestReturnStmtEvals_();
 }
 
 /*
@@ -59,6 +60,32 @@ Object* EvaluatorTest::TestEval_(std::string input) {
   main test methods
 */
 
+
+void EvaluatorTest::TestReturnStmtEvals_() {
+  std::vector<IntegerTest> tests = {
+    (IntegerTest){.input = "return 10;", .expectedVal = 10},
+    (IntegerTest){.input = "return 10; 9;", .expectedVal = 10},
+    (IntegerTest){.input = "5 + 2; return 10; 9;", .expectedVal = 10},
+    (IntegerTest){.input =
+      "if (1 < 10) {"
+        "if (1 < 10) {"
+          "return 10;"
+        "} "
+        "return 1;"
+      "}", .expectedVal = 10}
+  };
+
+  for (const auto& test : tests) {
+    Object* obj = TestEval_(test.input);
+
+    if (!TestIntegerObject_(obj, test.expectedVal)) {
+      return;
+    }
+  }
+
+  evaluator_.CollectGarbage();
+  std::cout << "TestReturnStmtEvals_() passed\n";
+}
 
 void EvaluatorTest::TestBangOperatorEvals_() {
   std::vector<BooleanTest> tests = {
