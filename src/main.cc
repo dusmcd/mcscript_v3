@@ -10,6 +10,16 @@ void PrintParserErrors(std::vector<std::string> errs) {
   }
 }
 
+std::shared_ptr<Evaluator> NewEval() {
+  GCollector& gCollector = GCollector::getGCollector();
+  Boolean* TRUE = new Boolean(true);
+  Boolean* FALSE = new Boolean(false);
+  Null* NULL_T = new Null();
+  auto evaluator = std::make_shared<Evaluator>(gCollector, TRUE, FALSE, NULL_T);
+
+  return evaluator;
+}
+
 int main() {
   std::cout << "McScript v3.0 Programming Language\n";
   std::cout << "Enter commands:\n";
@@ -27,11 +37,17 @@ int main() {
       PrintParserErrors(p->GetErrors());
     }
     
-    std::shared_ptr<Object> obj = Eval(program);
+    std::shared_ptr<Evaluator> evaluator = NewEval();
+
+    Object* obj = evaluator->Eval(program);
+    evaluator->TrackObject(obj);
     if (obj != nullptr) {
       std::cout << obj->Inspect();
     }
     std::cout << std::endl;
+
+    evaluator->CollectGarbage();
+    
   }
 
 
