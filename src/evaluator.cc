@@ -73,6 +73,7 @@ Object* Evaluator::Eval(std::shared_ptr<::Node> node) {
 
 Object* Evaluator::EvalIfExpression_(std::shared_ptr<IfExpression> ie) {
   Object* condition = Eval(ie->GetCondition());
+  // GARBAGE COLLECTION
   TrackObject(condition);
 
   if (IsTruthy_(condition)) {
@@ -97,26 +98,47 @@ bool Evaluator::IsTruthy_(Object* condition) {
   return true;
 }
 
+std::string Evaluator::GetInfixErrorMsg_(const char* format, Object* left, std::string op, Object* right) {
+  char buff[256];
+  std::string leftStr = Object::ObjectTypeStr(left->Type());
+  std::string rightStr = Object::ObjectTypeStr(right->Type());
+  sprintf(buff, format, leftStr, op, rightStr);
+
+  return std::string(buff);
+}
+
+std::string Evaluator::GetPrefixErrorMsg_(const char* format, std::string op, Object* right) {
+  char buff[256];
+  std::string rightStr = Object::ObjectTypeStr(right->Type());
+  sprintf(buff, format, rightStr);
+
+  return std::string(buff);
+}
+
+
 Object* Evaluator::EvalInfixExpression_(std::string op, Object* left, Object* right) {
+  // GARBAGE COLLECTION
+  TrackObject(left);
+  TrackObject(right);
+
   if (left->Type() == ObjectType::INTEGER_OBJ && right->Type() == ObjectType::INTEGER_OBJ) {
     return EvalIntegerInfixExpression_(op, left, right);
-  } else if (op.compare("==") == 0) {
+  }
+
+  if (op.compare("==") == 0) {
     return NativeBooleanToBooleanObj_(left == right);
-  } else if (op.compare("!=") == 0) {
+  }
+  if (op.compare("!=") == 0) {
     return NativeBooleanToBooleanObj_(left != right);
   }
 
-  return NULL_T();
+  std::string errMsg = GetInfixErrorMsg_("unknown operator: %s %s %s", left, op, right);
+  return NewError_(errMsg);
 }
 
 Object* Evaluator::EvalIntegerInfixExpression_(std::string op, Object* left, Object* right) {
   long leftVal = dynamic_cast<Integer*>(left)->GetValue();
   long rightVal = dynamic_cast<Integer*>(right)->GetValue();
-
-  delete left;
-  delete right;
-  left = nullptr; 
-  right = nullptr;
 
   if (op.compare("+") == 0) {
     return new Integer(leftVal + rightVal);
@@ -136,7 +158,8 @@ Object* Evaluator::EvalIntegerInfixExpression_(std::string op, Object* left, Obj
     return NativeBooleanToBooleanObj_(leftVal != rightVal);
   }
 
-  return NULL_T();
+  std::string errorMsg = GetInfixErrorMsg_("unknown operator: %s %s %s", left, op, right);
+  return NewError_(errorMsg);
 }
 
 
@@ -156,12 +179,18 @@ Boolean* Evaluator::NativeBooleanToBooleanObj_(bool input) {
     return EvalMinusExpression_(right);
   }
 
-  return NULL_T();
+  // GARBAGE COLLECTION
+  TrackObject(right);
+  std::string errMsg = GetPrefixErrorMsg_("unknown operator: %s%s", op, right);
+  return NewError_(errMsg);
 }
 
 Object* Evaluator::EvalMinusExpression_(Object* right) {
   if (right->Type() != ObjectType::INTEGER_OBJ) {
-    return nullptr;
+    // GARGAGE COLLECTION
+    TrackObject(right);
+    std::string errMsg = GetPrefixErrorMsg_("unknown operator: %s%s", "-", right);
+    return NewError_(errMsg);
   }
 
   auto obj = dynamic_cast<Integer*>(right);
@@ -171,6 +200,8 @@ Object* Evaluator::EvalMinusExpression_(Object* right) {
 }
 
 ::Object* Evaluator::EvalBangExpression_(::Object* right) {
+  // GARBAGE COLLECTION
+  TrackObject(right);
   if (right == TRUE()) {
     return FALSE();
   }
@@ -207,8 +238,13 @@ Object* Evaluator::EvalProgram_(std::shared_ptr<Program> program) {
 
     auto returnValue = dynamic_cast<ReturnValue*>(result);
     if (returnValue != nullptr) {
+      // GARBAGE COLLECTION
       TrackObject(returnValue);
       return returnValue->GetValue();
+    }
+
+    if (result->Type() == ObjectType::ERROR_OBJ) {
+      return result;
     }
   }
 
@@ -224,7 +260,16 @@ Object* Evaluator::EvalBlockStatement_(std::shared_ptr<BlockStatement> block) {
     if (returnValue != nullptr) {
       return returnValue;
     }
+
+    if (result->Type() == ObjectType::ERROR_OBJ) {
+      return result;
+    }
   }
 
   return result;
+}
+
+
+Error* Evaluator::NewError_(std::string message) {
+  return new Error(message);
 }

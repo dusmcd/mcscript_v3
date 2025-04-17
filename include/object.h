@@ -7,7 +7,8 @@ enum class ObjectType : int {
   INTEGER_OBJ,
   BOOLEAN_OBJ,
   NULL_OBJ,
-  RETURN_VALUE_OBJ
+  RETURN_VALUE_OBJ,
+  ERROR_OBJ
 };
 
 class Object {
@@ -15,6 +16,7 @@ class Object {
     virtual std::string Inspect() const = 0;
     virtual ObjectType Type() const = 0;
     virtual ~Object() {}
+    static std::string ObjectTypeStr(ObjectType type);
 };
 
 class Null : public Object {
@@ -96,6 +98,31 @@ class ReturnValue : public Object {
 
   private:
     Object* value_;
+};
+
+class Error : public Object {
+  public:
+    Error(std::string msg) : message_(msg) {
+      // empty
+    }
+
+    inline ObjectType Type() const override {
+      return ObjectType::ERROR_OBJ;
+    }
+
+    inline std::string Inspect() const override {
+      std::string result = "ERROR";
+      result.append(message_);
+
+      return result;
+    }
+
+    inline std::string GetMessage() const {
+      return message_;
+    }
+
+  private:
+    std::string message_;
 };
 
 
