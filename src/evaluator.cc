@@ -34,6 +34,9 @@ Object* Evaluator::Eval(std::shared_ptr<::Node> node) {
   else if (typeName.compare("ReturnStatement") == 0) {
     auto rs = std::dynamic_pointer_cast<ReturnStatement>(node);
     Object* value = Eval(rs->GetReturnVal());
+    if (IsError_(value)) {
+      return value;
+    }
     return new ReturnValue(value);
   }
 
@@ -53,13 +56,23 @@ Object* Evaluator::Eval(std::shared_ptr<::Node> node) {
   else if (typeName.compare("PrefixExpression") == 0) {
     auto exp = std::dynamic_pointer_cast<::PrefixExpression>(node);
     ::Object* right = Eval(exp->GetRight());
+    if (IsError_(right)) {
+      return right;
+    }
     return EvalPrefixExpression_(exp->TokenLiteral(), right);
   }
 
   else if (typeName.compare("InfixExpression") == 0) {
     auto exp = std::dynamic_pointer_cast<::InfixExpression>(node);
     ::Object* left = Eval(exp->GetLeft());
+    if (IsError_(left)) {
+      return left;
+    }
+
     ::Object* right = Eval(exp->GetRight());
+    if (IsError_(right)) {
+      return right;
+    }
     return EvalInfixExpression_(exp->GetOp(), left, right);
   }
 
@@ -73,6 +86,9 @@ Object* Evaluator::Eval(std::shared_ptr<::Node> node) {
 
 Object* Evaluator::EvalIfExpression_(std::shared_ptr<IfExpression> ie) {
   Object* condition = Eval(ie->GetCondition());
+  if (IsError_(condition)) {
+    return condition;
+  }
   // GARBAGE COLLECTION
   TrackObject(condition);
 
@@ -272,4 +288,16 @@ Object* Evaluator::EvalBlockStatement_(std::shared_ptr<BlockStatement> block) {
 
 Error* Evaluator::NewError_(std::string message) {
   return new Error(message);
+}
+
+bool Evaluator::IsError_(Object* obj) {
+  if (obj != nullptr) {
+    auto err = dynamic_cast<Error*>(obj);
+    if (err != nullptr) {
+      return true;
+    }
+    return false;
+  }
+
+  return false;
 }

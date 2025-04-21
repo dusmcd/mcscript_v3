@@ -55,6 +55,7 @@ class Evaluator {
     Error* NewError_(std::string message);
     std::string GetInfixErrorMsg_(const char* format, Object* left, std::string op, Object* right);
     std::string GetPrefixErrorMsg_(const char* format, std::string op, Object* right);
+    bool IsError_(Object* obj);
 
     // evals
     Object* EvalPrefixExpression_(std::string op, Object* right);

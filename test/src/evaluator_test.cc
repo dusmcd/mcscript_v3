@@ -74,6 +74,10 @@ void EvaluatorTest::TestErrorMessages_() {
     (ErrorTest){
       .input = "-true;",
       .expectedVal = "unknown operator: -BOOLEAN" 
+    },
+    (ErrorTest){
+      .input = "true + false; 10;",
+      .expectedVal = "unknown operator: BOOLEAN + BOOLEAN"
     }
   };
 
