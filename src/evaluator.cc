@@ -102,7 +102,7 @@ std::string Evaluator::GetInfixErrorMsg_(const char* format, Object* left, std::
   char buff[256];
   std::string leftStr = Object::ObjectTypeStr(left->Type());
   std::string rightStr = Object::ObjectTypeStr(right->Type());
-  sprintf(buff, format, leftStr, op, rightStr);
+  snprintf(buff, sizeof(buff), format, leftStr.c_str(), op.c_str(), rightStr.c_str());
 
   return std::string(buff);
 }
@@ -110,7 +110,7 @@ std::string Evaluator::GetInfixErrorMsg_(const char* format, Object* left, std::
 std::string Evaluator::GetPrefixErrorMsg_(const char* format, std::string op, Object* right) {
   char buff[256];
   std::string rightStr = Object::ObjectTypeStr(right->Type());
-  sprintf(buff, format, rightStr);
+  snprintf(buff, sizeof(buff), format, op.c_str(), rightStr.c_str());
 
   return std::string(buff);
 }

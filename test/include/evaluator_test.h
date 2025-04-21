@@ -24,6 +24,11 @@ struct BooleanTest {
   bool expectedVal;
 };
 
+struct ErrorTest {
+  std::string input;
+  std::string expectedVal;
+};
+
 class EvaluatorTest {
   public:
     void Run();
@@ -37,6 +42,7 @@ class EvaluatorTest {
     void TestBangOperatorEvals_();
     void TestIfElseEvals_();
     void TestReturnStmtEvals_();
+    void TestErrorMessages_();
 
     // helper methods
     Object* TestEval_(std::string input);

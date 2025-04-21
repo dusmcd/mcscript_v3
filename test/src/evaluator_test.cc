@@ -15,6 +15,7 @@ void EvaluatorTest::Run() {
   TestBangOperatorEvals_();
   TestIfElseEvals_();
   TestReturnStmtEvals_();
+  TestErrorMessages_();
 }
 
 /*
@@ -60,6 +61,43 @@ Object* EvaluatorTest::TestEval_(std::string input) {
   main test methods
 */
 
+void EvaluatorTest::TestErrorMessages_() {
+  std::vector<ErrorTest> tests = {
+    (ErrorTest){
+      .input = "true + true;",
+      .expectedVal = "unknown operator: BOOLEAN + BOOLEAN",
+    },
+    (ErrorTest){
+      .input = "5 + true;",
+      .expectedVal = "unknown operator: INTEGER + BOOLEAN",
+    },
+    (ErrorTest){
+      .input = "-true;",
+      .expectedVal = "unknown operator: -BOOLEAN" 
+    }
+  };
+
+  for (const auto& test : tests) {
+    Object* obj = TestEval_(test.input);
+    auto err = dynamic_cast<Error*>(obj);
+
+    if (err == nullptr) {
+      std::cerr << "obj is not an Error*\n";
+      return;
+    }
+
+    std::string msg = err->GetMessage();
+    if (msg.compare(test.expectedVal) != 0) {
+      std::cerr << "wrong message. expected: " << test.expectedVal
+        << ", got: " << msg << "\n";
+      return;
+    }
+  }
+
+  evaluator_.CollectGarbage();
+
+  std::cout << "TestErrorMessages_() passed\n";
+}
 
 void EvaluatorTest::TestReturnStmtEvals_() {
   std::vector<IntegerTest> tests = {
