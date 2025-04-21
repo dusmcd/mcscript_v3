@@ -5,6 +5,7 @@
 #include <ast.h>
 #include <memory>
 #include <gcollector.h>
+#include <environment.h>
 
 
 class Evaluator {
@@ -16,7 +17,7 @@ class Evaluator {
 
     ~Evaluator();
 
-    ::Object* Eval(std::shared_ptr<::Node> node);
+    ::Object* Eval(std::shared_ptr<::Node> node, Environment& env);
 
     inline void TrackObject(Object* obj) {
       gCollector_.TrackObject(obj);
@@ -63,9 +64,9 @@ class Evaluator {
     Object* EvalMinusExpression_(Object* right);
     Object* EvalInfixExpression_(std::string op, Object* left, Object* right);
     Object* EvalIntegerInfixExpression_(std::string op, Object* left, Object* right);
-    Object* EvalIfExpression_(std::shared_ptr<IfExpression> ie);
-    Object* EvalProgram_(std::shared_ptr<Program> program);
-    Object* EvalBlockStatement_(std::shared_ptr<BlockStatement> block);
+    Object* EvalIfExpression_(std::shared_ptr<IfExpression> ie, Environment& env);
+    Object* EvalProgram_(std::shared_ptr<Program> program, Environment& env);
+    Object* EvalBlockStatement_(std::shared_ptr<BlockStatement> block, Environment& env);
 };
 
 
