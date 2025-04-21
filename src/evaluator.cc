@@ -38,7 +38,7 @@ Object* Evaluator::Eval(std::shared_ptr<::Node> node, Environment& env) {
       return val;
     }
     env.Set(stmt->GetName()->GetValue(), val);
-
+    return nullptr;
   }
 
   else if (typeName.compare("ReturnStatement") == 0) {
@@ -261,6 +261,9 @@ Object* Evaluator::EvalProgram_(std::shared_ptr<Program> program, Environment& e
   Object* result = nullptr;
   for (const auto& stmt : program->GetStatements()) {
     result = Eval(stmt, env);
+    if (result == nullptr) {
+      continue;
+    }
 
     auto returnValue = dynamic_cast<ReturnValue*>(result);
     if (returnValue != nullptr) {

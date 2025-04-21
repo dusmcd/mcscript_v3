@@ -21,6 +21,7 @@ std::shared_ptr<Evaluator> NewEval() {
 }
 
 int main() {
+  Environment& env = Environment::NewEnvironment();
   std::cout << "McScript v3.0 Programming Language\n";
   std::cout << "Enter commands:\n";
 
@@ -39,7 +40,7 @@ int main() {
     
     std::shared_ptr<Evaluator> evaluator = NewEval();
 
-    Object* obj = evaluator->Eval(program);
+    Object* obj = evaluator->Eval(program, env);
     evaluator->TrackObject(obj);
     if (obj != nullptr) {
       std::cout << obj->Inspect();

@@ -2,6 +2,9 @@
 
 void GCollector::Collect() {
   for (auto& obj : objects_) {
+    if (obj == nullptr) {
+      continue;
+    }
     if (obj->Type() != ObjectType::BOOLEAN_OBJ && obj->Type() != ObjectType::NULL_OBJ) {
       delete obj;
     }
