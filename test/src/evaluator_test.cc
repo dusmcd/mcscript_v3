@@ -16,6 +16,8 @@ void EvaluatorTest::Run() {
   TestIfElseEvals_();
   TestReturnStmtEvals_();
   TestErrorMessages_();
+  TestIdentifierEvals_();
+
 }
 
 /*
@@ -62,6 +64,25 @@ Object* EvaluatorTest::TestEval_(std::string input) {
   main test methods
 */
 
+void EvaluatorTest::TestIdentifierEvals_() {
+  std::vector<IntegerTest> tests = {
+    (IntegerTest){.input = "var a = 5; a;", .expectedVal = 5},
+    (IntegerTest){.input = "var a = 10; var b = a; b;", 10},
+    (IntegerTest){.input = "var a = 5; var b = 5; var c = a + b + 5; c;", 15},
+    (IntegerTest){.input = "var a = 5; a; a; a;", .expectedVal = 5}
+  };
+
+  for (const auto& test : tests) {
+    Object* evaluated = TestEval_(test.input);
+    if (!TestIntegerObject_(evaluated, test.expectedVal)) {
+      return;
+    }
+  }
+
+  evaluator_.CollectGarbage();
+  std::cout << "TestIdentifierEvals_() passed\n";
+}
+
 void EvaluatorTest::TestErrorMessages_() {
   std::vector<ErrorTest> tests = {
     (ErrorTest){
@@ -79,6 +100,10 @@ void EvaluatorTest::TestErrorMessages_() {
     (ErrorTest){
       .input = "true + false; 10;",
       .expectedVal = "unknown operator: BOOLEAN + BOOLEAN"
+    },
+    (ErrorTest){
+      .input = "foobar;",
+      .expectedVal = "unexpected identifier: foobar"
     }
   };
 

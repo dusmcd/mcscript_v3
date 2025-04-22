@@ -22,6 +22,8 @@ std::shared_ptr<Evaluator> NewEval() {
 
 int main() {
   Environment& env = Environment::NewEnvironment();
+  std::shared_ptr<Evaluator> evaluator = NewEval();
+
   std::cout << "McScript v3.0 Programming Language\n";
   std::cout << "Enter commands:\n";
 
@@ -38,19 +40,18 @@ int main() {
       PrintParserErrors(p->GetErrors());
     }
     
-    std::shared_ptr<Evaluator> evaluator = NewEval();
 
     Object* obj = evaluator->Eval(program, env);
     evaluator->TrackObject(obj);
     if (obj != nullptr) {
       std::cout << obj->Inspect();
+      std::cout << std::endl;
     }
-    std::cout << std::endl;
 
-    evaluator->CollectGarbage();
     
   }
 
-
+  
+  evaluator->CollectGarbage();
   return 0;
 }

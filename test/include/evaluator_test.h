@@ -43,6 +43,7 @@ class EvaluatorTest {
     void TestIfElseEvals_();
     void TestReturnStmtEvals_();
     void TestErrorMessages_();
+    void TestIdentifierEvals_();
 
     // helper methods
     Object* TestEval_(std::string input);

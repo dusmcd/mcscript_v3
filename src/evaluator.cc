@@ -51,6 +51,10 @@ Object* Evaluator::Eval(std::shared_ptr<::Node> node, Environment& env) {
   }
 
   // evaluate expressions
+  else if (typeName.compare("Identifier") == 0) {
+    auto i = std::dynamic_pointer_cast<Identifier>(node);
+    return EvalIdentifier_(i->GetValue(), env);
+  }
   else if (typeName.compare("IntegerLiteral") == 0) {
     auto exp = std::dynamic_pointer_cast<::IntegerLiteral>(node);
     Object* obj = new Integer(exp->GetValue());
@@ -313,4 +317,15 @@ bool Evaluator::IsError_(Object* obj) {
   }
 
   return false;
+}
+
+Object* Evaluator::EvalIdentifier_(std::string name, Environment& env) {
+  Object* obj = env.Get(name);
+  if (obj == nullptr) {
+    std::string errMsg = "unexpected identifier: ";
+    errMsg.append(name);
+    return NewError_(errMsg);
+  }
+
+  return obj;
 }

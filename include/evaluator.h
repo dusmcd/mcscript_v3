@@ -67,6 +67,7 @@ class Evaluator {
     Object* EvalIfExpression_(std::shared_ptr<IfExpression> ie, Environment& env);
     Object* EvalProgram_(std::shared_ptr<Program> program, Environment& env);
     Object* EvalBlockStatement_(std::shared_ptr<BlockStatement> block, Environment& env);
+    Object* EvalIdentifier_(std::string name, Environment& env);
 };
 
 
