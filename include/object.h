@@ -17,6 +17,17 @@ class Object {
     virtual ObjectType Type() const = 0;
     virtual ~Object() {}
     static std::string ObjectTypeStr(ObjectType type);
+
+    inline void AddRef() {
+      refCount_++;
+    }
+
+    inline void SubtractRef() {
+      refCount_--;
+    }
+
+  protected:
+    size_t refCount_;
 };
 
 class Null : public Object {
@@ -34,6 +45,7 @@ class Integer : public Object {
   public:
     Integer(long value) : value_(value) {
       //empty
+      refCount_ = 0;
     }
 
     inline std::string Inspect() const override {
@@ -81,7 +93,7 @@ class Boolean : public Object {
 class ReturnValue : public Object {
   public:
     ReturnValue(Object* value) : value_(value) {
-      // empty
+      refCount_ = 0;
     }
 
     inline std::string Inspect() const override {
@@ -103,7 +115,7 @@ class ReturnValue : public Object {
 class Error : public Object {
   public:
     Error(std::string msg) : message_(msg) {
-      // empty
+      refCount_ = 0;
     }
 
     inline ObjectType Type() const override {
@@ -111,7 +123,7 @@ class Error : public Object {
     }
 
     inline std::string Inspect() const override {
-      std::string result = "ERROR";
+      std::string result = "ERROR: ";
       result.append(message_);
 
       return result;
