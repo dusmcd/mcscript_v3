@@ -2,13 +2,17 @@
 #define MCSCRIPT_V3_OBJECT_H
 
 #include <string>
+#include <vector>
+#include <memory>
+#include <ast.h>
 
 enum class ObjectType : int {
   INTEGER_OBJ,
   BOOLEAN_OBJ,
   NULL_OBJ,
   RETURN_VALUE_OBJ,
-  ERROR_OBJ
+  ERROR_OBJ,
+  FUNCTION_OBJ
 };
 
 class Object {
@@ -24,6 +28,10 @@ class Object {
 
     inline void SubtractRef() {
       refCount_--;
+    }
+
+    inline bool IsNotReferenced() {
+      return refCount_ == 0; 
     }
 
   protected:
@@ -135,6 +143,33 @@ class Error : public Object {
 
   private:
     std::string message_;
+};
+
+class Function : public Object {
+  public:
+    Function(
+      std::vector<std::shared_ptr<::Identifier>> params,
+      std::shared_ptr<BlockStatement> body) : params_(params), body_(body) {
+        // empty
+      }
+    
+    inline std::vector<std::shared_ptr<::Identifier>> GetParams() const {
+      return params_;
+    }
+
+    inline std::shared_ptr<BlockStatement> GetBody() const {
+      return body_;
+    }
+
+    inline ObjectType Type() const override {
+      return ObjectType::FUNCTION_OBJ;
+    }
+
+    std::string Inspect() const override;
+    
+  private:
+      std::vector<std::shared_ptr<::Identifier>> params_;
+      std::shared_ptr<BlockStatement> body_;
 };
 
 

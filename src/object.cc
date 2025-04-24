@@ -16,3 +16,21 @@ std::string Object::ObjectTypeStr(ObjectType type) {
       return "UNRECOGNIZED TYPE";
   }
 }
+
+
+std::string Function::Inspect() const {
+  std::string result = "function(";
+
+  for (size_t i = 0; i < params_.size(); i++) {
+    result.append(params_[i]->String());
+    if (i < params_.size() - 1) {
+      result.append(", ");
+    }
+  }
+
+  result.append(") {\n");
+  result.append(body_->String());
+  result.append("\n}");
+
+  return result;
+}

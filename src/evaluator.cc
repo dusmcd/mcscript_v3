@@ -55,6 +55,10 @@ Object* Evaluator::Eval(std::shared_ptr<::Node> node, Environment& env) {
     auto i = std::dynamic_pointer_cast<Identifier>(node);
     return EvalIdentifier_(i->GetValue(), env);
   }
+  else if (typeName.compare("FunctionLiteral") == 0) {
+    auto fn = std::dynamic_pointer_cast<FunctionLiteral>(node);
+    return new Function(fn->GetParameters(), fn->GetBody());
+  }
   else if (typeName.compare("IntegerLiteral") == 0) {
     auto exp = std::dynamic_pointer_cast<::IntegerLiteral>(node);
     Object* obj = new Integer(exp->GetValue());
