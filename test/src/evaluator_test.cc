@@ -17,7 +17,7 @@ void EvaluatorTest::Run() {
   TestReturnStmtEvals_();
   TestErrorMessages_();
   TestIdentifierEvals_();
-
+  TestFunctionLiterals_();
 }
 
 /*
@@ -63,6 +63,38 @@ Object* EvaluatorTest::TestEval_(std::string input) {
 /*
   main test methods
 */
+
+void EvaluatorTest::TestFunctionLiterals_() {
+  std::string input = "function(x) { x; };";
+
+  Object* obj = TestEval_(input);
+  auto fn = dynamic_cast<Function*>(obj);
+  if (fn == nullptr) {
+    std::cerr << "obj is not a Function\n";
+    return;
+  }
+
+  if (fn->GetParams().size() != 1) {
+    std::cerr << "wrong number of function params. expected: " <<
+      1 << ", got: " << fn->GetParams().size() << "\n";
+    return;
+  }
+
+  if (fn->GetParams()[0]->GetValue().compare("x") != 0) {
+    std::cerr << "function parameters are wrong, expected: x, got: "
+        << fn->GetParams()[0]->GetValue() << "\n";
+    return;
+  }
+
+  if (fn->GetBody()->String().compare("x")) {
+    std::cerr << "function body wrong. expected: x, got : " 
+        << fn->GetBody()->String() << "\n";
+    return;
+  }
+
+  evaluator_.CollectGarbage();
+  std::cout << "TestFunctionLiterals_() passed\n";
+}
 
 void EvaluatorTest::TestIdentifierEvals_() {
   std::vector<IntegerTest> tests = {
