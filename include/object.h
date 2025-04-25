@@ -5,6 +5,7 @@
 #include <vector>
 #include <memory>
 #include <ast.h>
+#include <environment.h>
 
 enum class ObjectType : int {
   INTEGER_OBJ,
@@ -149,7 +150,8 @@ class Function : public Object {
   public:
     Function(
       std::vector<std::shared_ptr<::Identifier>> params,
-      std::shared_ptr<BlockStatement> body) : params_(params), body_(body) {
+      std::shared_ptr<BlockStatement> body,
+      std::shared_ptr<Environment<Object*>> env) : params_(params), body_(body), env_(env) {
         // empty
       }
     
@@ -161,6 +163,10 @@ class Function : public Object {
       return body_;
     }
 
+    inline std::shared_ptr<Environment<Object*>> GetEnv() const {
+      return env_;
+    }
+
     inline ObjectType Type() const override {
       return ObjectType::FUNCTION_OBJ;
     }
@@ -170,6 +176,7 @@ class Function : public Object {
   private:
       std::vector<std::shared_ptr<::Identifier>> params_;
       std::shared_ptr<BlockStatement> body_;
+      std::shared_ptr<Environment<Object*>> env_;
 };
 
 

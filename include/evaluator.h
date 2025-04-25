@@ -17,7 +17,7 @@ class Evaluator {
 
     ~Evaluator();
 
-    ::Object* Eval(std::shared_ptr<::Node> node, std::shared_ptr<Environment> env);
+    ::Object* Eval(std::shared_ptr<::Node> node, std::shared_ptr<Environment<Object*>> env);
 
     inline void TrackObject(Object* obj) {
       gCollector_.TrackObject(obj);
@@ -64,10 +64,10 @@ class Evaluator {
     Object* EvalMinusExpression_(Object* right);
     Object* EvalInfixExpression_(std::string op, Object* left, Object* right);
     Object* EvalIntegerInfixExpression_(std::string op, Object* left, Object* right);
-    Object* EvalIfExpression_(std::shared_ptr<IfExpression> ie, std::shared_ptr<Environment> env);
-    Object* EvalProgram_(std::shared_ptr<Program> program, std::shared_ptr<Environment> env);
-    Object* EvalBlockStatement_(std::shared_ptr<BlockStatement> block, std::shared_ptr<Environment> env);
-    Object* EvalIdentifier_(std::string name, std::shared_ptr<Environment> env);
+    Object* EvalIfExpression_(std::shared_ptr<IfExpression> ie, std::shared_ptr<Environment<Object*>> env);
+    Object* EvalProgram_(std::shared_ptr<Program> program, std::shared_ptr<Environment<Object*>> env);
+    Object* EvalBlockStatement_(std::shared_ptr<BlockStatement> block, std::shared_ptr<Environment<Object*>> env);
+    Object* EvalIdentifier_(std::string name, std::shared_ptr<Environment<Object*>> env);
 };
 
 

@@ -10,7 +10,7 @@ Evaluator::~Evaluator() {
   delete NULL_T_;
 }
 
-Object* Evaluator::Eval(std::shared_ptr<::Node> node, std::shared_ptr<Environment> env) {
+Object* Evaluator::Eval(std::shared_ptr<::Node> node, std::shared_ptr<Environment<Object*>> env) {
   const std::string typeName = GetTypeName_(node);
   if (typeName.size() == 0) {
     return nullptr;
@@ -57,7 +57,7 @@ Object* Evaluator::Eval(std::shared_ptr<::Node> node, std::shared_ptr<Environmen
   }
   else if (typeName.compare("FunctionLiteral") == 0) {
     auto fn = std::dynamic_pointer_cast<FunctionLiteral>(node);
-    return new Function(fn->GetParameters(), fn->GetBody());
+    return new Function(fn->GetParameters(), fn->GetBody(), env);
   }
   else if (typeName.compare("IntegerLiteral") == 0) {
     auto exp = std::dynamic_pointer_cast<::IntegerLiteral>(node);
@@ -102,7 +102,7 @@ Object* Evaluator::Eval(std::shared_ptr<::Node> node, std::shared_ptr<Environmen
   return nullptr;
 }
 
-Object* Evaluator::EvalIfExpression_(std::shared_ptr<IfExpression> ie, std::shared_ptr<Environment> env) {
+Object* Evaluator::EvalIfExpression_(std::shared_ptr<IfExpression> ie, std::shared_ptr<Environment<Object*>> env) {
   Object* condition = Eval(ie->GetCondition(), env);
   if (IsError_(condition)) {
     return condition;
@@ -265,7 +265,7 @@ std::string Evaluator::GetTypeName_(std::shared_ptr<::Node> node) {
   return result;
 }
 
-Object* Evaluator::EvalProgram_(std::shared_ptr<Program> program, std::shared_ptr<Environment> env) {
+Object* Evaluator::EvalProgram_(std::shared_ptr<Program> program, std::shared_ptr<Environment<Object*>> env) {
   Object* result = nullptr;
   for (const auto& stmt : program->GetStatements()) {
     result = Eval(stmt, env);
@@ -288,7 +288,7 @@ Object* Evaluator::EvalProgram_(std::shared_ptr<Program> program, std::shared_pt
   return result;
 }
 
-Object* Evaluator::EvalBlockStatement_(std::shared_ptr<BlockStatement> block, std::shared_ptr<Environment> env) {
+Object* Evaluator::EvalBlockStatement_(std::shared_ptr<BlockStatement> block, std::shared_ptr<Environment<Object*>> env) {
   Object* result = nullptr;
   for (const auto& stmt : block->GetStatements()) {
     result = Eval(stmt, env);
@@ -323,7 +323,7 @@ bool Evaluator::IsError_(Object* obj) {
   return false;
 }
 
-Object* Evaluator::EvalIdentifier_(std::string name, std::shared_ptr<Environment> env) {
+Object* Evaluator::EvalIdentifier_(std::string name, std::shared_ptr<Environment<Object*>> env) {
   Object* obj = env->Get(name);
   if (obj == nullptr) {
     std::string errMsg = "unexpected identifier: ";

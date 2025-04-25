@@ -21,7 +21,7 @@ std::shared_ptr<Evaluator> NewEval() {
 }
 
 int main() {
-  auto env = std::make_shared<Environment>();
+  auto env = std::make_shared<Environment<Object*>>();
   std::shared_ptr<Evaluator> evaluator = NewEval();
 
   std::cout << "McScript v3.0 Programming Language\n";
