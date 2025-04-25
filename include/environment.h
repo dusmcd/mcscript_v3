@@ -7,9 +7,10 @@
 
 class Environment {
   public:
-    static Environment& NewEnvironment() {
-      static Environment env;
-      return env;
+    // constructor
+    Environment(){}
+    Environment(const std::shared_ptr<Environment> outer) : outer_(outer) {
+      // empty
     }
 
     Object* Get(std::string name);
@@ -20,9 +21,8 @@ class Environment {
 
 
   private:
-    // constructor
-    Environment() {}
     std::unordered_map<std::string, ::Object*> store_;
+    const std::shared_ptr<Environment> outer_;
 };
 
 

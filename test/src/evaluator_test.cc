@@ -52,7 +52,7 @@ Object* EvaluatorTest::TestEval_(std::string input) {
     auto l = std::make_shared<Lexer>(input);
     auto p = std::make_shared<Parser>(l);
     std::shared_ptr<Program> program = p->ParseProgram();
-    Environment& env = Environment::NewEnvironment();
+    auto env = std::make_shared<Environment>();
 
     Object* obj = evaluator_.Eval(program, env);
     evaluator_.TrackObject(obj);
