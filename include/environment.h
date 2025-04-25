@@ -9,14 +9,19 @@ template <typename T>
 class Environment {
   public:
     // constructor
-    Environment(){}
+    Environment() : outer_(nullptr) {}
     Environment(const std::shared_ptr<Environment> outer) : outer_(outer) {
       // empty
     }
 
     inline T Get(std::string name) {
       if (store_.count(name) == 0) {
-        return nullptr;
+        if (outer_ != nullptr) {
+          return outer_->Get(name);
+        }
+        else {
+          return nullptr;
+        }
       }
 
       return store_.at(name);

@@ -18,6 +18,7 @@ void EvaluatorTest::Run() {
   TestErrorMessages_();
   TestIdentifierEvals_();
   TestFunctionLiterals_();
+  TestFunctionCalls_();
 }
 
 /*
@@ -63,6 +64,25 @@ Object* EvaluatorTest::TestEval_(std::string input) {
 /*
   main test methods
 */
+
+void EvaluatorTest::TestFunctionCalls_() {
+  std::vector<IntegerTest> tests = {
+    (IntegerTest){.input = "var add = function(a, b) { return a + b; }; add(5, 5);", 10},
+    (IntegerTest){.input = "var add = function(a, b) { a + b; }; add(5, 5);", 10},
+    (IntegerTest){.input = "var add = function(a, b) { return a + b; }; add(5 +5, 10);", 20},
+    (IntegerTest){.input = "var x = 5; var doub = function(a) { return a * 2; }; doub(x);", 10}
+  };
+
+  for (const auto& test : tests) {
+    Object* obj = TestEval_(test.input);
+    if (!TestIntegerObject_(obj, test.expectedVal)) {
+      return;
+    }
+  }
+
+  evaluator_.CollectGarbage();
+  std::cout << "TestFunctionCalls_() passed\n";
+}
 
 void EvaluatorTest::TestFunctionLiterals_() {
   std::string input = "function(x) { x; };";

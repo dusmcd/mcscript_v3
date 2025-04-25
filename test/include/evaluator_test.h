@@ -45,6 +45,7 @@ class EvaluatorTest {
     void TestErrorMessages_();
     void TestIdentifierEvals_();
     void TestFunctionLiterals_();
+    void TestFunctionCalls_();
 
     // helper methods
     Object* TestEval_(std::string input);

@@ -431,6 +431,10 @@ class CallExpression : public Expression {
       return args_;
     }
 
+    inline std::shared_ptr<Expression> GetFunc() const {
+      return func_;
+    }
+
   protected:
     void ExpressionNode_() const override {}
 

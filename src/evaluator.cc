@@ -59,6 +59,23 @@ Object* Evaluator::Eval(std::shared_ptr<::Node> node, std::shared_ptr<Environmen
     auto fn = std::dynamic_pointer_cast<FunctionLiteral>(node);
     return new Function(fn->GetParameters(), fn->GetBody(), env);
   }
+  else if (typeName.compare("CallExpression") == 0) {
+    auto call = std::dynamic_pointer_cast<CallExpression>(node);
+    Object* obj = Eval(call->GetFunc(), env);
+    auto func = dynamic_cast<Function*>(obj);
+    if (func == nullptr) {
+      char buff[128];
+      snprintf(buff, sizeof(buff), "%s is not a function", obj->Inspect().c_str());
+      return  NewError_(std::string(buff));
+    }
+
+    // GARGAGE COLLECTION
+    TrackObject(obj);
+
+    std::vector<Object*> args = EvalParameters_(func, call->GetArgs());
+    return EvalFunctionCall_(func, args, func->GetEnv());
+
+  }
   else if (typeName.compare("IntegerLiteral") == 0) {
     auto exp = std::dynamic_pointer_cast<::IntegerLiteral>(node);
     Object* obj = new Integer(exp->GetValue());
@@ -332,4 +349,34 @@ Object* Evaluator::EvalIdentifier_(std::string name, std::shared_ptr<Environment
   }
 
   return obj;
+}
+
+
+std::vector<Object*> Evaluator::EvalParameters_(Function* func, std::vector<std::shared_ptr<Expression>> params) {
+  std::vector<Object*> result;
+  
+  for (const auto& param : params) {
+    result.push_back(Eval(param, func->GetEnv()));
+  }
+
+  return result;
+}
+
+Object* Evaluator::EvalFunctionCall_(Object* obj, std::vector<Object*> args, std::shared_ptr<Environment<Object*>> outerEnv) {
+  auto env = std::make_shared<Environment<Object*>>(outerEnv);
+  auto function = dynamic_cast<Function*>(obj);
+  std::vector<std::shared_ptr<Identifier>> params = function->GetParams();
+  
+  // add args to inner scope
+  for (size_t i = 0; i < args.size(); i++) {
+    env->Set(params[i]->GetValue(), args[i]);
+  }
+
+  Object* result = Eval(function->GetBody(), env);
+  if (obj != nullptr && obj->Type() == ObjectType::RETURN_VALUE_OBJ) {
+    auto returnVal = dynamic_cast<ReturnValue*>(result);
+    return returnVal->GetValue();
+  }
+
+  return result;
 }
