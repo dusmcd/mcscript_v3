@@ -373,7 +373,7 @@ Object* Evaluator::EvalFunctionCall_(Object* obj, std::vector<Object*> args, std
   }
 
   Object* result = Eval(function->GetBody(), env);
-  if (obj != nullptr && obj->Type() == ObjectType::RETURN_VALUE_OBJ) {
+  if (result != nullptr && result->Type() == ObjectType::RETURN_VALUE_OBJ) {
     auto returnVal = dynamic_cast<ReturnValue*>(result);
     return returnVal->GetValue();
   }

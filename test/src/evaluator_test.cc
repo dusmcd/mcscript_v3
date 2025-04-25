@@ -19,6 +19,7 @@ void EvaluatorTest::Run() {
   TestIdentifierEvals_();
   TestFunctionLiterals_();
   TestFunctionCalls_();
+  TestClosures_();
 }
 
 /*
@@ -64,6 +65,26 @@ Object* EvaluatorTest::TestEval_(std::string input) {
 /*
   main test methods
 */
+
+
+void EvaluatorTest::TestClosures_() {
+  std::string input = 
+  "var newAdder = function(x) {"
+  " return function(a) {"
+      "return a + x;"
+      "}"
+    "};"
+  "var addTwo = newAdder(2);"
+  "addTwo(5);";
+
+  Object* obj = TestEval_(input);
+  if (!TestIntegerObject_(obj, 7)) {
+    return;
+  }
+
+  evaluator_.CollectGarbage();
+  std::cout << "TestClosures_() passed\n";
+}
 
 void EvaluatorTest::TestFunctionCalls_() {
   std::vector<IntegerTest> tests = {
