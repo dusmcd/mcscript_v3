@@ -80,7 +80,7 @@ void EvaluatorTest::TestClosures_() {
     return;
   }
 
-  evaluator_.CollectGarbage();
+  evaluator_.FinalCleanup();
   std::cout << "TestClosures_() passed\n";
 }
 
@@ -99,7 +99,7 @@ void EvaluatorTest::TestFunctionCalls_() {
     }
   }
 
-  evaluator_.CollectGarbage();
+  evaluator_.FinalCleanup();
   std::cout << "TestFunctionCalls_() passed\n";
 }
 
@@ -131,7 +131,7 @@ void EvaluatorTest::TestFunctionLiterals_() {
     return;
   }
 
-  evaluator_.CollectGarbage();
+  evaluator_.FinalCleanup();
   std::cout << "TestFunctionLiterals_() passed\n";
 }
 
@@ -150,7 +150,7 @@ void EvaluatorTest::TestIdentifierEvals_() {
     }
   }
 
-  evaluator_.CollectGarbage();
+  evaluator_.FinalCleanup();
   std::cout << "TestIdentifierEvals_() passed\n";
 }
 
@@ -195,7 +195,7 @@ void EvaluatorTest::TestErrorMessages_() {
     }
   }
 
-  evaluator_.CollectGarbage();
+  evaluator_.FinalCleanup();
 
   std::cout << "TestErrorMessages_() passed\n";
 }
@@ -222,7 +222,7 @@ void EvaluatorTest::TestReturnStmtEvals_() {
     }
   }
 
-  evaluator_.CollectGarbage();
+  evaluator_.FinalCleanup();
   std::cout << "TestReturnStmtEvals_() passed\n";
 }
 
@@ -244,7 +244,7 @@ void EvaluatorTest::TestBangOperatorEvals_() {
     }
   }
 
-  evaluator_.CollectGarbage();
+  evaluator_.FinalCleanup();
   std::cout << "TestBangOperatorEvals_() passed\n";
 }
 
@@ -270,7 +270,7 @@ void EvaluatorTest::TestBooleanEvals_() {
 
   }
 
-  evaluator_.CollectGarbage();
+  evaluator_.FinalCleanup();
   std::cout << "TestBooleanEvals_() passed\n";
 }
 
@@ -295,7 +295,7 @@ void EvaluatorTest::TestIntegerEvals_() {
     }
   }
 
-  evaluator_.CollectGarbage();
+  evaluator_.FinalCleanup();
   std::cout << "TestIntegerEvals_() passed\n";
 }
 
@@ -319,7 +319,7 @@ void EvaluatorTest::TestIfElseEvals_() {
     }
   }
 
-  evaluator_.CollectGarbage();
+  evaluator_.FinalCleanup();
   std::cout << "TestIfElseEvals_() passed\n";
 }
 

@@ -37,6 +37,7 @@ Object* Evaluator::Eval(std::shared_ptr<::Node> node, std::shared_ptr<Environmen
     if (IsError_(val)) {
       return val;
     }
+    val->AddRef(); // for garbage collection
     env->Set(stmt->GetName()->GetValue(), val);
     return nullptr;
   }
@@ -353,16 +354,22 @@ Object* Evaluator::EvalFunctionCall_(Object* obj, std::vector<Object*> args, std
   
   // add args to inner scope
   for (size_t i = 0; i < args.size(); i++) {
+    args[i]->AddRef(); // for garbage collection
     env->Set(params[i]->GetValue(), args[i]);
   }
 
   Object* result = Eval(function->GetBody(), env);
+  std::unordered_map<std::string, Object*> store = env->GetStore();
+  for (const auto& pair : store) {
+    // can safely clean up local scope once function body has been evaluated
+    pair.second->SubtractRef();   
+  }
+
   if (result != nullptr && result->Type() == ObjectType::RETURN_VALUE_OBJ) {
     auto returnVal = dynamic_cast<ReturnValue*>(result);
     return returnVal->GetValue();
   }
-
-  return result;
+   return result;
 }
 
 

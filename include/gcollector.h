@@ -18,8 +18,13 @@ class GCollector {
     GCollector& operator=(const GCollector&) = delete;
 
     void Collect();
-    void TrackObject(Object* obj);
 
+    // this cleans up all objects that are not null regardless of how many references (called when program terminates)
+    void CollectAll();
+    void TrackObject(Object* obj);
+    inline size_t GetNumObjects() const {
+      return objects_.size();
+    }
 
 
 

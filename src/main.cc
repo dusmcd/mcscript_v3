@@ -28,6 +28,10 @@ int main() {
   std::cout << "Enter commands:\n";
 
   while (true) {
+    if (evaluator->GetNumObjects() > 10) {
+      std::cout << "Garbage collector pause...\n";
+      evaluator->CollectGarbage();
+    }
     std::cout << ">> ";
     std::string input;
     std::getline(std::cin, input);
@@ -47,10 +51,12 @@ int main() {
       std::cout << std::endl;
     }
 
+    std::cout << "Number of user-created objects in heap: " << evaluator->GetNumObjects() << "\n";
+
     
   }
 
   
-  evaluator->CollectGarbage();
+  evaluator->FinalCleanup();
   return 0;
 }

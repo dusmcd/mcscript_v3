@@ -31,6 +31,10 @@ class Environment {
       store_[name] = val;
     }
 
+    inline std::unordered_map<std::string, T> GetStore() const {
+      return store_;
+    }
+
 
 
   private:

@@ -27,6 +27,10 @@ class Evaluator {
       gCollector_.Collect();
     }
 
+    inline void FinalCleanup() {
+      gCollector_.CollectAll();
+    }
+
     inline Boolean* TRUE() {
       return TRUE_;
     }
@@ -37,6 +41,10 @@ class Evaluator {
 
     inline Null* NULL_T() {
       return NULL_T_;
+    }
+
+    inline size_t GetNumObjects() const {
+      return gCollector_.GetNumObjects();
     }
 
   

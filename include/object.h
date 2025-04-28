@@ -152,7 +152,7 @@ class Function : public Object {
       std::vector<std::shared_ptr<::Identifier>> params,
       std::shared_ptr<BlockStatement> body,
       std::shared_ptr<Environment<Object*>> env) : params_(params), body_(body), env_(env) {
-        // empty
+        refCount_ = 0;
       }
     
     inline std::vector<std::shared_ptr<::Identifier>> GetParams() const {
