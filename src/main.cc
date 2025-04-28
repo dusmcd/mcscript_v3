@@ -25,7 +25,7 @@ int main() {
   std::shared_ptr<Evaluator> evaluator = NewEval();
 
   std::cout << "McScript v3.0 Programming Language\n";
-  std::cout << "Enter commands:\n";
+  std::cout << "Enter commands: (type 'exit' to terminate)\n";
 
   while (true) {
     if (evaluator->GetNumObjects() > 10) {
@@ -35,6 +35,10 @@ int main() {
     std::cout << ">> ";
     std::string input;
     std::getline(std::cin, input);
+
+    if (input.compare("exit") == 0) {
+      break;
+    }
 
     auto l = std::make_shared<Lexer>(input);
     auto p = std::make_shared<Parser>(l);

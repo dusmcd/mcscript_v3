@@ -20,6 +20,7 @@ void EvaluatorTest::Run() {
   TestFunctionLiterals_();
   TestFunctionCalls_();
   TestClosures_();
+  TestGCollector_();
 }
 
 /*
@@ -63,6 +64,37 @@ Object* EvaluatorTest::TestEval_(std::string input) {
 /*
   main test methods
 */
+
+void EvaluatorTest::TestGCollector_() {
+  std::vector<CollectorTest> tests = {
+    (CollectorTest){.input = "var x = 1 + 2;", .before = 3, .after = 1},
+    (CollectorTest){.input = "var a = 3; var b = 5 + a;", .before = 3, .after = 2},
+    (CollectorTest){.input = "var a = 3; var b = 1 + 2 + a;", .before = 5, .after = 2},
+    (CollectorTest){.input = "var add = function(a, b) { a + b; }; var sum = add(1, 2)", .before = 4, .after = 2}
+  };
+
+  for (const auto& test : tests) {
+    TestEval_(test.input);
+    size_t numObjects = evaluator_.GetNumObjects();
+    if (numObjects != test.before) {
+      std::cerr << "number of objects before garbage collection wrong. expected: " 
+          << test.before << ", got: " << numObjects << "\n";
+      return;
+    }
+    evaluator_.CollectGarbage();
+
+    numObjects = evaluator_.GetNumObjects();
+    if (numObjects != test.after) {
+      std::cerr << "number of objects after garbage collection wrong. expected: "
+        << test.after << ", got: " << numObjects << "\n";
+      return;
+    }
+
+    evaluator_.FinalCleanup();
+  }
+
+  std::cout << "TestGCollector_() passed\n";
+}
 
 
 void EvaluatorTest::TestClosures_() {
