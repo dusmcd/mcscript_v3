@@ -2,6 +2,7 @@
 
 **How to use**
 - In the home directory, run `make main`
+- Run the executable at `bin/main`
 - This will open a REPL where you can start typing commands (see below for syntax)
 
 **Testing**
@@ -15,7 +16,6 @@
   ```
   var x = 10;
   var y = true;
-
   ```
 - Variables are dynamically typed
 
