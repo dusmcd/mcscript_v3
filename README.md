@@ -4,6 +4,10 @@
 - In the home directory, run `make main`
 - This will open a REPL where you can start typing commands (see below for syntax)
 
+**Testing**
+- In the home directory, run `make test`
+- Test results will be printed to standard output => failures will be printed to standard error
+
 ## Syntax and Basic Usage
 
 **Variables**
@@ -45,3 +49,6 @@
 - Prefix operators:
   - "!" will make truthy expressions falsey and vice versa
   - "-" will make positive numbers negative and vice versa
+
+## Memory Management
+- Memory is automatically managed by native garbage collector

@@ -4,7 +4,8 @@ exec_dir = bin
 build_dir = build
 test_dir = test/src
 src_dir = src
-eval_dep = evaluator_test.o lexer.o parser.o token.o ast.o evaluator.o gcollector.o object.o environment.o
+eval_dep = evaluator_test.o lexer.o parser.o token.o\
+ 					ast.o evaluator.o gcollector.o object.o environment.o
 
 
 # Source files
@@ -50,21 +51,21 @@ evaluator_test.o: $(test_dir)/evaluator_test.cc
 
 # Executables
 
-main: main.o lexer.o token.o parser.o ast.o evaluator.o gcollector.o environment.o object.o
+main: build/ bin/ main.o lexer.o token.o parser.o ast.o evaluator.o gcollector.o environment.o object.o
 	g++ $(flags) $(build_dir)/main.o $(build_dir)/lexer.o $(build_dir)/token.o \
 	$(build_dir)/parser.o $(build_dir)/ast.o $(build_dir)/evaluator.o $(build_dir)/gcollector.o \
 	$(build_dir)/object.o $(build_dir)/environment.o -o $(exec_dir)/main
 
 
-lexer_test: lexer_test.o lexer.o token.o
+lexer_test: build/ bin/ lexer_test.o lexer.o token.o
 	g++ $(flags) $(build_dir)/lexer_test.o $(build_dir)/token.o $(build_dir)/lexer.o \
 	-o $(exec_dir)/lexer_test
 
-parser_test: parser_test.o lexer.o parser.o token.o ast.o
+parser_test: build/ bin/ parser_test.o lexer.o parser.o token.o ast.o
 	g++ $(flags) $(build_dir)/parser_test.o $(build_dir)/lexer.o $(build_dir)/parser.o \
 	$(build_dir)/token.o $(build_dir)/ast.o -o $(exec_dir)/parser_test
 
-evaluator_test: $(eval_dep)
+evaluator_test: build/ bin/ $(eval_dep)
 	g++ $(flags) $(build_dir)/evaluator_test.o $(build_dir)/lexer.o $(build_dir)/parser.o \
 	$(build_dir)/token.o $(build_dir)/ast.o $(build_dir)/evaluator.o $(build_dir)/gcollector.o \
 	$(build_dir)/object.o $(build_dir)/environment.o -o $(exec_dir)/evaluator_test
@@ -79,5 +80,11 @@ test: lexer_test parser_test evaluator_test
 
 clean:
 	rm build/*.o bin/*
+
+build/:
+	mkdir -p build
+
+bin/:
+	mkdir -p bin
 
 	

@@ -29,7 +29,6 @@ int main() {
 
   while (true) {
     if (evaluator->GetNumObjects() > 10) {
-      std::cout << "Garbage collector pause...\n";
       evaluator->CollectGarbage();
     }
     std::cout << ">> ";
@@ -54,9 +53,6 @@ int main() {
       std::cout << obj->Inspect();
       std::cout << std::endl;
     }
-
-    std::cout << "Number of user-created objects in heap: " << evaluator->GetNumObjects() << "\n";
-
     
   }
 
