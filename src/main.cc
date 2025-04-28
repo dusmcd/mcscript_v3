@@ -42,7 +42,6 @@ int main() {
     
 
     Object* obj = evaluator->Eval(program, env);
-    evaluator->TrackObject(obj);
     if (obj != nullptr) {
       std::cout << obj->Inspect();
       std::cout << std::endl;

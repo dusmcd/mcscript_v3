@@ -57,8 +57,6 @@ Object* EvaluatorTest::TestEval_(std::string input) {
     auto env = std::make_shared<Environment<Object*>>();
 
     Object* obj = evaluator_.Eval(program, env);
-    evaluator_.TrackObject(obj);
-
     return obj;
 }
 

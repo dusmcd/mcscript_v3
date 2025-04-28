@@ -47,7 +47,8 @@ Object* Evaluator::Eval(std::shared_ptr<::Node> node, std::shared_ptr<Environmen
     if (IsError_(value)) {
       return value;
     }
-    return new ReturnValue(value);
+
+    return NewObject_(new ReturnValue(value));
   }
 
   // evaluate expressions
@@ -57,7 +58,7 @@ Object* Evaluator::Eval(std::shared_ptr<::Node> node, std::shared_ptr<Environmen
   }
   else if (typeName.compare("FunctionLiteral") == 0) {
     auto fn = std::dynamic_pointer_cast<FunctionLiteral>(node);
-    return new Function(fn->GetParameters(), fn->GetBody(), env);
+    return NewObject_(new Function(fn->GetParameters(), fn->GetBody(), env));
   }
   else if (typeName.compare("CallExpression") == 0) {
     auto call = std::dynamic_pointer_cast<CallExpression>(node);
@@ -66,11 +67,8 @@ Object* Evaluator::Eval(std::shared_ptr<::Node> node, std::shared_ptr<Environmen
     if (func == nullptr) {
       char buff[128];
       snprintf(buff, sizeof(buff), "%s is not a function", obj->Inspect().c_str());
-      return  NewError_(std::string(buff));
+      return NewObject_(NewError_(std::string(buff)));
     }
-
-    // GARGAGE COLLECTION
-    TrackObject(obj);
 
     std::vector<Object*> args = EvalParameters_(func, call->GetArgs());
     return EvalFunctionCall_(func, args, func->GetEnv());
@@ -78,7 +76,7 @@ Object* Evaluator::Eval(std::shared_ptr<::Node> node, std::shared_ptr<Environmen
   }
   else if (typeName.compare("IntegerLiteral") == 0) {
     auto exp = std::dynamic_pointer_cast<::IntegerLiteral>(node);
-    Object* obj = new Integer(exp->GetValue());
+    Object* obj = NewObject_(new Integer(exp->GetValue()));
     return obj;
   }
 
@@ -124,8 +122,6 @@ Object* Evaluator::EvalIfExpression_(std::shared_ptr<IfExpression> ie, std::shar
   if (IsError_(condition)) {
     return condition;
   }
-  // GARBAGE COLLECTION
-  TrackObject(condition);
 
   if (IsTruthy_(condition)) {
     return Eval(ie->GetConsequence(), env);
@@ -168,10 +164,6 @@ std::string Evaluator::GetPrefixErrorMsg_(const char* format, std::string op, Ob
 
 
 Object* Evaluator::EvalInfixExpression_(std::string op, Object* left, Object* right) {
-  // GARBAGE COLLECTION
-  TrackObject(left);
-  TrackObject(right);
-
   if (left->Type() == ObjectType::INTEGER_OBJ && right->Type() == ObjectType::INTEGER_OBJ) {
     return EvalIntegerInfixExpression_(op, left, right);
   }
@@ -184,7 +176,7 @@ Object* Evaluator::EvalInfixExpression_(std::string op, Object* left, Object* ri
   }
 
   std::string errMsg = GetInfixErrorMsg_("unknown operator: %s %s %s", left, op, right);
-  return NewError_(errMsg);
+  return NewObject_(NewError_(errMsg));
 }
 
 Object* Evaluator::EvalIntegerInfixExpression_(std::string op, Object* left, Object* right) {
@@ -192,13 +184,13 @@ Object* Evaluator::EvalIntegerInfixExpression_(std::string op, Object* left, Obj
   long rightVal = dynamic_cast<Integer*>(right)->GetValue();
 
   if (op.compare("+") == 0) {
-    return new Integer(leftVal + rightVal);
+    return NewObject_(new Integer(leftVal + rightVal));
   } else if (op.compare("-") == 0) {
-    return new Integer(leftVal - rightVal);
+    return NewObject_(new Integer(leftVal - rightVal));
   } else if (op.compare("*") == 0) {
-    return new Integer(leftVal * rightVal);
+    return NewObject_(new Integer(leftVal * rightVal));
   } else if (op.compare("/") == 0) {
-    return new Integer(leftVal / rightVal);
+    return NewObject_(new Integer(leftVal / rightVal));
   } else if (op.compare("<") == 0) {
     return NativeBooleanToBooleanObj_(leftVal < rightVal);
   } else if (op.compare(">") == 0) {
@@ -210,7 +202,7 @@ Object* Evaluator::EvalIntegerInfixExpression_(std::string op, Object* left, Obj
   }
 
   std::string errorMsg = GetInfixErrorMsg_("unknown operator: %s %s %s", left, op, right);
-  return NewError_(errorMsg);
+  return NewObject_(NewError_(errorMsg));
 }
 
 
@@ -230,18 +222,14 @@ Boolean* Evaluator::NativeBooleanToBooleanObj_(bool input) {
     return EvalMinusExpression_(right);
   }
 
-  // GARBAGE COLLECTION
-  TrackObject(right);
   std::string errMsg = GetPrefixErrorMsg_("unknown operator: %s%s", op, right);
-  return NewError_(errMsg);
+  return NewObject_(NewError_(errMsg));
 }
 
 Object* Evaluator::EvalMinusExpression_(Object* right) {
   if (right->Type() != ObjectType::INTEGER_OBJ) {
-    // GARGAGE COLLECTION
-    TrackObject(right);
     std::string errMsg = GetPrefixErrorMsg_("unknown operator: %s%s", "-", right);
-    return NewError_(errMsg);
+    return NewObject_(NewError_(errMsg));
   }
 
   auto obj = dynamic_cast<Integer*>(right);
@@ -251,8 +239,6 @@ Object* Evaluator::EvalMinusExpression_(Object* right) {
 }
 
 ::Object* Evaluator::EvalBangExpression_(::Object* right) {
-  // GARBAGE COLLECTION
-  TrackObject(right);
   if (right == TRUE()) {
     return FALSE();
   }
@@ -292,8 +278,6 @@ Object* Evaluator::EvalProgram_(std::shared_ptr<Program> program, std::shared_pt
 
     auto returnValue = dynamic_cast<ReturnValue*>(result);
     if (returnValue != nullptr) {
-      // GARBAGE COLLECTION
-      TrackObject(returnValue);
       return returnValue->GetValue();
     }
 
@@ -345,7 +329,7 @@ Object* Evaluator::EvalIdentifier_(std::string name, std::shared_ptr<Environment
   if (obj == nullptr) {
     std::string errMsg = "unexpected identifier: ";
     errMsg.append(name);
-    return NewError_(errMsg);
+    return NewObject_(NewError_(errMsg));
   }
 
   return obj;
@@ -379,4 +363,10 @@ Object* Evaluator::EvalFunctionCall_(Object* obj, std::vector<Object*> args, std
   }
 
   return result;
+}
+
+
+Object* Evaluator::NewObject_(Object* obj) {
+  TrackObject(obj);
+  return obj;
 }
