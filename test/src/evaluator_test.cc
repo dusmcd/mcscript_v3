@@ -22,6 +22,7 @@ void EvaluatorTest::Run() {
   TestClosures_();
   TestGCollector_();
   TestStrings_();
+  TestStringConcat_();
 }
 
 /*
@@ -66,6 +67,25 @@ Object* EvaluatorTest::TestEval_(std::string input) {
   main test methods
 */
 
+void EvaluatorTest::TestStringConcat_() {
+  std::string input = "\"hello\" + \" world\"";
+
+  Object* obj = TestEval_(input);
+  auto str = dynamic_cast<String*>(obj);
+  if (str == nullptr) {
+    std::cerr << "object is not a String\n";
+    return;
+  }
+
+  if (str->GetValue().compare("hello world") != 0) {
+    std::cerr << "str value wrong. expected: \"hello world\""
+        << ", got: " << str->GetValue() << "\n";
+    return;
+  }
+
+  evaluator_.FinalCleanup();
+  std::cout << "TestStringConat_() passed\n";
+}
 
 void EvaluatorTest::TestStrings_() {
   StringTest test = {.input = "\"Hello World!\"", .expectedVal = "Hello World!"};
@@ -229,6 +249,10 @@ void EvaluatorTest::TestErrorMessages_() {
     (ErrorTest){
       .input = "foobar;",
       .expectedVal = "unexpected identifier: foobar"
+    },
+    (ErrorTest){
+      .input = "\"Hello\" - \"Hello\"",
+      .expectedVal = "unknown operator: STRING - STRING"
     }
   };
 

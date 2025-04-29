@@ -173,6 +173,10 @@ Object* Evaluator::EvalInfixExpression_(std::string op, Object* left, Object* ri
     return EvalIntegerInfixExpression_(op, left, right);
   }
 
+  if (left->Type() == ObjectType::STRING_OBJ && right->Type() == ObjectType::STRING_OBJ) {
+    return EvalStringInfixExpression_(op, left, right);
+  }
+
   if (op.compare("==") == 0) {
     return NativeBooleanToBooleanObj_(left == right);
   }
@@ -377,7 +381,18 @@ Object* Evaluator::EvalFunctionCall_(Object* obj, std::vector<Object*> args, std
 }
 
 Object* Evaluator::EvalStringInfixExpression_(std::string op, Object* left, Object* right) {
-  return nullptr;
+  if (op.compare("+") != 0) {
+    char buff[100];
+    std::string leftType = Object::ObjectTypeStr(left->Type());
+    std::string rightType = Object::ObjectTypeStr(right->Type());
+    snprintf(buff, sizeof(buff), "unknown operator: %s %s %s", leftType.c_str(), op.c_str(), rightType.c_str());
+    return NewObject_(NewError_(std::string(buff)));
+  }
+
+  std::string leftVal = dynamic_cast<String*>(left)->GetValue();
+  std::string rightVal = dynamic_cast<String*>(right)->GetValue();
+
+  return NewObject_(new String(leftVal + rightVal));
 }
 
 

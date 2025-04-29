@@ -60,6 +60,7 @@ class EvaluatorTest {
     void TestClosures_();
     void TestGCollector_();
     void TestStrings_();
+    void TestStringConcat_();
 
     // helper methods
     Object* TestEval_(std::string input);
