@@ -72,6 +72,7 @@ class ParserTest {
     void TestIfElseExpression_();
     void TestFunctionLiteral_();
     void TestCallExpressions_();
+    void TestStringLiteral_();
 
 };
 

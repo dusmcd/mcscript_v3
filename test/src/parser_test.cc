@@ -24,6 +24,7 @@ void ParserTest::Run() {
     TestIfElseExpression_();
     TestFunctionLiteral_();
     TestCallExpressions_();
+    TestStringLiteral_();
 
 }
 
@@ -199,6 +200,39 @@ bool ParserTest::TestInfixExpression_(
 /*
   main test methods
 */
+
+
+void ParserTest::TestStringLiteral_() {
+  std::string input = "\"hello world\"";
+
+  auto l = std::make_shared<Lexer>(input);
+  auto p = std::make_shared<Parser>(l);
+  std::shared_ptr<Program> program = p->ParseProgram();
+  if (CheckParserErrors_(p)) {
+    return;
+  }
+
+  std::vector<std::shared_ptr<Statement>> stmts = program->GetStatements();
+  auto es = std::dynamic_pointer_cast<ExpressionStatement>(stmts[0]);
+  if (es == nullptr) {
+    std::cerr << "stmts[0] not ExpressionStatement\n";
+    return;
+  }
+
+  auto str = std::dynamic_pointer_cast<StringLiteral>(es->GetExpression());
+  if (str == nullptr) {
+    std::cerr << "es->GetExpression() not StringLiteral\n";
+    return;
+  }
+
+  if (str->TokenLiteral().compare("hello world") != 0) {
+    std::cerr << "wrong string value. expected: \"hello world\", got: " 
+        << str->TokenLiteral() << "\n";
+    return;
+  }
+
+  std::cout << "TestStringLiteral_() passed\n";
+}
 
 void ParserTest::TestCallExpressions_() {
   std::vector<CallTest> tests = {

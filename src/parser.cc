@@ -23,6 +23,7 @@ Parser::Parser(std::shared_ptr<Lexer> l) {
   RegisterPrefixFns_(GetParseBooleanFn_(), TokenType::FALSE),
   RegisterPrefixFns_(GetParseIfExpression_(), TokenType::IF);
   RegisterPrefixFns_(GetParseFunctionLiteralFn_(), TokenType::FUNCTION);
+  RegisterPrefixFns_(GetParseStringLiteralFn_(), TokenType::STRING);
 
   RegisterInfixFns_(GetInfixExpressionFn_(), TokenType::PLUS);
   RegisterInfixFns_(GetInfixExpressionFn_(), TokenType::MINUS);
@@ -437,4 +438,15 @@ infixParseFn Parser::GetInfixExpressionFn_() {
   infixParseFn fn = std::bind(&Parser::ParseInfixExpression_, this, std::placeholders::_1);
   return fn;
 }
+
+std::shared_ptr<StringLiteral> Parser::ParseStringLiteral_() {
+  auto sl = std::make_shared<StringLiteral>(curr_token_, curr_token_->GetLiteral());
+  return sl;
+}
+
+prefixParseFn Parser::GetParseStringLiteralFn_() {
+  prefixParseFn fn = std::bind(&Parser::ParseStringLiteral_, this);
+  return fn;
+}
+
 
