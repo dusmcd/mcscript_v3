@@ -12,6 +12,7 @@ class Lexer {
 
   private:
     void ReadChar_(); // consume the current char
+    std::string ReadString_();
     bool IsLetter_(char ch);
     bool IsDigit_(char ch);
     std::shared_ptr<Token> NewToken_(TokenType type, char ch);

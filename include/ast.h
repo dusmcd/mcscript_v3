@@ -444,5 +444,27 @@ class CallExpression : public Expression {
     std::vector<std::shared_ptr<Expression>> args_;
 };
 
+class StringLiteral : public Expression {
+  public:
+    StringLiteral(std::shared_ptr<Token> tok, std::string literal) : tok_(tok), literal_(literal) {
+      // empty
+    }
+
+    inline std::string TokenLiteral() const override {
+      return literal_;
+    }
+
+    inline std::string String() const override {
+      return literal_;
+    }
+
+  protected:
+    void ExpressionNode_() const override {}
+  
+  private:
+    std::shared_ptr<Token> tok_;
+    std::string literal_;
+};
+
 
 #endif // MCSCRIPT_V3_AST_H

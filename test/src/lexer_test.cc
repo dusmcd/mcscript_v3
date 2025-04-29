@@ -12,7 +12,10 @@ void TestNextToken() {
                       "!;"
                       "2 != 3;"
                       "if (a == b) {return true;}"
-                      "else {return false;}";
+                      "else {return false;}"
+                      "\"foobar\""
+                      "\"foo bar\";";
+
   struct Test {
     TokenType expected_type;
     std::string expected_literal;
@@ -78,6 +81,9 @@ void TestNextToken() {
       {.expected_type = TokenType::FALSE, .expected_literal = "false"},
       {.expected_type = TokenType::SEMICOLON, .expected_literal = ";"},
       {.expected_type = TokenType::RBRACE, .expected_literal = "}"},
+      {.expected_type = TokenType::STRING, .expected_literal = "foobar"},
+      {.expected_type = TokenType::STRING, .expected_literal = "foo bar"},
+      {.expected_type = TokenType::SEMICOLON, .expected_literal = ";"},
       {.expected_type = TokenType::EOI, .expected_literal = ""},
   };
 

@@ -99,6 +99,9 @@ std::shared_ptr<Token> Lexer::NextToken()  {
         tok = NewToken_(TokenType::BANG, ch_);
       }
       break;
+    case '"':
+      tok = std::make_shared<Token>(TokenType::STRING, ReadString_());
+      break;
     case '<':
       tok = NewToken_(TokenType::LT, ch_);
       break;
@@ -156,4 +159,19 @@ std::shared_ptr<Token> Lexer::NextToken()  {
 
   return tok;
   
+}
+
+
+std::string Lexer::ReadString_() {
+  std::string result = "";
+  ReadChar_(); // consume the opening quote symbol
+  while (true) {
+    if (ch_ == '"' || ch_ == '\0') {
+      break;
+    } 
+    result += ch_;
+    ReadChar_();
+  }
+
+  return result;
 }

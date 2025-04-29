@@ -19,6 +19,7 @@ enum class TokenType : int {
 
   // objects
   INT,
+  STRING,
 
   // delimiters
   LPAREN,
