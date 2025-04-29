@@ -12,6 +12,8 @@ std::string Object::ObjectTypeStr(ObjectType type) {
       return "RETURN_VALUE";
     case ObjectType::ERROR_OBJ:
       return "ERROR";
+    case ObjectType::STRING_OBJ:
+      return "STRING";
     default:
       return "UNRECOGNIZED TYPE";
   }

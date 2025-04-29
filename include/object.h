@@ -13,7 +13,8 @@ enum class ObjectType : int {
   NULL_OBJ,
   RETURN_VALUE_OBJ,
   ERROR_OBJ,
-  FUNCTION_OBJ
+  FUNCTION_OBJ,
+  STRING_OBJ
 };
 
 class Object {
@@ -177,6 +178,28 @@ class Function : public Object {
       std::vector<std::shared_ptr<::Identifier>> params_;
       std::shared_ptr<BlockStatement> body_;
       std::shared_ptr<Environment<Object*>> env_;
+};
+
+class String : public Object {
+  public:
+    String(std::string value) : value_(value) {
+      // empty
+    }
+    
+    inline ObjectType Type() const override {
+      return ObjectType::STRING_OBJ;
+    }
+
+    inline std::string Inspect() const override {
+      return value_;
+    }
+
+    inline std::string GetValue() const {
+      return value_;
+    }
+
+  private:
+    std::string value_;
 };
 
 

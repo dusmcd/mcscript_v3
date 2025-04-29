@@ -21,6 +21,7 @@ void EvaluatorTest::Run() {
   TestFunctionCalls_();
   TestClosures_();
   TestGCollector_();
+  TestStrings_();
 }
 
 /*
@@ -64,6 +65,27 @@ Object* EvaluatorTest::TestEval_(std::string input) {
 /*
   main test methods
 */
+
+
+void EvaluatorTest::TestStrings_() {
+  StringTest test = {.input = "\"Hello World!\"", .expectedVal = "Hello World!"};
+  Object* obj = TestEval_(test.input);
+
+  auto str = dynamic_cast<String*>(obj);
+  if (str == nullptr) {
+    std::cerr << "object is not a String\n";
+    return;
+  }
+
+  if (str->GetValue().compare(test.expectedVal) != 0) {
+    std::cerr << "str->GetValue() wrong. expected: " 
+        << test.expectedVal << ", got: " << str->GetValue() << "\n";
+    return;
+  }
+
+  evaluator_.FinalCleanup();
+  std::cout << "TestStrings_() passed\n";
+}
 
 void EvaluatorTest::TestGCollector_() {
   std::vector<CollectorTest> tests = {

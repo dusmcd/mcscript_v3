@@ -57,6 +57,10 @@ Object* Evaluator::Eval(std::shared_ptr<::Node> node, std::shared_ptr<Environmen
     auto i = std::dynamic_pointer_cast<Identifier>(node);
     return EvalIdentifier_(i->GetValue(), env);
   }
+  else if (typeName.compare("StringLiteral") == 0) {
+    auto sl = std::dynamic_pointer_cast<StringLiteral>(node);
+    return NewObject_(new String(sl->TokenLiteral()));
+  }
   else if (typeName.compare("FunctionLiteral") == 0) {
     auto fn = std::dynamic_pointer_cast<FunctionLiteral>(node);
     return NewObject_(new Function(fn->GetParameters(), fn->GetBody(), env));
@@ -370,6 +374,10 @@ Object* Evaluator::EvalFunctionCall_(Object* obj, std::vector<Object*> args, std
     return returnVal->GetValue();
   }
    return result;
+}
+
+Object* Evaluator::EvalStringInfixExpression_(std::string op, Object* left, Object* right) {
+  return nullptr;
 }
 
 

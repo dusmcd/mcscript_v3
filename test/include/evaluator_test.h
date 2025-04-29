@@ -35,6 +35,11 @@ struct CollectorTest {
   size_t after;
 };
 
+struct StringTest {
+  std::string input;
+  std::string expectedVal;
+};
+
 class EvaluatorTest {
   public:
     void Run();
@@ -54,6 +59,7 @@ class EvaluatorTest {
     void TestFunctionCalls_();
     void TestClosures_();
     void TestGCollector_();
+    void TestStrings_();
 
     // helper methods
     Object* TestEval_(std::string input);
