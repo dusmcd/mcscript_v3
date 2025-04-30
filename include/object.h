@@ -211,7 +211,7 @@ class String : public Object {
 class BuiltIn : public Object {
   public:
     BuiltIn(BuiltInFunction fn) : fn_(fn) {
-      // empty
+      refCount_ = 0;
     }
 
     inline ObjectType Type() const override {

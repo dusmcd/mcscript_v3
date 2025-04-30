@@ -39,11 +39,12 @@ std::string Function::Inspect() const {
 
 Object* Length(std::vector<Object*> args) {
   if (args.size() != 1) {
-    return nullptr;
+    return new Error("len function only takes one argument");
   }
   Object* obj = args[0];
   if (obj->Type() != ObjectType::STRING_OBJ) {
-    return nullptr;
+    std::string msg = "unrecognized type: " + Object::ObjectTypeStr(obj->Type());
+    return new Error(msg);
   }
 
   String* str = dynamic_cast<String*>(obj);

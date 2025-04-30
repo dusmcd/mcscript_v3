@@ -136,7 +136,7 @@ Object* Evaluator::Eval(std::shared_ptr<::Node> node, std::shared_ptr<Environmen
 
 
 Object* Evaluator::EvalBuiltInFuncCall_(BuiltIn* function, std::vector<Object*> args) {
-  return nullptr;
+  return NewObject_(function->GetFunc()(args));
 
 }
 

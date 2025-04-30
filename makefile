@@ -6,6 +6,9 @@ test_dir = test/src
 src_dir = src
 eval_dep = evaluator_test.o lexer.o parser.o token.o\
  					ast.o evaluator.o gcollector.o object.o environment.o
+builtin_dep = builtin_test.o lexer.o parser.o token.o\
+ 					ast.o evaluator.o gcollector.o object.o environment.o
+
 
 
 # Source files
@@ -49,6 +52,9 @@ lexer_test.o: $(test_dir)/lexer_test.cc
 evaluator_test.o: $(test_dir)/evaluator_test.cc
 	g++ $(flags) -c $< -o $(build_dir)/evaluator_test.o
 
+builtin_test.o: $(test_dir)/builtin_test.cc
+	g++ $(flags) -c $< -o $(build_dir)/builtin_test.o
+
 # Executables
 
 main: build/ bin/ main.o lexer.o token.o parser.o ast.o evaluator.o gcollector.o environment.o object.o
@@ -71,10 +77,19 @@ evaluator_test: build/ bin/ $(eval_dep)
 	$(build_dir)/object.o $(build_dir)/environment.o -o $(exec_dir)/evaluator_test
 
 
-test: lexer_test parser_test evaluator_test
+builtin_test: build/ bin/ $(builtin_dep)
+	g++ $(flags) $(build_dir)/builtin_test.o $(build_dir)/lexer.o $(build_dir)/parser.o \
+	$(build_dir)/token.o $(build_dir)/ast.o $(build_dir)/evaluator.o $(build_dir)/gcollector.o \
+	$(build_dir)/object.o $(build_dir)/environment.o -o $(exec_dir)/builtin_test
+
+
+
+
+test: lexer_test parser_test evaluator_test builtin_test
 	$(exec_dir)/lexer_test
 	$(exec_dir)/parser_test
 	$(exec_dir)/evaluator_test
+	$(exec_dir)/builtin_test
 
 # Utility
 
