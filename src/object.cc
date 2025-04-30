@@ -36,3 +36,12 @@ std::string Function::Inspect() const {
 
   return result;
 }
+
+
+std::unordered_map<std::string, BuiltIn*> GetBuiltIns() {
+  std::unordered_map<std::string, BuiltIn*> result = {
+    {"len", new BuiltIn(Len<Object*>)}
+  };
+
+  return result;
+}

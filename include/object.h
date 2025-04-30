@@ -6,6 +6,8 @@
 #include <memory>
 #include <ast.h>
 #include <environment.h>
+#include <functional>
+#include <unordered_map>
 
 enum class ObjectType : int {
   INTEGER_OBJ,
@@ -14,7 +16,8 @@ enum class ObjectType : int {
   RETURN_VALUE_OBJ,
   ERROR_OBJ,
   FUNCTION_OBJ,
-  STRING_OBJ
+  STRING_OBJ,
+  BUILT_IN_OBJ
 };
 
 class Object {
@@ -39,6 +42,10 @@ class Object {
   protected:
     size_t refCount_;
 };
+
+template<typename... Args>
+using BuiltInFunction = std::function<Object*(Args...)>;
+
 
 class Null : public Object {
   public:
@@ -202,5 +209,30 @@ class String : public Object {
     std::string value_;
 };
 
+class BuiltIn : public Object {
+  public:
+    BuiltIn(BuiltInFunction<Object*> fn) : fn_(fn) {
+      // empty
+    }
+
+    inline ObjectType Type() const override {
+      return ObjectType::BUILT_IN_OBJ;
+    }
+
+    inline std::string Inspect() const override {
+      return std::string("builtin function");
+    }
+
+  private:
+    BuiltInFunction<Object*> fn_;
+};
+
+template<typename... Args>
+Object* Len(Args... args) {
+  return nullptr;
+}
+
+
+std::unordered_map<std::string, BuiltIn*> GetBuiltIns();
 
 #endif // MCSCRIPT_V3_OBJECT_H

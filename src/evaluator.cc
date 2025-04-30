@@ -68,6 +68,10 @@ Object* Evaluator::Eval(std::shared_ptr<::Node> node, std::shared_ptr<Environmen
   else if (typeName.compare("CallExpression") == 0) {
     auto call = std::dynamic_pointer_cast<CallExpression>(node);
     Object* obj = Eval(call->GetFunc(), env);
+    if (obj->Type() == ObjectType::BUILT_IN_OBJ) {
+      // return EvalBuiltInFuncCall_();
+    }
+
     auto func = dynamic_cast<Function*>(obj);
     if (func == nullptr) {
       char buff[128];
@@ -336,6 +340,10 @@ bool Evaluator::IsError_(Object* obj) {
 Object* Evaluator::EvalIdentifier_(std::string name, std::shared_ptr<Environment<Object*>> env) {
   Object* obj = env->Get(name);
   if (obj == nullptr) {
+    auto builtIns = GetBuiltIns();
+    if (builtIns.count(name) > 0) {
+      return NewObject_(builtIns.at(name));
+    }
     std::string errMsg = "unexpected identifier: ";
     errMsg.append(name);
     return NewObject_(NewError_(errMsg));
@@ -382,11 +390,8 @@ Object* Evaluator::EvalFunctionCall_(Object* obj, std::vector<Object*> args, std
 
 Object* Evaluator::EvalStringInfixExpression_(std::string op, Object* left, Object* right) {
   if (op.compare("+") != 0) {
-    char buff[100];
-    std::string leftType = Object::ObjectTypeStr(left->Type());
-    std::string rightType = Object::ObjectTypeStr(right->Type());
-    snprintf(buff, sizeof(buff), "unknown operator: %s %s %s", leftType.c_str(), op.c_str(), rightType.c_str());
-    return NewObject_(NewError_(std::string(buff)));
+    std::string msg = GetInfixErrorMsg_("unknown operator: %s %s %s", left, op, right);
+    return NewObject_(NewError_(msg));
   }
 
   std::string leftVal = dynamic_cast<String*>(left)->GetValue();

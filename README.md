@@ -1,4 +1,4 @@
-# McScript Programming language v. 3.0
+# McScript Programming Language v. 3.0
 
 **How to use**
 - In the home directory, run `make main`
@@ -22,6 +22,19 @@
 **Types**
 - Integers
 - Boolean (true and false)
+- Strings (e.g., "Hello", "Foo bar")
+
+**Control Flow**
+```
+if (true) {
+  return 10;
+} else {
+  return 11;
+}
+```
+- If expressions will evaluate any expression as truthy or falsey
+  - NULL and (boolean) false values are falsey
+  - Everything else is truthy
 
 **Functions**
 - Function literals can be bound to identifiers (i.e., variable names) or they can be called directly
@@ -46,6 +59,10 @@
   - "-" (subtraction)
   - "*" (multiplication)
   - "/" (division)
+  - "<" (greater than)
+  - ">" (less than)
+  - "==" (equals)
+  - "!=" (not equal)
 - Prefix operators:
   - "!" will make truthy expressions falsey and vice versa
   - "-" will make positive numbers negative and vice versa
