@@ -3,6 +3,7 @@
 #include <evaluator.h>
 #include <iostream>
 #include <string>
+#include <unordered_map>
 
 void PrintParserErrors(std::vector<std::string> errs) {
   for (const std::string& err : errs) {
@@ -15,7 +16,9 @@ std::shared_ptr<Evaluator> NewEval() {
   Boolean* TRUE = new Boolean(true);
   Boolean* FALSE = new Boolean(false);
   Null* NULL_T = new Null();
-  auto evaluator = std::make_shared<Evaluator>(gCollector, TRUE, FALSE, NULL_T);
+  std::unordered_map<std::string, BuiltIn*> builtInFuncs = GetBuiltIns();
+
+  auto evaluator = std::make_shared<Evaluator>(gCollector, TRUE, FALSE, NULL_T, builtInFuncs);
 
   return evaluator;
 }

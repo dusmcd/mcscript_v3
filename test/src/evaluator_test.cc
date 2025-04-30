@@ -2,6 +2,7 @@
 #include <parser.h>
 #include <evaluator.h>
 #include <iostream>
+#include <unordered_map>
 
 /*
 =================================================
@@ -433,7 +434,9 @@ int main() {
   Boolean* TRUE = new Boolean(true);
   Boolean* FALSE = new Boolean(false);
   Null* NULL_T = new Null();
-  Evaluator evaluator(gCollector, TRUE, FALSE, NULL_T);
+  std::unordered_map<std::string, BuiltIn*> builtInFuncs = GetBuiltIns();
+
+  Evaluator evaluator(gCollector, TRUE, FALSE, NULL_T, builtInFuncs);
   EvaluatorTest eTest(evaluator);
 
   eTest.Run();

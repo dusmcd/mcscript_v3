@@ -10,9 +10,14 @@
 
 class Evaluator {
   public:
-    Evaluator(::GCollector& gCollector, Boolean* TRUE, Boolean* FALSE, Null* NULL_T)
+    Evaluator(
+      ::GCollector& gCollector,
+       Boolean* TRUE,
+       Boolean* FALSE,
+       Null* NULL_T,
+       std::unordered_map<std::string, BuiltIn*> builtInFuncs)
      : gCollector_(gCollector), TRUE_(TRUE), FALSE_(FALSE), NULL_T_(NULL_T) {
-      //empty
+      builtInFuncs_ = builtInFuncs;
     }
 
     ~Evaluator();
@@ -54,6 +59,7 @@ class Evaluator {
     Boolean* TRUE_;
     Boolean* FALSE_;
     Null* NULL_T_;
+    std::unordered_map<std::string, BuiltIn*> builtInFuncs_;
 
     // methods
     

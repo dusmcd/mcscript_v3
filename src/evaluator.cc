@@ -8,6 +8,13 @@ Evaluator::~Evaluator() {
   delete TRUE_;
   delete FALSE_;
   delete NULL_T_;
+
+  for (auto& pair : builtInFuncs_) {
+    Object* obj = pair.second;
+    if (obj != nullptr) {
+      delete obj;
+    }
+  }
 }
 
 Object* Evaluator::Eval(std::shared_ptr<::Node> node, std::shared_ptr<Environment<Object*>> env) {
@@ -340,9 +347,8 @@ bool Evaluator::IsError_(Object* obj) {
 Object* Evaluator::EvalIdentifier_(std::string name, std::shared_ptr<Environment<Object*>> env) {
   Object* obj = env->Get(name);
   if (obj == nullptr) {
-    auto builtIns = GetBuiltIns();
-    if (builtIns.count(name) > 0) {
-      return NewObject_(builtIns.at(name));
+    if (builtInFuncs_.count(name) > 0) {
+      return builtInFuncs_.at(name);
     }
     std::string errMsg = "unexpected identifier: ";
     errMsg.append(name);
