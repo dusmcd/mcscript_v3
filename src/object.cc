@@ -37,10 +37,24 @@ std::string Function::Inspect() const {
   return result;
 }
 
+Object* Length(std::vector<Object*> args) {
+  if (args.size() != 1) {
+    return nullptr;
+  }
+  Object* obj = args[0];
+  if (obj->Type() != ObjectType::STRING_OBJ) {
+    return nullptr;
+  }
+
+  String* str = dynamic_cast<String*>(obj);
+  return new Integer(str->GetValue().size());
+}
+
+
 
 std::unordered_map<std::string, BuiltIn*> GetBuiltIns() {
   std::unordered_map<std::string, BuiltIn*> result = {
-    {"len", new BuiltIn(Len<Object*>)}
+    {"len", new BuiltIn(Length)}
   };
 
   return result;

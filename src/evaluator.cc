@@ -75,8 +75,10 @@ Object* Evaluator::Eval(std::shared_ptr<::Node> node, std::shared_ptr<Environmen
   else if (typeName.compare("CallExpression") == 0) {
     auto call = std::dynamic_pointer_cast<CallExpression>(node);
     Object* obj = Eval(call->GetFunc(), env);
+    std::vector<Object*> args = EvalParameters_(env, call->GetArgs());
     if (obj->Type() == ObjectType::BUILT_IN_OBJ) {
-      // return EvalBuiltInFuncCall_();
+      auto builtIn = dynamic_cast<BuiltIn*>(obj);
+      return EvalBuiltInFuncCall_(builtIn, args);
     }
 
     auto func = dynamic_cast<Function*>(obj);
@@ -86,7 +88,6 @@ Object* Evaluator::Eval(std::shared_ptr<::Node> node, std::shared_ptr<Environmen
       return NewObject_(NewError_(std::string(buff)));
     }
 
-    std::vector<Object*> args = EvalParameters_(func, call->GetArgs());
     return EvalFunctionCall_(func, args, func->GetEnv());
 
   }
@@ -131,6 +132,12 @@ Object* Evaluator::Eval(std::shared_ptr<::Node> node, std::shared_ptr<Environmen
   }
 
   return nullptr;
+}
+
+
+Object* Evaluator::EvalBuiltInFuncCall_(BuiltIn* function, std::vector<Object*> args) {
+  return nullptr;
+
 }
 
 Object* Evaluator::EvalIfExpression_(std::shared_ptr<IfExpression> ie, std::shared_ptr<Environment<Object*>> env) {
@@ -359,11 +366,11 @@ Object* Evaluator::EvalIdentifier_(std::string name, std::shared_ptr<Environment
 }
 
 
-std::vector<Object*> Evaluator::EvalParameters_(Function* func, std::vector<std::shared_ptr<Expression>> params) {
+std::vector<Object*> Evaluator::EvalParameters_(std::shared_ptr<Environment<Object*>> env, std::vector<std::shared_ptr<Expression>> params) {
   std::vector<Object*> result;
   
   for (const auto& param : params) {
-    result.push_back(Eval(param, func->GetEnv()));
+    result.push_back(Eval(param, env));
   }
 
   return result;

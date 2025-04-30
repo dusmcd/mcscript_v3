@@ -43,8 +43,7 @@ class Object {
     size_t refCount_;
 };
 
-template<typename... Args>
-using BuiltInFunction = std::function<Object*(Args...)>;
+using BuiltInFunction = std::function<Object*(std::vector<Object*>)>;
 
 
 class Null : public Object {
@@ -211,7 +210,7 @@ class String : public Object {
 
 class BuiltIn : public Object {
   public:
-    BuiltIn(BuiltInFunction<Object*> fn) : fn_(fn) {
+    BuiltIn(BuiltInFunction fn) : fn_(fn) {
       // empty
     }
 
@@ -223,15 +222,21 @@ class BuiltIn : public Object {
       return std::string("builtin function");
     }
 
+    inline BuiltInFunction GetFunc() const {
+      return fn_;
+    }
+
   private:
-    BuiltInFunction<Object*> fn_;
+    BuiltInFunction fn_;
 };
 
-template<typename... Args>
-Object* Len(Args... args) {
-  return nullptr;
-}
-
+/*
+===============================================
+BUILT IN FUNCTIONS
+===============================================
+*/
+Object* Length(std::vector<Object*> args);
+  
 
 std::unordered_map<std::string, BuiltIn*> GetBuiltIns();
 
