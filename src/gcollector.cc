@@ -6,9 +6,7 @@ void GCollector::Collect() {
     if (obj == nullptr) {
       continue;
     }
-    if (obj->Type() != ObjectType::BOOLEAN_OBJ 
-        && obj->Type() != ObjectType::NULL_OBJ 
-        && obj->IsNotReferenced()) {
+    if (obj->IsNotReferenced()) {
       delete obj;
       obj = nullptr;
     }
@@ -22,9 +20,8 @@ void GCollector::CollectAll() {
     if (obj == nullptr) {
       continue;
     }
-    if (obj->Type() != ObjectType::BOOLEAN_OBJ && obj->Type() != ObjectType::NULL_OBJ) {
-      delete obj;
-    }
+
+    delete obj;
   }
 
   objects_.clear();

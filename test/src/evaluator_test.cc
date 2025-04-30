@@ -113,7 +113,8 @@ void EvaluatorTest::TestGCollector_() {
     (CollectorTest){.input = "var x = 1 + 2;", .before = 3, .after = 1},
     (CollectorTest){.input = "var a = 3; var b = 5 + a;", .before = 3, .after = 2},
     (CollectorTest){.input = "var a = 3; var b = 1 + 2 + a;", .before = 5, .after = 2},
-    (CollectorTest){.input = "var add = function(a, b) { a + b; }; var sum = add(1, 2)", .before = 4, .after = 2}
+    (CollectorTest){.input = "var add = function(a, b) { a + b; }; var sum = add(1, 2)", .before = 4, .after = 2},
+    (CollectorTest){.input = "var str = \"something\"; var foobar = str + \"hello\";", .before = 3, .after = 2}
   };
 
   for (const auto& test : tests) {
