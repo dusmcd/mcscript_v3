@@ -128,3 +128,20 @@ std::string CallExpression::String() const {
   str.append(");");
   return str;
 }
+
+
+
+std::string ArrayLiteral::String() const {
+  std::string result = "[";
+
+  for (size_t i = 0; i < exps_.size(); i++) {
+    result.append(exps_[i]->String());
+    if (i < exps_.size() - 1) {
+      result.append(",");
+    }
+  }
+
+  result.append("]");
+
+  return result;
+}

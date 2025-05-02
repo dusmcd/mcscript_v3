@@ -1,3 +1,4 @@
+#include <memory>
 #include <parser.h>
 
 /*
@@ -24,6 +25,7 @@ Parser::Parser(std::shared_ptr<Lexer> l) {
   RegisterPrefixFns_(GetParseIfExpression_(), TokenType::IF);
   RegisterPrefixFns_(GetParseFunctionLiteralFn_(), TokenType::FUNCTION);
   RegisterPrefixFns_(GetParseStringLiteralFn_(), TokenType::STRING);
+  RegisterPrefixFns_(GetParseArrayLiteralFn_(), TokenType::LBRACKET);
 
   RegisterInfixFns_(GetInfixExpressionFn_(), TokenType::PLUS);
   RegisterInfixFns_(GetInfixExpressionFn_(), TokenType::MINUS);
@@ -201,21 +203,22 @@ std::shared_ptr<ExpressionStatement> Parser::ParseExpressionStatement_() {
   expression parsing
 */
 
-std::shared_ptr<CallExpression> Parser::ParseCallExpression_(std::shared_ptr<Expression> func) {
-  auto exp = std::make_shared<CallExpression>(curr_token_, func);
-  exp->SetArgs(ParseCallParameters_());
-  return exp;
+std::shared_ptr<ArrayLiteral> Parser::ParseArrayLiteral_() {
+  auto arr = std::make_shared<ArrayLiteral>(curr_token_);
+  arr->SetExps(ParseExpressionList_(TokenType::RBRACKET));
+  return arr;
 }
 
-infixParseFn Parser::GetParseCallExpressionFn_() {
-  infixParseFn fn = std::bind(&Parser::ParseCallExpression_, this, std::placeholders::_1);
+prefixParseFn Parser::GetParseArrayLiteralFn_() {
+  prefixParseFn fn = std::bind(&Parser::ParseArrayLiteral_, this);
   return fn;
 }
 
-std::vector<std::shared_ptr<Expression>> Parser::ParseCallParameters_() {
+
+std::vector<std::shared_ptr<Expression>> Parser::ParseExpressionList_(TokenType end) {
   std::vector<std::shared_ptr<Expression>> args = {};
 
-  if (PeekTokenIs_(TokenType::RPAREN)) {
+  if (PeekTokenIs_(end)) {
     NextToken_();
     return args;
   }
@@ -228,12 +231,29 @@ std::vector<std::shared_ptr<Expression>> Parser::ParseCallParameters_() {
     args.push_back(ParseExpression_(Precedence::LOWEST));
   }
 
-  if (!ExpectPeek_(TokenType::RPAREN)) {
+  if (!ExpectPeek_(end)) {
     return std::vector<std::shared_ptr<Expression>>{};
   }
 
   return args;
 
+}
+
+
+std::shared_ptr<CallExpression> Parser::ParseCallExpression_(std::shared_ptr<Expression> func) {
+  auto exp = std::make_shared<CallExpression>(curr_token_, func);
+  exp->SetArgs(ParseCallParameters_());
+  return exp;
+}
+
+infixParseFn Parser::GetParseCallExpressionFn_() {
+  infixParseFn fn = std::bind(&Parser::ParseCallExpression_, this, std::placeholders::_1);
+  return fn;
+}
+
+std::vector<std::shared_ptr<Expression>> Parser::ParseCallParameters_() {
+  std::vector<std::shared_ptr<Expression>> args = ParseExpressionList_(TokenType::RPAREN);
+  return args;
 }
 
 

@@ -466,5 +466,32 @@ class StringLiteral : public Expression {
     std::string literal_;
 };
 
+class ArrayLiteral : public Expression {
+  public:
+    ArrayLiteral(std::shared_ptr<Token> tok) : 
+      tok_(tok) {
+        // empty
+      }
+
+    inline void SetExps(std::vector<std::shared_ptr<Expression>> exps) {
+      exps_ = exps;
+    }
+
+    inline std::string TokenLiteral() const override{
+      return tok_->GetLiteral();
+    }
+
+    std::string String() const override;
+
+  protected:
+    void ExpressionNode_() const override {}
+
+
+
+  private:
+    std::shared_ptr<Token> tok_;
+    std::vector<std::shared_ptr<Expression>> exps_;
+};
+
 
 #endif // MCSCRIPT_V3_AST_H

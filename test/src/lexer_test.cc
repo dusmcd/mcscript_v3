@@ -14,7 +14,8 @@ void TestNextToken() {
                       "if (a == b) {return true;}"
                       "else {return false;}"
                       "\"foobar\""
-                      "\"foo bar\";";
+                      "\"foo bar\""
+                      "[1, 2, 3];";
 
   struct Test {
     TokenType expected_type;
@@ -83,6 +84,13 @@ void TestNextToken() {
       {.expected_type = TokenType::RBRACE, .expected_literal = "}"},
       {.expected_type = TokenType::STRING, .expected_literal = "foobar"},
       {.expected_type = TokenType::STRING, .expected_literal = "foo bar"},
+      {.expected_type = TokenType::LBRACKET, .expected_literal = "["},
+      {.expected_type = TokenType::INT, .expected_literal = "1"},
+      {.expected_type = TokenType::COMMA, .expected_literal = ","},
+      {.expected_type = TokenType::INT, .expected_literal = "2"},
+      {.expected_type = TokenType::COMMA, .expected_literal = ","},
+      {.expected_type = TokenType::INT, .expected_literal = "3"},
+      {.expected_type = TokenType::RBRACKET, .expected_literal = "]"},
       {.expected_type = TokenType::SEMICOLON, .expected_literal = ";"},
       {.expected_type = TokenType::EOI, .expected_literal = ""},
   };

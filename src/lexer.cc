@@ -102,6 +102,12 @@ std::shared_ptr<Token> Lexer::NextToken()  {
     case '"':
       tok = std::make_shared<Token>(TokenType::STRING, ReadString_());
       break;
+    case '[':
+      tok = std::make_shared<Token>(TokenType::LBRACKET, ch_);
+      break;
+    case ']':
+      tok = std::make_shared<Token>(TokenType::RBRACKET, ch_);
+      break;
     case '<':
       tok = NewToken_(TokenType::LT, ch_);
       break;
