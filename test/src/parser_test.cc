@@ -1,3 +1,4 @@
+#include <memory>
 #include <parser.h>
 #include <ast.h>
 #include <iostream>
@@ -25,6 +26,7 @@ void ParserTest::Run() {
     TestFunctionLiteral_();
     TestCallExpressions_();
     TestStringLiteral_();
+    TestArrayLiterals_();
 
 }
 
@@ -200,6 +202,48 @@ bool ParserTest::TestInfixExpression_(
 /*
   main test methods
 */
+
+
+void ParserTest::TestArrayLiterals_() {
+  std::string input = "[1, 2, 3 * 5];";
+
+  auto l = std::make_shared<Lexer>(input);
+  auto p = std::make_shared<Parser>(l);
+  std::shared_ptr<Program> program = p->ParseProgram();
+  if (CheckParserErrors_(p)) {
+    return;
+  }
+
+  std::vector<std::shared_ptr<Statement>> stmts = program->GetStatements();
+  if (stmts.size() != 1) {
+    std::cerr << "program does not contain 1 statement. got=" << stmts.size() << "\n";
+    return;
+  }
+
+  auto es = std::dynamic_pointer_cast<ExpressionStatement>(stmts[0]);
+  if (es == nullptr) {
+    std::cerr << "stmts[0] is not ExpressionStatement\n";
+    return;
+  }
+
+  auto arr = std::dynamic_pointer_cast<ArrayLiteral>(es->GetExpression());
+  if (arr == nullptr) {
+    std::cerr << "es->GetExpression() not ArrayLiteral\n";
+    return;
+  }
+  
+  std::vector<std::shared_ptr<Expression>> exps = arr->GetExps();
+
+  if (!TestLiteralExpression_(exps[0], 1) || !TestLiteralExpression_(exps[1], 2)) {
+    return;
+  }
+
+  if (!TestInfixExpression_(exps[2], 3, std::string("*"), 5)) {
+    return;
+  }
+
+  std::cout << "TestArrayLiterals_() passed\n";
+}
 
 
 void ParserTest::TestStringLiteral_() {

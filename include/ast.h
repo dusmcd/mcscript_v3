@@ -481,6 +481,10 @@ class ArrayLiteral : public Expression {
       return tok_->GetLiteral();
     }
 
+    inline std::vector<std::shared_ptr<Expression>> GetExps() const {
+      return exps_;
+    }
+
     std::string String() const override;
 
   protected:

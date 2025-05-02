@@ -60,6 +60,7 @@ class ParserTest {
     bool TestLiteralExpression_(std::shared_ptr<Expression> exp, expressionVal value);
 
     // main test methods
+    void TestArrayLiterals_();
     void TestInfixExpressions_();
     void TestPrefixExpressions_();
     void TestIntegerLiterals_();
