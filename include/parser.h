@@ -16,6 +16,7 @@ enum class Precedence : int {
   LESSGREATER,
   SUM,
   PRODUCT,
+  INDEX,
   PREFIX,
   CALL 
 };
@@ -97,7 +98,8 @@ static const std::unordered_map<TokenType, Precedence> prMap = {
   {TokenType::NOT_EQ, Precedence::EQUALS},
   {TokenType::LT, Precedence::LESSGREATER},
   {TokenType::GT, Precedence::LESSGREATER},
-  {TokenType::LPAREN, Precedence::CALL}
+  {TokenType::LPAREN, Precedence::CALL},
+  {TokenType::LBRACKET, Precedence::INDEX}
 };
 
 

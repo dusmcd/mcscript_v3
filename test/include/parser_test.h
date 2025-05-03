@@ -12,6 +12,12 @@ struct Test {
   std::string literal;
 };
 
+struct IndexTest {
+  std::string input;
+  expressionVal expectedIndex;
+  std::string expectedIdent;
+};
+
 struct InfixTest {
   std::string input;
   expressionVal left;
@@ -74,6 +80,7 @@ class ParserTest {
     void TestFunctionLiteral_();
     void TestCallExpressions_();
     void TestStringLiteral_();
+    void TestIndexExpressions_();
 
 };
 

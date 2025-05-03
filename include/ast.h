@@ -511,6 +511,10 @@ class IndexExpression : public Expression {
       idx_ = idx;
     }
 
+    inline std::shared_ptr<Expression> GetExp() const {
+      return exp_;
+    }
+
     inline std::string TokenLiteral() const override {
       return tok_->GetLiteral();
     }

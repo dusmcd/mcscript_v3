@@ -27,6 +27,7 @@ void ParserTest::Run() {
     TestCallExpressions_();
     TestStringLiteral_();
     TestArrayLiterals_();
+    TestIndexExpressions_();
 
 }
 
@@ -202,6 +203,53 @@ bool ParserTest::TestInfixExpression_(
 /*
   main test methods
 */
+
+void ParserTest::TestIndexExpressions_() {
+  std::vector<IndexTest> tests = {
+    (IndexTest){.input = "arr[0]", .expectedIndex = 0, .expectedIdent = "arr"},
+    (IndexTest){.input = "arr[i]", .expectedIndex = std::string("i"), .expectedIdent = "arr"}
+  };
+
+
+  for (const auto& test : tests) {
+    auto l = std::make_shared<Lexer>(test.input);
+    auto p = std::make_shared<Parser>(l);
+    std::shared_ptr<Program> program = p->ParseProgram();
+    if (CheckParserErrors_(p)) {
+      return;
+    }
+
+    std::vector<std::shared_ptr<Statement>> stmts = program->GetStatements();
+
+    if (stmts.size() != 1) {
+      std::cerr << "stmts does not have 1 statement. got=" << stmts.size()
+        << "\n";
+      return;
+    }
+
+    auto es = std::dynamic_pointer_cast<ExpressionStatement>(stmts[0]);
+    if (es == nullptr) {
+      std::cerr << "stmts[0] is not ExpressionStatement\n";
+      return;
+    }
+
+    auto iExp = std::dynamic_pointer_cast<IndexExpression>(es->GetExpression());
+    if (iExp == nullptr) {
+      std::cerr << "es->GetExpression() not IndexExpression\n";
+      return;
+    }
+
+    if (!TestLiteralExpression_(iExp->GetExp(), test.expectedIdent)) {
+      return;
+    }
+
+    if (!TestLiteralExpression_(iExp->GetIdx(), test.expectedIndex)) {
+      return;
+    }
+  }
+
+  std::cout << "TestIndexExpressions_() passed\n";
+}
 
 
 void ParserTest::TestArrayLiterals_() {
