@@ -65,6 +65,8 @@ class Parser {
     std::shared_ptr<StringLiteral> ParseStringLiteral_();
     std::shared_ptr<ArrayLiteral> ParseArrayLiteral_();
     std::vector<std::shared_ptr<Expression>> ParseExpressionList_(TokenType type);
+    std::shared_ptr<IndexExpression> ParseIndexExpression_(std::shared_ptr<Expression> idx);
+    infixParseFn GetParseIndexExpression_();
     prefixParseFn GetParseArrayLiteralFn_();
     prefixParseFn GetParseStringLiteralFn_();
     infixParseFn GetParseCallExpressionFn_();

@@ -497,5 +497,35 @@ class ArrayLiteral : public Expression {
     std::vector<std::shared_ptr<Expression>> exps_;
 };
 
+class IndexExpression : public Expression {
+  public:
+    IndexExpression(std::shared_ptr<Expression> exp) : exp_(exp) {
+      // empty
+    }
+
+    inline std::shared_ptr<Expression> GetIdx() const {
+      return idx_;
+    }
+
+    inline void SetIdx(std::shared_ptr<Expression> idx) {
+      idx_ = idx;
+    }
+
+    inline std::string TokenLiteral() const override {
+      return tok_->GetLiteral();
+    }
+
+    std::string String() const override;
+
+
+  protected:
+    void ExpressionNode_() const override {}
+
+  private:
+    std::shared_ptr<Token> tok_;
+    std::shared_ptr<Expression> idx_;
+    std::shared_ptr<Expression> exp_;
+};
+
 
 #endif // MCSCRIPT_V3_AST_H

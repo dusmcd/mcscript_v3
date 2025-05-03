@@ -145,3 +145,12 @@ std::string ArrayLiteral::String() const {
 
   return result;
 }
+
+
+std::string IndexExpression::String() const {
+  std::string result = exp_->String();
+  result += '[';
+  result.append(idx_->String());
+  result += ']';
+  return result;
+}

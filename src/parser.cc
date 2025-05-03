@@ -36,6 +36,7 @@ Parser::Parser(std::shared_ptr<Lexer> l) {
   RegisterInfixFns_(GetInfixExpressionFn_(), TokenType::EQ);
   RegisterInfixFns_(GetInfixExpressionFn_(), TokenType::NOT_EQ);
   RegisterInfixFns_(GetParseCallExpressionFn_(), TokenType::LPAREN);
+  RegisterInfixFns_(GetParseIndexExpression_(), TokenType::LBRACKET);
 
 
 
@@ -118,6 +119,7 @@ Precedence Parser::PeekPrecedence_() {
 /*
   statement parsing
 */
+
 std::shared_ptr<BlockStatement> Parser::ParseBlockStatement_() {
   auto bs = std::make_shared<BlockStatement>(curr_token_);
   NextToken_(); // jumping over left brace
@@ -202,6 +204,26 @@ std::shared_ptr<ExpressionStatement> Parser::ParseExpressionStatement_() {
 /*
   expression parsing
 */
+
+std::shared_ptr<IndexExpression> Parser::ParseIndexExpression_(std::shared_ptr<Expression> left) {
+  auto exp = std::make_shared<IndexExpression>(left);
+  NextToken_(); // jump over left bracket
+
+  std::shared_ptr<Expression> idx = ParseExpression_(Precedence::LOWEST);
+
+  exp->SetIdx(idx);
+
+  if (!ExpectPeek_(TokenType::RBRACKET)) {
+    return nullptr;
+  }
+
+  return exp;
+}
+
+infixParseFn Parser::GetParseIndexExpression_() {
+  infixParseFn fn = std::bind(&Parser::ParseIndexExpression_, this, std::placeholders::_1);
+  return fn;
+}
 
 std::shared_ptr<ArrayLiteral> Parser::ParseArrayLiteral_() {
   auto arr = std::make_shared<ArrayLiteral>(curr_token_);
