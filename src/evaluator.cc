@@ -91,6 +91,20 @@ Object* Evaluator::Eval(std::shared_ptr<::Node> node, std::shared_ptr<Environmen
     return EvalFunctionCall_(func, args, func->GetEnv());
 
   }
+  else if (typeName.compare("ArrayLiteral") == 0) {
+    auto al = std::dynamic_pointer_cast<ArrayLiteral>(node);
+    Array* arr = new Array();
+    for (const auto& exp : al->GetExps()) {
+      Object* obj = Eval(exp, env);
+      if (IsError_(obj)) {
+        return obj;
+      }
+      obj->AddRef();
+      arr->AddObj(obj);
+    }
+    
+    return NewObject_(arr);
+  }
   else if (typeName.compare("IntegerLiteral") == 0) {
     auto exp = std::dynamic_pointer_cast<::IntegerLiteral>(node);
     Object* obj = NewObject_(new Integer(exp->GetValue()));
@@ -376,6 +390,13 @@ std::vector<Object*> Evaluator::EvalParameters_(std::shared_ptr<Environment<Obje
   return result;
 }
 
+void Evaluator::SubtractRefsInArray_(Object* obj) {
+  auto arr = dynamic_cast<Array*>(obj);
+  for (const auto& obj : arr->GetElements()) {
+    obj->SubtractRef();
+  }
+}
+
 Object* Evaluator::EvalFunctionCall_(Object* obj, std::vector<Object*> args, std::shared_ptr<Environment<Object*>> outerEnv) {
   auto env = std::make_shared<Environment<Object*>>(outerEnv);
   auto function = dynamic_cast<Function*>(obj);
@@ -391,14 +412,19 @@ Object* Evaluator::EvalFunctionCall_(Object* obj, std::vector<Object*> args, std
   std::unordered_map<std::string, Object*> store = env->GetStore();
   for (const auto& pair : store) {
     // can safely clean up local scope once function body has been evaluated
-    pair.second->SubtractRef();   
+    pair.second->SubtractRef();
+    if (pair.second->Type() == ObjectType::ARRAY_OBJ) {
+      // objects referenced by array are no longer referenced when array falls out of scope
+      SubtractRefsInArray_(pair.second);
+    }
   }
 
   if (result != nullptr && result->Type() == ObjectType::RETURN_VALUE_OBJ) {
     auto returnVal = dynamic_cast<ReturnValue*>(result);
     return returnVal->GetValue();
   }
-   return result;
+
+ return result;
 }
 
 Object* Evaluator::EvalStringInfixExpression_(std::string op, Object* left, Object* right) {

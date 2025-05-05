@@ -24,6 +24,7 @@ void EvaluatorTest::Run() {
   TestGCollector_();
   TestStrings_();
   TestStringConcat_();
+  TestArrays_();
 }
 
 /*
@@ -67,6 +68,33 @@ Object* EvaluatorTest::TestEval_(std::string input) {
 /*
   main test methods
 */
+
+void EvaluatorTest::TestArrays_() {
+  std::vector<ArrayTest> tests = {
+    (ArrayTest){.input = "[1, 2, 3]", .expected = std::vector<long>{1, 2, 3}},
+    (ArrayTest){.input = "[1 + 2, 3, 4]", .expected = std::vector<long>{1 + 2, 3, 4}}
+  };
+  
+  for (const auto& test : tests) {
+    Object* obj = TestEval_(test.input);
+
+    auto arr = dynamic_cast<Array*>(obj);
+    if (arr == nullptr) {
+      std::cerr << "object is not an Array\n";
+      return;
+    }
+
+    std::vector<Object*> elements = arr->GetElements();
+    for (size_t i = 0; i < test.expected.size(); i++) {
+      if (!TestIntegerObject_(elements[i], test.expected[i])) {
+        return;
+      }
+    }
+  }
+
+  evaluator_.FinalCleanup();
+  std::cout << "TestArrays_() passed\n";
+}
 
 void EvaluatorTest::TestStringConcat_() {
   std::string input = "\"hello\" + \" world\"";
@@ -114,7 +142,8 @@ void EvaluatorTest::TestGCollector_() {
     (CollectorTest){.input = "var a = 3; var b = 5 + a;", .before = 3, .after = 2},
     (CollectorTest){.input = "var a = 3; var b = 1 + 2 + a;", .before = 5, .after = 2},
     (CollectorTest){.input = "var add = function(a, b) { a + b; }; var sum = add(1, 2)", .before = 4, .after = 2},
-    (CollectorTest){.input = "var str = \"something\"; var foobar = str + \"hello\";", .before = 3, .after = 2}
+    (CollectorTest){.input = "var str = \"something\"; var foobar = str + \"hello\";", .before = 3, .after = 2},
+    (CollectorTest){.input = "var arr = [1, 2, 3]", .before = 4, .after = 4}
   };
 
   for (const auto& test : tests) {

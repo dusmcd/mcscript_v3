@@ -17,7 +17,8 @@ enum class ObjectType : int {
   ERROR_OBJ,
   FUNCTION_OBJ,
   STRING_OBJ,
-  BUILT_IN_OBJ
+  BUILT_IN_OBJ,
+  ARRAY_OBJ
 };
 
 class Object {
@@ -32,7 +33,8 @@ class Object {
     }
 
     inline void SubtractRef() {
-      refCount_--;
+      if (refCount_ > 0)
+        refCount_--;
     }
 
     inline bool IsNotReferenced() {
@@ -228,6 +230,27 @@ class BuiltIn : public Object {
 
   private:
     BuiltInFunction fn_;
+};
+
+class Array : public Object {
+  public:
+    inline void AddObj(Object* obj) {
+      objs_.push_back(obj);
+    }
+
+    inline ObjectType Type() const override {
+      return ObjectType::ARRAY_OBJ;
+    }
+
+    inline std::vector<Object*> GetElements() const {
+      return objs_;
+    }
+
+    std::string Inspect() const override;
+
+
+  private:
+    std::vector<Object*> objs_;
 };
 
 /*

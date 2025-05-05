@@ -40,6 +40,11 @@ struct StringTest {
   std::string expectedVal;
 };
 
+struct ArrayTest {
+  std::string input;
+  std::vector<long> expected;
+};
+
 class EvaluatorTest {
   public:
     void Run();
@@ -61,6 +66,7 @@ class EvaluatorTest {
     void TestGCollector_();
     void TestStrings_();
     void TestStringConcat_();
+    void TestArrays_();
 
     // helper methods
     Object* TestEval_(std::string input);

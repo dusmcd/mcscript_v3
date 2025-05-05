@@ -1,5 +1,6 @@
 #include <object.h>
 
+
 std::string Object::ObjectTypeStr(ObjectType type) {
   switch(type) {
     case ObjectType::INTEGER_OBJ:
@@ -57,6 +58,23 @@ std::unordered_map<std::string, BuiltIn*> GetBuiltIns() {
   std::unordered_map<std::string, BuiltIn*> result = {
     {"len", new BuiltIn(Length)}
   };
+
+  return result;
+}
+
+
+std::string Array::Inspect() const {
+  std::string result = "[";
+
+  for (size_t i = 0; i < objs_.size(); i++) {
+    Object* obj = objs_[i];
+    result.append(obj->Inspect());
+    if (i < objs_.size() - 1) {
+      result.append(", ");
+    }
+  }
+
+  result.append("]");
 
   return result;
 }

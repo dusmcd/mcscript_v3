@@ -72,6 +72,7 @@ class Evaluator {
     std::string GetPrefixErrorMsg_(const char* format, std::string op, Object* right);
     bool IsError_(Object* obj);
     Object* NewObject_(Object* obj);
+    void SubtractRefsInArray_(Object* obj);
 
     // evals
     Object* EvalPrefixExpression_(std::string op, Object* right);
