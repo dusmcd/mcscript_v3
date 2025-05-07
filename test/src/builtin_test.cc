@@ -6,11 +6,26 @@
 
 void BuiltInTest::Run() {
   TestLen_();
+  TestPush_();
 }
 
 /*
   main test methods
 */
+
+
+void BuiltInTest::TestPush_() {
+  std::string input = "var arr = [1, 2, 3]; push(arr, 5); return arr[3];";
+
+  Object* obj = TestEval_(input);
+  if (!TestIntegerObject_(obj, 5)) {
+    return;
+  }
+
+  evaluator_.FinalCleanup();
+  std::cout << "TestPush_() passed\n";
+
+}
 
 Object* BuiltInTest::TestEval_(std::string input) {
   auto l = std::make_shared<Lexer>(input);

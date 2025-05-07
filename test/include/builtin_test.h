@@ -21,6 +21,7 @@ class BuiltInTest {
 
     // methods
     void TestLen_();
+    void TestPush_();
     Object* TestEval_(std::string input);
 
     // helpers
