@@ -25,6 +25,7 @@ void EvaluatorTest::Run() {
   TestStrings_();
   TestStringConcat_();
   TestArrays_();
+  TestIndexExps_();
 }
 
 /*
@@ -68,6 +69,40 @@ Object* EvaluatorTest::TestEval_(std::string input) {
 /*
   main test methods
 */
+
+
+void EvaluatorTest::TestIndexExps_() {
+  std::vector<IntegerTest> tests = {
+    (IntegerTest){.input = "var arr = [1, 2, 3]; arr[0]", .expectedVal = 1},
+    (IntegerTest){.input = "var arr = [2, 3, 4]; arr[2];", .expectedVal = 4},
+    (IntegerTest){.input = "var arr = [1, 2, 3]; arr[3];", .expectedVal = -1},
+    (IntegerTest){.input = "var arr = [1, 2, 3]; arr[-1];", .expectedVal = -1}
+  };
+
+  for (size_t i = 0; i < 2; i++) {
+    if (!TestIntegerObject_(TestEval_(tests[i].input), tests[i].expectedVal)) {
+      return;
+    }
+  }
+
+  Object* objNull1 = TestEval_(tests[2].input);
+
+  if (objNull1 != evaluator_.NULL_T()) {
+    std::cerr << "expected object to equal NULL. got=" << objNull1->Inspect()
+      << "\n";
+    return;
+  }
+
+  Object* objNull2 = TestEval_(tests[3].input);
+  if (objNull2 != evaluator_.NULL_T()) {
+    std::cerr << "expected object to equal NULL. got =" <<
+      objNull2->Inspect() << "\n";
+    return;
+  }
+
+  evaluator_.FinalCleanup();
+  std::cout << "TestIndexExps_() passed\n";
+}
 
 void EvaluatorTest::TestArrays_() {
   std::vector<ArrayTest> tests = {
