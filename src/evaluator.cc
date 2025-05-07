@@ -1,4 +1,5 @@
 #include <evaluator.h>
+#include <memory>
 #include <typeinfo>
 #include <cxxabi.h>
 #include <stdlib.h>
@@ -159,30 +160,31 @@ Object* Evaluator::EvalIndexExpression_(std::shared_ptr<IndexExpression> exp, st
   }
 
   Integer* idx = dynamic_cast<Integer*>(obj);
-  if (obj == nullptr) {
+  if (idx == nullptr) {
     char buff[256];
     snprintf(buff, sizeof(buff), "object %s is not an integer", obj->Inspect().c_str());
     return NewObject_(NewError_(std::string(buff)));
   }
 
-  Array* arr = dynamic_cast<Array*>(Eval(exp->GetExp(), env));
-  if (IsError_(arr)) {
+  Object* obj2 = Eval(exp->GetExp(), env);
+  Array* arr = dynamic_cast<Array*>(obj2);
+  if (IsError_(obj2)) {
     return arr;
   }
 
   if (arr == nullptr) {
     char buff[256];
-    snprintf(buff, sizeof(buff), "object %s is not an array", arr->Inspect().c_str());
+    snprintf(buff, sizeof(buff), "object %s is not an array", obj2->Inspect().c_str());
     return NewObject_(NewError_(std::string(buff)));
   }
 
   long i = idx->GetValue();
-  std::vector<Object*> arrVal = arr->GetElements();
-  if (i < 0 || static_cast<size_t>(i) > arrVal.size() - 1) {
+  std::shared_ptr<std::vector<Object*>> arrVal = arr->GetElements();
+  if (i < 0 || static_cast<size_t>(i) > arrVal->size() - 1) {
     return NULL_T();
   }
 
-  return arrVal[i];
+  return (*arrVal)[i];
 }
 
 
@@ -429,7 +431,7 @@ std::vector<Object*> Evaluator::EvalParameters_(std::shared_ptr<Environment<Obje
 
 void Evaluator::SubtractRefsInArray_(Object* obj) {
   auto arr = dynamic_cast<Array*>(obj);
-  for (const auto& obj : arr->GetElements()) {
+  for (const auto& obj : *arr->GetElements()) {
     obj->SubtractRef();
   }
 }

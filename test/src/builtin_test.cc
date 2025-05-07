@@ -26,6 +26,8 @@ void BuiltInTest::TestLen_() {
   std::vector<IntegerTest> tests = {
     (IntegerTest){.input = "var str = \"hello\"; len(str);", .expected = 5},
     (IntegerTest){.input = "len(\"world\");", .expected = 5},
+    (IntegerTest){.input = "var arr = [1, 2, 3]; len(arr);", .expected = 3},
+    (IntegerTest){.input = "var arr = []; len(arr);", .expected = 0}
   };
 
   for (const auto& test : tests) {
@@ -53,7 +55,7 @@ bool BuiltInTest::TestIntegerObject_(Object* obj, long expected) {
 
   if (integer->GetValue() != expected) {
     std::cerr << "integer wrong value. expected: " 
-        << expected << ", got: " << integer->GetValue();
+        << expected << ", got: " << integer->GetValue() << "\n";
     return false;
   }
 

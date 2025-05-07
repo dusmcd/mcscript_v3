@@ -1,4 +1,5 @@
 #include <evaluator_test.h>
+#include <memory>
 #include <parser.h>
 #include <evaluator.h>
 #include <iostream>
@@ -119,9 +120,9 @@ void EvaluatorTest::TestArrays_() {
       return;
     }
 
-    std::vector<Object*> elements = arr->GetElements();
+    std::shared_ptr<std::vector<Object*>> elements = arr->GetElements();
     for (size_t i = 0; i < test.expected.size(); i++) {
-      if (!TestIntegerObject_(elements[i], test.expected[i])) {
+      if (!TestIntegerObject_((*elements)[i], test.expected[i])) {
         return;
       }
     }
@@ -226,10 +227,10 @@ void EvaluatorTest::TestClosures_() {
 
 void EvaluatorTest::TestFunctionCalls_() {
   std::vector<IntegerTest> tests = {
-    (IntegerTest){.input = "var add = function(a, b) { return a + b; }; add(5, 5);", 10},
-    (IntegerTest){.input = "var add = function(a, b) { a + b; }; add(5, 5);", 10},
-    (IntegerTest){.input = "var add = function(a, b) { return a + b; }; add(5 +5, 10);", 20},
-    (IntegerTest){.input = "var x = 5; var doub = function(a) { return a * 2; }; doub(x);", 10}
+    (IntegerTest){.input = "var add = function(a, b) { return a + b; }; add(5, 5);", .expectedVal = 10},
+    (IntegerTest){.input = "var add = function(a, b) { a + b; }; add(5, 5);", .expectedVal = 10},
+    (IntegerTest){.input = "var add = function(a, b) { return a + b; }; add(5 +5, 10);", .expectedVal = 20},
+    (IntegerTest){.input = "var x = 5; var doub = function(a) { return a * 2; }; doub(x);", .expectedVal = 10}
   };
 
   for (const auto& test : tests) {
@@ -278,8 +279,8 @@ void EvaluatorTest::TestFunctionLiterals_() {
 void EvaluatorTest::TestIdentifierEvals_() {
   std::vector<IntegerTest> tests = {
     (IntegerTest){.input = "var a = 5; a;", .expectedVal = 5},
-    (IntegerTest){.input = "var a = 10; var b = a; b;", 10},
-    (IntegerTest){.input = "var a = 5; var b = 5; var c = a + b + 5; c;", 15},
+    (IntegerTest){.input = "var a = 10; var b = a; b;", .expectedVal = 10},
+    (IntegerTest){.input = "var a = 5; var b = 5; var c = a + b + 5; c;", .expectedVal = 15},
     (IntegerTest){.input = "var a = 5; a; a; a;", .expectedVal = 5}
   };
 

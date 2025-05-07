@@ -234,15 +234,18 @@ class BuiltIn : public Object {
 
 class Array : public Object {
   public:
+    Array() {
+      objs_ = std::make_shared<std::vector<Object*>>();
+    }
     inline void AddObj(Object* obj) {
-      objs_.push_back(obj);
+      objs_->push_back(obj);
     }
 
     inline ObjectType Type() const override {
       return ObjectType::ARRAY_OBJ;
     }
 
-    inline std::vector<Object*> GetElements() const {
+    inline std::shared_ptr<std::vector<Object*>> GetElements() const {
       return objs_;
     }
 
@@ -250,7 +253,7 @@ class Array : public Object {
 
 
   private:
-    std::vector<Object*> objs_;
+    std::shared_ptr<std::vector<Object*>> objs_;
 };
 
 /*
@@ -259,7 +262,7 @@ BUILT IN FUNCTIONS
 ===============================================
 */
 Object* Length(std::vector<Object*> args);
-  
+Object* Push(std::vector<Object*> args);  
 
 std::unordered_map<std::string, BuiltIn*> GetBuiltIns();
 

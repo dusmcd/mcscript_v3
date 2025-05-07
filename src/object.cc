@@ -43,20 +43,46 @@ Object* Length(std::vector<Object*> args) {
     return new Error("len function only takes one argument");
   }
   Object* obj = args[0];
-  if (obj->Type() != ObjectType::STRING_OBJ) {
-    std::string msg = "unrecognized type: " + Object::ObjectTypeStr(obj->Type());
-    return new Error(msg);
+  switch(obj->Type()) {
+    case ObjectType::STRING_OBJ: {
+      String* str = dynamic_cast<String*>(obj);
+      return new Integer(str->GetValue().size());
+    }
+    case ObjectType::ARRAY_OBJ: {
+      Array* arr = dynamic_cast<Array*>(obj);
+      return new Integer(arr->GetElements()->size());
+    }
+    default: {
+      std::string msg = "unrecognized type: " + Object::ObjectTypeStr(obj->Type());
+      return new Error(msg);
+    }
   }
 
-  String* str = dynamic_cast<String*>(obj);
-  return new Integer(str->GetValue().size());
+}
+
+Object* Push(std::vector<Object*> args) {
+  if (args.size() != 2) {
+    return new Error(std::string("push function only takes 2 arguments"));
+  }
+
+  Array* arr = dynamic_cast<Array*>(args[0]);
+  if (arr == nullptr) {
+    return new Error(std::string("expecting array as first argument"));
+  }
+
+  Object* obj = args[1];
+  arr->GetElements()->push_back(obj);
+  obj->AddRef();
+
+  return nullptr;
 }
 
 
 
 std::unordered_map<std::string, BuiltIn*> GetBuiltIns() {
   std::unordered_map<std::string, BuiltIn*> result = {
-    {"len", new BuiltIn(Length)}
+    {"len", new BuiltIn(Length)},
+    {"push", new BuiltIn(Push)}
   };
 
   return result;
@@ -66,10 +92,10 @@ std::unordered_map<std::string, BuiltIn*> GetBuiltIns() {
 std::string Array::Inspect() const {
   std::string result = "[";
 
-  for (size_t i = 0; i < objs_.size(); i++) {
-    Object* obj = objs_[i];
+  for (size_t i = 0; i < objs_->size(); i++) {
+    Object* obj = (*objs_)[i];
     result.append(obj->Inspect());
-    if (i < objs_.size() - 1) {
+    if (i < objs_->size() - 1) {
       result.append(", ");
     }
   }
