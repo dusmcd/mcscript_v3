@@ -105,6 +105,10 @@ Object* Evaluator::Eval(std::shared_ptr<::Node> node, std::shared_ptr<Environmen
     
     return NewObject_(arr);
   }
+  else if (typeName.compare("IndexExpression") == 0) {
+    auto exp = std::dynamic_pointer_cast<::IndexExpression>(node);
+    return EvalIndexExpression_(exp, env);
+  }
   else if (typeName.compare("IntegerLiteral") == 0) {
     auto exp = std::dynamic_pointer_cast<::IntegerLiteral>(node);
     Object* obj = NewObject_(new Integer(exp->GetValue()));
@@ -146,6 +150,39 @@ Object* Evaluator::Eval(std::shared_ptr<::Node> node, std::shared_ptr<Environmen
   }
 
   return nullptr;
+}
+
+Object* Evaluator::EvalIndexExpression_(std::shared_ptr<IndexExpression> exp, std::shared_ptr<Environment<Object*>> env) {
+  Object* obj = Eval(exp->GetIdx(), env);
+  if (IsError_(obj)) {
+    return obj;
+  }
+
+  Integer* idx = dynamic_cast<Integer*>(obj);
+  if (obj == nullptr) {
+    char buff[256];
+    snprintf(buff, sizeof(buff), "object %s is not an integer", obj->Inspect().c_str());
+    return NewObject_(NewError_(std::string(buff)));
+  }
+
+  Array* arr = dynamic_cast<Array*>(Eval(exp->GetExp(), env));
+  if (IsError_(arr)) {
+    return arr;
+  }
+
+  if (arr == nullptr) {
+    char buff[256];
+    snprintf(buff, sizeof(buff), "object %s is not an array", arr->Inspect().c_str());
+    return NewObject_(NewError_(std::string(buff)));
+  }
+
+  long i = idx->GetValue();
+  std::vector<Object*> arrVal = arr->GetElements();
+  if (i < 0 || static_cast<size_t>(i) > arrVal.size() - 1) {
+    return NULL_T();
+  }
+
+  return arrVal[i];
 }
 
 
