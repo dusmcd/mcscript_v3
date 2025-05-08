@@ -1,3 +1,4 @@
+#include "ast.h"
 #include <evaluator.h>
 #include <memory>
 #include <typeinfo>
@@ -64,6 +65,15 @@ Object* Evaluator::Eval(std::shared_ptr<::Node> node, std::shared_ptr<Environmen
   else if (typeName.compare("Identifier") == 0) {
     auto i = std::dynamic_pointer_cast<Identifier>(node);
     return EvalIdentifier_(i->GetValue(), env);
+  }
+  else if (typeName.compare("AssignExpression") == 0) {
+    auto ae = std::dynamic_pointer_cast<AssignExpression>(node);
+    Object* newVal = Eval(ae->GetNewVal(), env);
+    if (IsError_(newVal)) {
+      return newVal;
+    }
+
+    return AssignNewVal_(ae, newVal, env);
   }
   else if (typeName.compare("StringLiteral") == 0) {
     auto sl = std::dynamic_pointer_cast<StringLiteral>(node);
@@ -482,4 +492,26 @@ Object* Evaluator::EvalStringInfixExpression_(std::string op, Object* left, Obje
 Object* Evaluator::NewObject_(Object* obj) {
   TrackObject(obj);
   return obj;
+}
+
+Object* Evaluator::AssignNewVal_(std::shared_ptr<AssignExpression> ae, Object* newVal, std::shared_ptr<Environment<Object*>> env) {
+  std::shared_ptr<Identifier> ident = std::dynamic_pointer_cast<Identifier>(ae->GetIdent());
+  if (ident == nullptr) {
+    std::string msg = ae->GetIdent()->String() + " not an identifier";
+    return NewObject_(NewError_(msg));
+  }
+
+  Object* oldVal = env->Get(ident->GetValue());
+
+  if (oldVal == nullptr) {
+    std::string msg = "unexpected identifier: " + ident->GetValue();
+    return NewObject_(NewError_(msg));
+  }
+
+  oldVal->SubtractRef(); // for garbage collection
+
+  newVal->AddRef(); // for garbage collection
+  env->Set(ident->GetValue(), newVal);
+
+  return newVal;
 }

@@ -73,6 +73,7 @@ class Evaluator {
     bool IsError_(Object* obj);
     Object* NewObject_(Object* obj);
     void SubtractRefsInArray_(Object* obj);
+    Object* AssignNewVal_(std::shared_ptr<AssignExpression>, Object* newVal, std::shared_ptr<Environment<Object*>> env);
 
     // evals
     Object* EvalPrefixExpression_(std::string op, Object* right);
