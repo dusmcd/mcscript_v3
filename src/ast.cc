@@ -154,3 +154,10 @@ std::string IndexExpression::String() const {
   result += ']';
   return result;
 }
+
+std::string AssignExpression::String() const {
+  std::string result = ident_->String();
+  result.append(" = " + newVal_->String());
+
+  return result;
+}

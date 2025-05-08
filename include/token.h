@@ -38,6 +38,7 @@ enum class TokenType : int {
   // keywords
   VAR,
   FUNCTION,
+  FOR,
   IF,
   ELSE,
   RETURN,
@@ -75,6 +76,7 @@ static const std::unordered_map<std::string, TokenType> keywords = {
   {"return", TokenType::RETURN},
   {"true", TokenType::TRUE},
   {"false", TokenType::FALSE},
+  {"for", TokenType::FOR}
 };
 
 

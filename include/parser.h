@@ -16,9 +16,10 @@ enum class Precedence : int {
   LESSGREATER,
   SUM,
   PRODUCT,
-  INDEX,
+  ASSIGN,
   PREFIX,
-  CALL 
+  CALL,
+  INDEX
 };
 
 
@@ -67,6 +68,8 @@ class Parser {
     std::shared_ptr<ArrayLiteral> ParseArrayLiteral_();
     std::vector<std::shared_ptr<Expression>> ParseExpressionList_(TokenType type);
     std::shared_ptr<IndexExpression> ParseIndexExpression_(std::shared_ptr<Expression> idx);
+    std::shared_ptr<AssignExpression> ParseAssignExpression_(std::shared_ptr<Expression> left);
+    infixParseFn GetParseAssignExpressionFn_();
     infixParseFn GetParseIndexExpression_();
     prefixParseFn GetParseArrayLiteralFn_();
     prefixParseFn GetParseStringLiteralFn_();
@@ -99,7 +102,8 @@ static const std::unordered_map<TokenType, Precedence> prMap = {
   {TokenType::LT, Precedence::LESSGREATER},
   {TokenType::GT, Precedence::LESSGREATER},
   {TokenType::LPAREN, Precedence::CALL},
-  {TokenType::LBRACKET, Precedence::INDEX}
+  {TokenType::LBRACKET, Precedence::INDEX},
+  {TokenType::ASSIGN, Precedence::ASSIGN}
 };
 
 

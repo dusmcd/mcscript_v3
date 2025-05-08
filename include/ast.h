@@ -531,5 +531,31 @@ class IndexExpression : public Expression {
     std::shared_ptr<Expression> exp_;
 };
 
+class AssignExpression : public Expression {
+  public:
+    AssignExpression(std::shared_ptr<Expression> ident) : ident_(ident) {
+      // empty
+    }
+
+    inline std::string TokenLiteral() const override {
+      return tok_->GetLiteral();
+    }
+
+    inline void SetNewVal(std::shared_ptr<Expression> newVal) {
+      newVal_ = newVal;
+    }
+
+    std::string String() const override;
+
+  protected:
+    void ExpressionNode_() const override {}
+
+  private:
+    std::shared_ptr<Token> tok_;
+    std::shared_ptr<Expression> ident_;
+    std::shared_ptr<Expression> newVal_;
+
+};
+
 
 #endif // MCSCRIPT_V3_AST_H

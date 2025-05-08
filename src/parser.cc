@@ -37,6 +37,7 @@ Parser::Parser(std::shared_ptr<Lexer> l) {
   RegisterInfixFns_(GetInfixExpressionFn_(), TokenType::NOT_EQ);
   RegisterInfixFns_(GetParseCallExpressionFn_(), TokenType::LPAREN);
   RegisterInfixFns_(GetParseIndexExpression_(), TokenType::LBRACKET);
+  RegisterInfixFns_(GetParseAssignExpressionFn_(), TokenType::ASSIGN);
 
 
 
@@ -204,6 +205,22 @@ std::shared_ptr<ExpressionStatement> Parser::ParseExpressionStatement_() {
 /*
   expression parsing
 */
+
+std::shared_ptr<AssignExpression> Parser::ParseAssignExpression_(std::shared_ptr<Expression> left) {
+  auto exp = std::make_shared<AssignExpression>(left);
+  NextToken_(); // jump over '='
+
+  std::shared_ptr<Expression> newVal = ParseExpression_(Precedence::LOWEST);
+
+  exp->SetNewVal(newVal);
+  return exp;
+}
+
+infixParseFn Parser::GetParseAssignExpressionFn_() {
+  infixParseFn fn = std::bind(&Parser::ParseAssignExpression_, this, std::placeholders::_1);
+  return fn;
+}
+
 
 std::shared_ptr<IndexExpression> Parser::ParseIndexExpression_(std::shared_ptr<Expression> left) {
   auto exp = std::make_shared<IndexExpression>(left);
