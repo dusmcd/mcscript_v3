@@ -15,7 +15,8 @@ void TestNextToken() {
                       "else {return false;}"
                       "\"foobar\""
                       "\"foo bar\""
-                      "[1, 2, 3];";
+                      "[1, 2, 3];"
+                      "for(){}";
 
   struct Test {
     TokenType expected_type;
@@ -92,6 +93,11 @@ void TestNextToken() {
       {.expected_type = TokenType::INT, .expected_literal = "3"},
       {.expected_type = TokenType::RBRACKET, .expected_literal = "]"},
       {.expected_type = TokenType::SEMICOLON, .expected_literal = ";"},
+      {.expected_type = TokenType::FOR, .expected_literal = "for"},
+      {.expected_type= TokenType::LPAREN, .expected_literal = "("},
+      {.expected_type = TokenType::RPAREN, .expected_literal = ")"},
+      {.expected_type = TokenType::LBRACE, .expected_literal = "{"},
+      {.expected_type = TokenType::RBRACE, .expected_literal = "}"},
       {.expected_type = TokenType::EOI, .expected_literal = ""},
   };
 

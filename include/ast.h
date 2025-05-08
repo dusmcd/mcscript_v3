@@ -327,10 +327,40 @@ class BlockStatement : public Statement {
     std::vector<std::shared_ptr<Statement>> statements_;
 };
 
+class ForStatement : public Statement {
+  public:
+    ForStatement(
+        std::shared_ptr<Token> tok,
+        std::shared_ptr<VarStatement> varStmt,
+        std::shared_ptr<Expression> condition,
+        std::shared_ptr<Expression> afterAction,
+        std::shared_ptr<BlockStatement> block
+        ) : tok_(tok), varStmt_(varStmt), condition_(condition),
+            afterAction_(afterAction), block_(block) {
+        // empty
+    }
+
+    inline std::string TokenLiteral() const override {
+      return tok_->GetLiteral();
+    }
+
+    std::string String() const override;
+
+  protected:
+    void StatementNode_() const override {}
+
+  private:
+    std::shared_ptr<Token> tok_;
+    std::shared_ptr<VarStatement> varStmt_;
+    std::shared_ptr<Expression> condition_;
+    std::shared_ptr<Expression> afterAction_;
+    std::shared_ptr<BlockStatement> block_;
+};
+
+
 class IfExpression : public Expression {
   public:
     IfExpression(std::shared_ptr<Token> token) : token_(token) {
-      // empty
       alternative_ = nullptr;
     }
 
