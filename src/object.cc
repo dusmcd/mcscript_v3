@@ -1,4 +1,5 @@
 #include <object.h>
+#include <iostream>
 
 
 std::string Object::ObjectTypeStr(ObjectType type) {
@@ -78,11 +79,30 @@ Object* Push(std::vector<Object*> args) {
 }
 
 
+Object* Print(std::vector<Object*> args) {
+  for (size_t i = 0; i < args.size(); i++) {
+    Object* arg = args[i];
+    if (arg != nullptr) {
+      std::cout << arg->Inspect();
+    }
+
+    if (i < args.size() - 1) {
+      std::cout << " ";
+    }
+  }
+
+  std::cout << std::endl;
+
+  return nullptr;
+}
+
+
 
 std::unordered_map<std::string, BuiltIn*> GetBuiltIns() {
   std::unordered_map<std::string, BuiltIn*> result = {
     {"len", new BuiltIn(Length)},
-    {"push", new BuiltIn(Push)}
+    {"push", new BuiltIn(Push)},
+    {"print", new BuiltIn(Print)}
   };
 
   return result;

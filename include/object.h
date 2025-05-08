@@ -261,8 +261,23 @@ class Array : public Object {
 BUILT IN FUNCTIONS
 ===============================================
 */
+
+/*
+ * Finds the length of a string or an array
+ * returns an integer object
+ */
 Object* Length(std::vector<Object*> args);
+
+/*
+ * Adds an element to the end of an array
+ * returns null
+ */
 Object* Push(std::vector<Object*> args);  
+
+/*
+ * Print to stdout
+ */
+Object* Print(std::vector<Object*> args);
 
 std::unordered_map<std::string, BuiltIn*> GetBuiltIns();
 
