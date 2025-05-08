@@ -29,6 +29,7 @@ void ParserTest::Run() {
     TestArrayLiterals_();
     TestIndexExpressions_();
     TestAssignExpressions_();
+    TestForStatements_();
 
 }
 
@@ -204,6 +205,58 @@ bool ParserTest::TestInfixExpression_(
 /*
   main test methods
 */
+
+void ParserTest::TestForStatements_() {
+  std::string input = "for (var i = 0; i < 10; i = i + 1){ i; }";
+
+  auto l = std::make_shared<Lexer>(input);
+  auto p = std::make_shared<Parser>(l);
+  std::shared_ptr<Program> program = p->ParseProgram();
+  if (CheckParserErrors_(p)) {
+    return;
+  }
+
+  std::vector<std::shared_ptr<Statement>> stmts = program->GetStatements();
+
+  if (stmts.size() != 1) {
+    std::cerr << "program does not contain 1 statement. got=" << 
+      stmts.size() << "\n";
+    return;
+  }
+
+  auto forStmt = std::dynamic_pointer_cast<ForStatement>(stmts[0]);
+  if (forStmt == nullptr) {
+    std::cerr << "stmts[0] is not a ForStatement\n";
+    return;
+  }
+
+  Test test = {.literal = "i"};
+  if (!TestVarStatement_(forStmt->GetVarStmt(), test)) {
+    return;
+  }
+
+  if (!TestInfixExpression_(forStmt->GetCondition(), std::string("i"), std::string("<"), 10)) {
+    return;
+  }
+
+  auto assign = std::dynamic_pointer_cast<AssignExpression>(forStmt->GetAfterAction());
+  if (assign == nullptr) {
+    std::cerr << "after action not AssignExpression\n";
+    return;
+  }
+
+  if (!TestInfixExpression_(assign->GetNewVal(), std::string("i"), std::string("+"), 1)) {
+    return;
+  }
+
+  if (!TestBlockStatement_(forStmt->GetBlock(),  1, std::string("i"))) {
+    return;
+  }
+
+  std::cout << "TestForStatements_() passed\n";
+
+
+}
 
 void ParserTest::TestAssignExpressions_() {
   std::vector<std::string> tests = {"i = 10;", "i = i + 1"};

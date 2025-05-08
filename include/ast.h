@@ -344,6 +344,22 @@ class ForStatement : public Statement {
       return tok_->GetLiteral();
     }
 
+    inline std::shared_ptr<VarStatement> GetVarStmt() const {
+      return varStmt_;
+    }
+
+    inline std::shared_ptr<Expression> GetCondition() const {
+      return condition_;
+    }
+
+    inline std::shared_ptr<Expression> GetAfterAction() const {
+      return afterAction_;
+    }
+
+    inline std::shared_ptr<BlockStatement> GetBlock() const {
+      return block_;
+    }
+
     std::string String() const override;
 
   protected:

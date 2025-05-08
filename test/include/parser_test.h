@@ -82,6 +82,7 @@ class ParserTest {
     void TestStringLiteral_();
     void TestIndexExpressions_();
     void TestAssignExpressions_();
+    void TestForStatements_();
 
 };
 
