@@ -51,6 +51,7 @@ class Parser {
     std::shared_ptr<Statement> ParseStatement_();
     std::shared_ptr<VarStatement> ParseVarStatement_();
     std::shared_ptr<ReturnStatement> ParseReturnStatement_(); 
+    std::shared_ptr<ForStatement> ParseForStatement_();
     std::shared_ptr<ExpressionStatement> ParseExpressionStatement_();
     std::shared_ptr<Expression> ParseExpression_(Precedence pr);
     std::shared_ptr<Identifier> ParseIdentifier_();

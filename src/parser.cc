@@ -183,6 +183,9 @@ std::shared_ptr<Statement> Parser::ParseStatement_() {
       case TokenType::RETURN:
         stmt = ParseReturnStatement_();
         break;
+      case TokenType::FOR:
+        stmt = ParseForStatement_();
+        break;
       default:
         stmt = ParseExpressionStatement_();
     }
@@ -200,6 +203,46 @@ std::shared_ptr<ExpressionStatement> Parser::ParseExpressionStatement_() {
   }
 
   return stmt;
+}
+
+std::shared_ptr<ForStatement> Parser::ParseForStatement_() {
+  if (!ExpectPeek_(TokenType::LPAREN)) {
+    return nullptr;
+  }
+
+  if (!ExpectPeek_(TokenType::VAR)) {
+    return nullptr;
+  }
+
+  std::shared_ptr<VarStatement> varStmt = ParseVarStatement_();
+
+  if (!CurrTokenIs_(TokenType::SEMICOLON)) {
+    return nullptr;
+  }
+
+  NextToken_();
+
+  std::shared_ptr<Expression> condition = ParseExpression_(Precedence::LOWEST);
+
+  if (!ExpectPeek_(TokenType::SEMICOLON)) {
+    return nullptr;
+  }
+
+  NextToken_();
+
+  std::shared_ptr<Expression> afterAction = ParseExpression_(Precedence::LOWEST);
+  if (!ExpectPeek_(TokenType::RPAREN)) {
+    return nullptr;
+  }
+
+  if (!ExpectPeek_(TokenType::LBRACE)) {
+    return nullptr;
+  }
+
+  std::shared_ptr<BlockStatement> block = ParseBlockStatement_();
+  auto forStmt = std::make_shared<ForStatement>(curr_token_, varStmt, condition, afterAction, block);
+
+  return forStmt;
 }
 
 /*

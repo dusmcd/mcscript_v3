@@ -161,3 +161,20 @@ std::string AssignExpression::String() const {
 
   return result;
 }
+
+std::string ForStatement::String() const {
+  std::string result = "for(";
+  result.append(varStmt_->String());
+  result.append("; ");
+
+  result.append(condition_->String());
+  result.append("; ");
+
+  result.append(afterAction_->String());
+  result.append(") {\n");
+
+  result.append(block_->String());
+  result.append("\n}");
+
+  return result;
+}
