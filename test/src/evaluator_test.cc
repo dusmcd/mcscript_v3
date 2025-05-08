@@ -26,7 +26,8 @@ void EvaluatorTest::Run() {
   TestStrings_();
   TestStringConcat_();
   TestArrays_();
-  TestIndexExps_();
+  TestIndexEval_();
+  TestAssignEval_();
 }
 
 /*
@@ -71,8 +72,25 @@ Object* EvaluatorTest::TestEval_(std::string input) {
   main test methods
 */
 
+void EvaluatorTest::TestAssignEval_() {
+  std::vector<IntegerTest> tests = {
+    (IntegerTest){.input = "var x = 10; x = 11;", .expectedVal = 11},
+    (IntegerTest){.input = "var i = 1; i = i + 1", .expectedVal = 2}
+  };
 
-void EvaluatorTest::TestIndexExps_() {
+
+  for (const auto& test : tests) {
+    Object* obj = TestEval_(test.input);
+    if (!TestIntegerObject_(obj, test.expectedVal)) {
+      return;
+    }
+  }
+
+  evaluator_.FinalCleanup();
+  std::cout << "TestAssignEval_() passed\n";
+}
+
+void EvaluatorTest::TestIndexEval_() {
   std::vector<IntegerTest> tests = {
     (IntegerTest){.input = "var arr = [1, 2, 3]; arr[0]", .expectedVal = 1},
     (IntegerTest){.input = "var arr = [2, 3, 4]; arr[2];", .expectedVal = 4},
@@ -102,7 +120,7 @@ void EvaluatorTest::TestIndexExps_() {
   }
 
   evaluator_.FinalCleanup();
-  std::cout << "TestIndexExps_() passed\n";
+  std::cout << "TestIndexEval_() passed\n";
 }
 
 void EvaluatorTest::TestArrays_() {
@@ -179,7 +197,8 @@ void EvaluatorTest::TestGCollector_() {
     (CollectorTest){.input = "var a = 3; var b = 1 + 2 + a;", .before = 5, .after = 2},
     (CollectorTest){.input = "var add = function(a, b) { a + b; }; var sum = add(1, 2)", .before = 4, .after = 2},
     (CollectorTest){.input = "var str = \"something\"; var foobar = str + \"hello\";", .before = 3, .after = 2},
-    (CollectorTest){.input = "var arr = [1, 2, 3]", .before = 4, .after = 4}
+    (CollectorTest){.input = "var arr = [1, 2, 3]", .before = 4, .after = 4},
+    (CollectorTest){.input = "var x = 10 + 11; x = 20;", .before = 4, .after = 1}
   };
 
   for (const auto& test : tests) {
@@ -320,6 +339,10 @@ void EvaluatorTest::TestErrorMessages_() {
     (ErrorTest){
       .input = "\"Hello\" - \"Hello\"",
       .expectedVal = "unknown operator: STRING - STRING"
+    },
+    (ErrorTest){
+      .input = "3 = 3 + 10;",
+      .expectedVal = "3 not an identifier"
     }
   };
 

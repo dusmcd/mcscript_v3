@@ -67,7 +67,8 @@ class EvaluatorTest {
     void TestStrings_();
     void TestStringConcat_();
     void TestArrays_();
-    void TestIndexExps_();
+    void TestIndexEval_();
+    void TestAssignEval_();
 
     // helper methods
     Object* TestEval_(std::string input);
