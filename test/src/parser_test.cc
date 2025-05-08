@@ -28,6 +28,7 @@ void ParserTest::Run() {
     TestStringLiteral_();
     TestArrayLiterals_();
     TestIndexExpressions_();
+    TestAssignExpressions_();
 
 }
 
@@ -203,6 +204,57 @@ bool ParserTest::TestInfixExpression_(
 /*
   main test methods
 */
+
+void ParserTest::TestAssignExpressions_() {
+  std::vector<std::string> tests = {"i = 10;", "i = i + 1"};
+
+  for (size_t i = 0; i < tests.size(); i++) {
+    std::string test = tests[i];
+    auto l = std::make_shared<Lexer>(test);
+    auto p = std::make_shared<Parser>(l);
+    std::shared_ptr<Program> program = p->ParseProgram();
+
+    if (CheckParserErrors_(p)) {
+      return;
+    }
+
+    std::vector<std::shared_ptr<Statement>> stmts = program->GetStatements();
+
+    if (stmts.size() != 1) {
+      std::cerr << "stmts.size() does not equal 1. got="
+        << stmts.size() << "\n";
+      return;
+    }
+
+    auto es = std::dynamic_pointer_cast<ExpressionStatement>(stmts[0]);
+    if (es == nullptr) {
+      std::cerr << "stmts[0] is not ExpressionStatement\n";
+      return;
+    }
+
+    auto assign = std::dynamic_pointer_cast<AssignExpression>(es->GetExpression());
+    if (assign == nullptr) {
+      std::cerr << "es->GetExpression() is not AssignExpression\n";
+      return;
+    }
+
+    if (!TestLiteralExpression_(assign->GetIdent(), std::string("i"))) {
+      return;
+    }
+
+    if (i == 0) {
+      if (!TestLiteralExpression_(assign->GetNewVal(), 10)) {
+        return;
+      }
+    } else {
+      if (!TestInfixExpression_(assign->GetNewVal(), std::string("i"), std::string("+"), 1)) {
+        return;
+      }
+    }
+  }
+  std::cout << "TestAssignExpressions_() passed\n";
+
+}
 
 void ParserTest::TestIndexExpressions_() {
   std::vector<IndexTest> tests = {

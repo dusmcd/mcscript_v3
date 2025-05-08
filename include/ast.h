@@ -545,6 +545,14 @@ class AssignExpression : public Expression {
       newVal_ = newVal;
     }
 
+    inline std::shared_ptr<Expression> GetIdent() const {
+      return ident_;
+    }
+
+    inline std::shared_ptr<Expression> GetNewVal() const {
+      return newVal_;
+    }
+
     std::string String() const override;
 
   protected:

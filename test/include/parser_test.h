@@ -81,9 +81,9 @@ class ParserTest {
     void TestCallExpressions_();
     void TestStringLiteral_();
     void TestIndexExpressions_();
+    void TestAssignExpressions_();
 
 };
-
 
 
 #endif //MCSCRIPT_V3_TEST_PARSER_TEST_H
