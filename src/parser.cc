@@ -217,6 +217,10 @@ std::shared_ptr<ForStatement> Parser::ParseForStatement_() {
   std::shared_ptr<VarStatement> varStmt = ParseVarStatement_();
 
   if (!CurrTokenIs_(TokenType::SEMICOLON)) {
+    char buff[256];
+    snprintf(buff, sizeof(buff), "expected token to be %d, but got %d instead",
+        static_cast<int>(TokenType::SEMICOLON), static_cast<int>(curr_token_->GetType()));
+    errors_.push_back(std::string(buff));
     return nullptr;
   }
 

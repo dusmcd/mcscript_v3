@@ -52,11 +52,9 @@ int main() {
     
 
     Object* obj = evaluator->Eval(program, env);
-    if (obj != nullptr) {
-      std::cout << obj->Inspect();
-      std::cout << std::endl;
+    if (obj != nullptr && obj->Type() == ObjectType::ERROR_OBJ) {
+      std::cout << obj->Inspect() << "\n";
     }
-    
   }
 
   
