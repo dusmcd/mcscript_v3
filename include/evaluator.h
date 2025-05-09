@@ -89,6 +89,7 @@ class Evaluator {
     std::vector<Object*> EvalParameters_(std::shared_ptr<Environment<Object*>> env, std::vector<std::shared_ptr<Expression>> params);
     Object* EvalFunctionCall_(Object* function, std::vector<Object*> args, std::shared_ptr<Environment<Object*>> outerEnv);
 
+    Object* EvalForStatement_(std::shared_ptr<ForStatement> fs, std::shared_ptr<Environment<Object*>> env);
     Object* EvalBuiltInFuncCall_(BuiltIn* function, std::vector<Object*> args);
     Object* EvalIndexExpression_(std::shared_ptr<IndexExpression> exp, std::shared_ptr<Environment<Object*>> env);
 };

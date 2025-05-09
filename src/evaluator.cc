@@ -1,4 +1,5 @@
 #include "ast.h"
+#include "environment.h"
 #include <evaluator.h>
 #include <memory>
 #include <typeinfo>
@@ -59,6 +60,11 @@ Object* Evaluator::Eval(std::shared_ptr<::Node> node, std::shared_ptr<Environmen
     }
 
     return NewObject_(new ReturnValue(value));
+  }
+
+  else if (typeName.compare("ForStatement") == 0) {
+    auto fs = std::dynamic_pointer_cast<ForStatement>(node);
+    return EvalForStatement_(fs, env);
   }
 
   // evaluate expressions
@@ -389,7 +395,7 @@ Object* Evaluator::EvalBlockStatement_(std::shared_ptr<BlockStatement> block, st
       return returnValue;
     }
 
-    if (result->Type() == ObjectType::ERROR_OBJ) {
+    if (result != nullptr && result->Type() == ObjectType::ERROR_OBJ) {
       return result;
     }
   }
@@ -514,4 +520,29 @@ Object* Evaluator::AssignNewVal_(std::shared_ptr<AssignExpression> ae, Object* n
   env->Set(ident->GetValue(), newVal);
 
   return newVal;
+}
+
+Object* Evaluator::EvalForStatement_(std::shared_ptr<ForStatement> fs, std::shared_ptr<Environment<Object*>> outerEnv) {
+  std::string ident = fs->GetVarStmt()->GetName()->GetValue();   
+
+  std::shared_ptr<BlockStatement> block = fs->GetBlock();
+  std::shared_ptr<Expression> condition = fs->GetCondition();
+  std::shared_ptr<Expression> afterAction = fs->GetAfterAction();
+
+  auto env = std::make_shared<Environment<Object*>>(outerEnv);
+
+  Eval(fs->GetVarStmt(), env);
+
+  while (Eval(condition, env) == TRUE_) {
+    Eval(block, env);
+    Eval(afterAction, env);
+  }
+
+  std::unordered_map<std::string, Object*> store = env->GetStore();
+  for (const auto& pair : store) {
+    pair.second->SubtractRef();
+  }
+
+
+  return NULL_T_;
 }
