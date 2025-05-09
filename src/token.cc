@@ -18,3 +18,12 @@ Token::Token(TokenType type, char ch) {
 Token::Token(TokenType type, std::string literal) : type_(type), literal_(literal) {
   // empty
 }
+
+std::string Token::GetTokenString(TokenType type) {
+  size_t idx = static_cast<size_t>(type);
+  if (idx > tokenStrs.size() - 1) {
+    return "";
+  }
+
+  return tokenStrs[idx];
+}

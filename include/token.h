@@ -3,6 +3,7 @@
 
 #include <string>
 #include <unordered_map>
+#include <vector>
 
 enum class TokenType : int {
   // operators
@@ -47,6 +48,40 @@ enum class TokenType : int {
   IDENT
 };
 
+static const std::vector<std::string> tokenStrs = {
+  "ASSIGN",
+  "PLUS",
+  "MINUS",
+  "EQ",
+  "NOT_EQ",
+  "GT", // >
+  "LT", // <
+  "BANG", // !
+  "SLASH",
+  "ASTERISK",
+  "INT",
+  "STRING",
+  "LPAREN",
+  "RPAREN",
+  "LBRACE",
+  "RBRACE",
+  "LBRACKET",
+  "RBRACKET",
+  "COMMA",
+  "SEMICOLON",
+  "EOI",
+  "ILLEGAL",
+  "VAR",
+  "FUNCTION",
+  "FOR",
+  "IF",
+  "ELSE",
+  "RETURN",
+  "TRUE",
+  "FALSE",
+  "IDENT"
+};
+
 
 class Token {
   public:
@@ -60,6 +95,8 @@ class Token {
       return literal_;
     }
     static TokenType LookUpIdent(std::string literal);
+
+    static std::string GetTokenString(TokenType type);
 
   private:
     TokenType type_;

@@ -81,8 +81,10 @@ bool Parser::PeekTokenIs_(TokenType t) {
 
 void Parser::PeekError_(TokenType t) {
   char msg[256];
-  snprintf(msg, sizeof(msg), "expected next token to be %d, got %d instead", 
-            static_cast<int>(t), static_cast<int>(peek_token_->GetType()));
+  std::string expected = Token::GetTokenString(t);
+  std::string actual = Token::GetTokenString(curr_token_->GetType());
+  snprintf(msg, sizeof(msg), "expected next token to be %s, got %s instead", 
+            expected.c_str(), actual.c_str());
 
   std::string str(msg);
   errors_.push_back(msg);
@@ -218,8 +220,10 @@ std::shared_ptr<ForStatement> Parser::ParseForStatement_() {
 
   if (!CurrTokenIs_(TokenType::SEMICOLON)) {
     char buff[256];
-    snprintf(buff, sizeof(buff), "expected token to be %d, but got %d instead",
-        static_cast<int>(TokenType::SEMICOLON), static_cast<int>(curr_token_->GetType()));
+    std::string expected = Token::GetTokenString(TokenType::SEMICOLON);
+    std::string actual = Token::GetTokenString(curr_token_->GetType());
+    snprintf(buff, sizeof(buff), "expected token to be %s, but got %s instead",
+        expected.c_str(), actual.c_str());
     errors_.push_back(std::string(buff));
     return nullptr;
   }
@@ -469,8 +473,9 @@ prefixParseFn Parser::GetParseGroupedExprFn_() {
 std::shared_ptr<Expression> Parser::ParseExpression_(Precedence pr) {
   if (prefixParseFns_.count(curr_token_->GetType()) < 1) {
     char buff[256];
-    snprintf(buff, sizeof(buff), "no parser function for type %d",
-           static_cast<int>(curr_token_->GetType()));
+    std::string currentToken = Token::GetTokenString(curr_token_->GetType());
+    snprintf(buff, sizeof(buff), "no parser function for type %s",
+           currentToken.c_str());
     std::string msg(buff);
     errors_.push_back(msg);
     return nullptr;
