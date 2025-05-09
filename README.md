@@ -19,10 +19,23 @@
   ```
 - Variables are dynamically typed
 
+**Loops**
+- For loops function the same way as all C-style languages
+- Locally scoped
+- They are not expressions, i.e., they do not return a value and cannot be passed around
+    like functions
+```
+for (var i = 0; i < 3; i = i + 1) {
+    print(i);
+}
+```
+
 **Types**
 - Integers
 - Boolean (true and false)
 - Strings (e.g., "Hello", "Foo bar")
+- Arrays (e.g., `[1, 2, 3], [1, "Hello", true, function(a, b) { a + b }]`)
+    - Arrays can be bound to variables
 
 **Control Flow**
 ```
@@ -52,6 +65,12 @@ if (true) {
   var addTwo = newAdder(2);
   addTwo(5);
 ```
+
+**Built-in Functions**
+- print: can print any expression
+- len: returns the length of a string or an array
+- push: accepts an array and any expression as arguments;
+    it will add the second argument to the end of the array
 
 **Currently Supported Operators**
 - Infix operators:
