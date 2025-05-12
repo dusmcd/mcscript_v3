@@ -1,9 +1,21 @@
+#include "environment.h"
 #include <lexer.h>
+#include <memory>
 #include <parser.h>
 #include <evaluator.h>
 #include <iostream>
 #include <string>
 #include <unordered_map>
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+
+
+struct FileData {
+  char* sourceCode;
+  size_t fileSize;
+};
 
 void PrintParserErrors(std::vector<std::string> errs) {
   for (const std::string& err : errs) {
@@ -23,10 +35,34 @@ std::shared_ptr<Evaluator> NewEval() {
   return evaluator;
 }
 
-int main() {
-  auto env = std::make_shared<Environment<Object*>>();
-  std::shared_ptr<Evaluator> evaluator = NewEval();
+FileData ReadFile(char* fileName) {
+  int fd = open(fileName, O_RDONLY);
+  if (fd == -1) {
+    std::cerr << "file open error\n";
+    return (FileData){.sourceCode = nullptr, .fileSize = 0};
+  }
 
+  struct stat sb;
+  if (fstat(fd, &sb) == -1) {
+    std::cerr << "could not get file size\n";
+    return (FileData){.sourceCode = nullptr, .fileSize = 0};
+  }
+
+  size_t fileSize = sb.st_size;
+
+  // MEMORY MAPPING FILE
+  char* mapped = static_cast<char*>(mmap(nullptr, fileSize, PROT_READ, MAP_PRIVATE, fd, 0));
+
+  // CLOSING FILE
+  if (close(fd) == -1) {
+    std::cerr << "error closing file\n";
+    return (FileData){.sourceCode = nullptr, .fileSize = 0};
+  }
+
+  return (FileData){.sourceCode = mapped, .fileSize = fileSize};
+}
+
+void RunRepl(std::shared_ptr<Evaluator> evaluator, std::shared_ptr<Environment<Object*>> env) {
   std::cout << "McScript v3.0 Programming Language\n";
   std::cout << "Enter commands: (type 'exit' to terminate)\n";
 
@@ -57,7 +93,28 @@ int main() {
     }
   }
 
-  
+}
+
+int main(int argc, char** argv) {
+  auto env = std::make_shared<Environment<Object*>>();
+  std::shared_ptr<Evaluator> evaluator = NewEval();
+
+  if (argc == 1) {
+    RunRepl(evaluator, env);
+  }
+
+  else if (argc > 2) {
+    std::cerr << "ERROR: too many arguments\n";
+    return -1;
+  }
+  else {
+    FileData fileData = ReadFile(argv[1]);
+    if (munmap(fileData.sourceCode, fileData.fileSize) == -1) {
+      std::cerr << "error unmapping file\n";
+      return -1;
+    }
+  }
+
   evaluator->FinalCleanup();
   return 0;
 }
