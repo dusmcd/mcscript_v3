@@ -380,6 +380,9 @@ Object* Evaluator::EvalProgram_(std::shared_ptr<Program> program, std::shared_pt
     if (result->Type() == ObjectType::ERROR_OBJ) {
       return result;
     }
+    if (!testing_ && GetNumObjects() > 10) {
+      CollectGarbage();
+    }
   }
 
   return result;

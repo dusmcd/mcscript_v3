@@ -84,7 +84,7 @@ int main() {
   Null* NULL_T = new Null();
   std::unordered_map<std::string, BuiltIn*> builtInFuncs = GetBuiltIns();
 
-  Evaluator evaluator(gCollector, TRUE, FALSE, NULL_T, builtInFuncs);
+  Evaluator evaluator(gCollector, TRUE, FALSE, NULL_T, builtInFuncs, true);
 
   BuiltInTest test(evaluator);
 

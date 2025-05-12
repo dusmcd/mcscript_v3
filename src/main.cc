@@ -67,9 +67,6 @@ void RunRepl(std::shared_ptr<Evaluator> evaluator, std::shared_ptr<Environment<O
   std::cout << "Enter commands: (type 'exit' to terminate)\n";
 
   while (true) {
-    if (evaluator->GetNumObjects() > 10) {
-      evaluator->CollectGarbage();
-    }
     std::cout << ">> ";
     std::string input;
     std::getline(std::cin, input);

@@ -15,8 +15,9 @@ class Evaluator {
        Boolean* TRUE,
        Boolean* FALSE,
        Null* NULL_T,
-       std::unordered_map<std::string, BuiltIn*> builtInFuncs)
-     : gCollector_(gCollector), TRUE_(TRUE), FALSE_(FALSE), NULL_T_(NULL_T) {
+       std::unordered_map<std::string, BuiltIn*> builtInFuncs,
+       bool testing = false)
+     : gCollector_(gCollector), TRUE_(TRUE), FALSE_(FALSE), NULL_T_(NULL_T), testing_(testing) {
       builtInFuncs_ = builtInFuncs;
     }
 
@@ -60,6 +61,7 @@ class Evaluator {
     Boolean* FALSE_;
     Null* NULL_T_;
     std::unordered_map<std::string, BuiltIn*> builtInFuncs_;
+    bool testing_;
 
     // methods
     

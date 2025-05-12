@@ -2,8 +2,8 @@
 
 **How to use**
 - In the home directory, run `make main`
-- Run the executable at `bin/main`
-- This will open a REPL where you can start typing commands (see below for syntax)
+- Run the executable at `bin/main <optional: source file>`
+- If no source file is provided, this will open a REPL where you can start typing commands (see below for syntax)
 
 **Testing**
 - In the home directory, run `make test`
