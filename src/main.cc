@@ -113,6 +113,15 @@ int main(int argc, char** argv) {
       return 1;
     }
 
+    auto l = std::make_shared<Lexer>(fileData.sourceCode);
+    auto p = std::make_shared<Parser>(l);
+    std::shared_ptr<Program> program = p->ParseProgram();
+
+    Object* obj = evaluator->Eval(program, env);
+    if (obj != nullptr && obj->Type() == ObjectType::ERROR_OBJ) {
+      std::cerr << obj->Inspect() << "\n";
+    }
+
     if (munmap(fileData.sourceCode, fileData.fileSize) == -1) {
       std::cerr << "error unmapping file\n";
       return 2;
