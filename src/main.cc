@@ -78,7 +78,7 @@ void RunRepl(std::shared_ptr<Evaluator> evaluator, std::shared_ptr<Environment<O
       break;
     }
 
-    auto l = std::make_shared<Lexer>(input);
+    auto l = std::make_shared<Lexer>(input.c_str());
     auto p = std::make_shared<Parser>(l);
     std::shared_ptr<Program> program = p->ParseProgram();
 
@@ -109,9 +109,13 @@ int main(int argc, char** argv) {
   }
   else {
     FileData fileData = ReadFile(argv[1]);
+    if (fileData.sourceCode == nullptr) {
+      return 1;
+    }
+
     if (munmap(fileData.sourceCode, fileData.fileSize) == -1) {
       std::cerr << "error unmapping file\n";
-      return -1;
+      return 2;
     }
   }
 

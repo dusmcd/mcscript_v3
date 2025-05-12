@@ -1,7 +1,8 @@
 #include <lexer.h>
 #include <memory>
+#include <string.h>
 
-Lexer::Lexer(std::string input) {
+Lexer::Lexer(const char* input) {
     
   input_ = input;
   position_ = -1;
@@ -10,7 +11,7 @@ Lexer::Lexer(std::string input) {
 }
 
 void Lexer::ReadChar_() {
-  int size = input_.size();
+  int size = strlen(input_);
   if (position_ >= size) {
     ch_ = 0;
   }

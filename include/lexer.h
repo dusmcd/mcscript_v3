@@ -7,7 +7,7 @@
 
 class Lexer {
   public:
-    Lexer(std::string input);
+    Lexer(const char* input);
     std::shared_ptr<Token> NextToken();
 
   private:
@@ -20,7 +20,7 @@ class Lexer {
     std::string ReadNumber_();
     void SkipWhiteSpace_();
     char ch_; // the current character being examined
-    std::string input_; // source code
+    const char* input_; // source code
     int position_; // points to the current char in input
     int reader_position_; // points to the next char in input
     

@@ -28,7 +28,7 @@ void BuiltInTest::TestPush_() {
 }
 
 Object* BuiltInTest::TestEval_(std::string input) {
-  auto l = std::make_shared<Lexer>(input);
+  auto l = std::make_shared<Lexer>(input.c_str());
   auto p = std::make_shared<Parser>(l);
   std::shared_ptr<Program> program = p->ParseProgram();
 
